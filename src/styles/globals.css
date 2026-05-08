@@ -4,9 +4,11 @@
 
 :root {
   color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, ui-sans-serif, system-ui, sans-serif;
   background: #071812;
   color: #fff7e6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -37,7 +39,7 @@ select {
 
 .theme-poker {
   background:
-    radial-gradient(circle at 50% 10%, rgba(247, 211, 137, 0.1), transparent 28rem),
+    radial-gradient(circle at 50% 10%, rgba(247, 211, 137, 0.10), transparent 28rem),
     linear-gradient(145deg, #0d4a36, #071812 72%);
 }
 
@@ -68,10 +70,13 @@ select {
 }
 
 .glass-panel {
-  border: 1px solid rgba(255, 247, 230, 0.12);
-  background: rgba(5, 15, 12, 0.56);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 247, 230, 0.10);
+  background: rgba(6, 18, 14, 0.72);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 247, 230, 0.07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 .tap-target {

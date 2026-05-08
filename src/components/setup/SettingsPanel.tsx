@@ -7,7 +7,7 @@ export function SettingsPanel({
   themePreference,
   onBusMode,
   onAnimationSpeed,
-  onTheme
+  onTheme,
 }: {
   busMode: BusMode;
   animationSpeed: AnimationSpeed;
@@ -17,27 +17,43 @@ export function SettingsPanel({
   onTheme: (theme: ThemePreference) => void;
 }) {
   return (
-    <div className="space-y-5 text-sm">
+    <div className="space-y-6 pb-2 text-sm">
       <fieldset>
-        <legend className="mb-2 font-semibold text-[#f5d99b]">The Bus</legend>
-        <div className="grid grid-cols-2 gap-2">
-          <Segment active={busMode === 'singleDeck'} onClick={() => onBusMode('singleDeck')} label="Single deck" />
-          <Segment active={busMode === 'endless'} onClick={() => onBusMode('endless')} label="Endless" />
-        </div>
+        <legend className="mb-2.5 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+          The Bus
+        </legend>
+        <SegmentControl
+          options={[
+            { value: 'singleDeck', label: 'Single Deck' },
+            { value: 'endless', label: 'Endless' },
+          ]}
+          value={busMode}
+          onChange={(v) => onBusMode(v as BusMode)}
+        />
       </fieldset>
+
       <fieldset>
-        <legend className="mb-2 font-semibold text-[#f5d99b]">Animation</legend>
-        <div className="grid grid-cols-2 gap-2">
-          <Segment active={animationSpeed === 'normal'} onClick={() => onAnimationSpeed('normal')} label="Normal" />
-          <Segment active={animationSpeed === 'fast'} onClick={() => onAnimationSpeed('fast')} label="Fast" />
-        </div>
+        <legend className="mb-2.5 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+          Animation Speed
+        </legend>
+        <SegmentControl
+          options={[
+            { value: 'normal', label: 'Normal' },
+            { value: 'fast', label: 'Fast' },
+          ]}
+          value={animationSpeed}
+          onChange={(v) => onAnimationSpeed(v as AnimationSpeed)}
+        />
       </fieldset>
+
       <label className="block">
-        <span className="mb-2 block font-semibold text-[#f5d99b]">Theme</span>
+        <span className="mb-2.5 block text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+          Theme
+        </span>
         <select
-          className="tap-target w-full rounded-lg bg-white/[0.1] px-3 text-[#fff7e6] ring-1 ring-white/10"
+          className="tap-target w-full rounded-xl bg-white/[0.09] px-4 text-sm font-semibold text-[#fff7e6] ring-1 ring-white/[0.09]"
           value={themePreference}
-          onChange={(event) => onTheme(event.target.value as ThemePreference)}
+          onChange={(e) => onTheme(e.target.value as ThemePreference)}
         >
           <option value="random">Random each game</option>
           {themes.map((theme) => (
@@ -47,23 +63,42 @@ export function SettingsPanel({
           ))}
         </select>
       </label>
-      <div className="rounded-lg bg-white/[0.07] p-3 text-[#fff7e6]/70">
-        Add to Home Screen from Safari share options. The app works offline after the first load.
+
+      <div className="rounded-xl bg-white/[0.06] p-3.5 leading-relaxed text-[#fff7e6]/55">
+        Add to Home Screen from Safari's share menu. The app works fully offline after the first load.
       </div>
     </div>
   );
 }
 
-function Segment({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+function SegmentControl({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`tap-target rounded-lg px-3 text-sm font-semibold ring-1 transition ${
-        active ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b]' : 'bg-white/[0.08] text-[#fff7e6]/76 ring-white/10'
-      }`}
+    <div
+      className="grid gap-2"
+      style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}
     >
-      {label}
-    </button>
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={`tap-target rounded-xl text-sm font-bold ring-1 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.97] ${
+            option.value === value
+              ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
+              : 'bg-white/[0.07] text-[#fff7e6]/70 ring-white/[0.08] active:bg-white/[0.14]'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   );
 }

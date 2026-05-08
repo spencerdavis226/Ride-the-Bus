@@ -1,43 +1,50 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '../common/Button';
 
 export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (names: string[]) => void }) {
   const updateName = (index: number, value: string) => {
-    onChange(names.map((name, candidateIndex) => (candidateIndex === index ? value : name)));
+    onChange(names.map((name, i) => (i === index ? value : name)));
   };
   const addPlayer = () => onChange([...names, `Player ${names.length + 1}`]);
   const removePlayer = (index: number) => {
     if (names.length <= 2) return;
-    onChange(names.filter((_, candidateIndex) => candidateIndex !== index));
+    onChange(names.filter((_, i) => i !== index));
   };
 
   return (
-    <div className="min-w-0 space-y-3 pb-1">
+    <div className="space-y-2">
       {names.map((name, index) => (
-        <label key={index} className="flex min-w-0 items-center gap-2 rounded-lg bg-white/[0.08] p-2 ring-1 ring-white/10">
-          <span className="w-8 shrink-0 text-center text-sm text-[#f5d99b]/75">{index + 1}</span>
+        <label
+          key={index}
+          className="flex min-w-0 items-center gap-3 rounded-xl bg-white/[0.07] px-3 py-0.5 ring-1 ring-white/[0.07] transition-[box-shadow] duration-150 focus-within:ring-[#f5d99b]/50"
+        >
+          <span className="w-6 shrink-0 text-center text-sm font-black text-[#f5d99b]/55">
+            {index + 1}
+          </span>
           <input
             value={name}
-            onChange={(event) => updateName(index, event.target.value)}
-            className="min-h-11 min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:text-white/35"
+            onChange={(e) => updateName(index, e.target.value)}
+            className="min-h-[48px] min-w-0 flex-1 bg-transparent text-[0.95rem] font-semibold text-[#fff7e6] outline-none placeholder:text-white/28"
             placeholder={`Player ${index + 1}`}
           />
           <button
             aria-label={`Remove ${name || `Player ${index + 1}`}`}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-md text-white/60 disabled:opacity-25"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white/45 transition-[transform,color] duration-100 active:scale-90 active:text-white/80 disabled:opacity-25"
             disabled={names.length <= 2}
             onClick={() => removePlayer(index)}
             type="button"
           >
-            <Trash2 size={18} />
+            <Trash2 size={16} />
           </button>
         </label>
       ))}
-      <Button variant="secondary" onClick={addPlayer} className="w-full">
-        <span className="inline-flex items-center justify-center gap-2">
-          <Plus size={18} /> Add Player
-        </span>
-      </Button>
+      <button
+        type="button"
+        onClick={addPlayer}
+        className="tap-target flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.07] text-sm font-semibold text-[#f5d99b]/80 ring-1 ring-white/[0.07] transition-[transform,background-color] duration-100 active:scale-[0.98] active:bg-white/[0.12]"
+      >
+        <Plus size={16} />
+        Add Player
+      </button>
     </div>
   );
 }

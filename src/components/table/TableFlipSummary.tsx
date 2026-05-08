@@ -2,21 +2,29 @@ import type { DrinkAssignment } from '../../game/state';
 
 export function TableFlipSummary({ assignments }: { assignments: DrinkAssignment[] }) {
   if (!assignments.length) {
-    return <div className="rounded-xl bg-white/[0.08] p-4 text-sm text-[#fff7e6]/68">No matches on this flip.</div>;
+    return (
+      <div className="rounded-2xl bg-white/[0.06] px-4 py-3.5 text-sm text-[#fff7e6]/50">
+        No matches on this flip.
+      </div>
+    );
   }
-  const grouped = assignments.reduce<Record<string, { name: string; units: number }>>((acc, assignment) => {
-    acc[assignment.playerId] = acc[assignment.playerId] ?? { name: assignment.playerName, units: 0 };
-    acc[assignment.playerId].units += assignment.units;
+
+  const grouped = assignments.reduce<Record<string, { name: string; units: number }>>((acc, a) => {
+    acc[a.playerId] = acc[a.playerId] ?? { name: a.playerName, units: 0 };
+    acc[a.playerId].units += a.units;
     return acc;
   }, {});
+
   return (
-    <div className="rounded-xl bg-white/[0.08] p-4">
-      <p className="mb-2 text-xs uppercase tracking-[0.18em] text-[#f5d99b]/70">Assignments</p>
+    <div className="rounded-2xl bg-[#f5d99b]/[0.09] px-4 py-3.5 ring-1 ring-[#f5d99b]/20">
+      <p className="mb-2.5 text-[0.60rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+        Match
+      </p>
       <div className="space-y-2">
         {Object.entries(grouped).map(([playerId, summary]) => (
           <div key={playerId} className="flex items-center justify-between">
-            <span className="font-semibold text-[#fff7e6]">{summary.name}</span>
-            <span className="text-[#fff7e6]/72">Give {summary.units}</span>
+            <span className="font-bold text-[#fff7e6]">{summary.name}</span>
+            <span className="text-sm font-semibold text-[#fff7e6]/70">Give {summary.units}</span>
           </div>
         ))}
       </div>

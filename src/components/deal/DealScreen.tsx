@@ -1,10 +1,11 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, History, House } from 'lucide-react';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
 import { dealSubphaseLabels, type DealSubphase } from '../../game/phases';
 import type { BusGuess } from '../../game/rules';
-import type { CardBackId, Player } from '../../game/state';
+import type { Player } from '../../game/state';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
@@ -29,40 +30,138 @@ export function DealScreen() {
   const options = getGuessOptions(state.deal.subphase);
 
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.14),inset_0_24px_80px_rgba(245,217,155,0.08)]">
-      <div className="grid shrink-0 grid-cols-[minmax(0,1fr)_clamp(8.5rem,34vw,24rem)] gap-1 overflow-hidden">
-        <TurnRail players={state.players} activePlayerId={player.id} />
-        <ActionPanel
-          assignmentLabel={state.deal.lastAssignment?.label}
-          awaitingContinue={awaitingContinue}
-          card={latestCard}
-          onHome={() => setQuitOpen(true)}
-          onLog={() => setLogOpen(true)}
-          onRules={() => setRulesOpen(true)}
-          onContinue={() => dispatch({ type: 'DEAL_CONTINUE' })}
-          onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })}
-          options={options}
-          playerName={player.name}
-        />
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-hidden rounded-[1.1rem] bg-[radial-gradient(circle_at_50%_42%,rgba(19,118,82,0.78),rgba(3,28,19,0.96)_62%,rgba(0,0,0,0.36))] p-[clamp(0.45rem,1.5vw,0.75rem)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.08)]">
-        <div className="flex h-full min-h-0 flex-col gap-[clamp(0.35rem,1.2dvh,0.65rem)]">
-          <StageHeader
-            cardBackId={state.cardBackId}
-            player={player}
-            shoeCount={state.shoe.length}
-            subphase={state.deal.subphase}
-          />
-
-          <ActiveHand cards={player.hand} highlightedCardId={latestCard?.id} />
-
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_24px_80px_rgba(245,217,155,0.06)]">
+      {/* Slim navigation bar */}
+      <div className="flex shrink-0 items-center gap-2 px-3 pb-1 pt-2.5">
+        <IconButton label="Home" onClick={() => setQuitOpen(true)} className="h-9 w-9 shrink-0">
+          <House size={17} />
+        </IconButton>
+        <p className="flex-1 text-center text-[0.72rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/80">
+          {dealSubphaseLabels[state.deal.subphase]}
+        </p>
+        <div className="flex shrink-0 gap-1.5">
+          <IconButton label="Rules" onClick={() => setRulesOpen(true)} className="h-9 w-9">
+            <BookOpen size={16} />
+          </IconButton>
+          <IconButton label="Game log" onClick={() => setLogOpen(true)} className="h-9 w-9">
+            <History size={16} />
+          </IconButton>
         </div>
       </div>
+
+      {/* Player turn rail */}
+      <TurnRail players={state.players} activePlayerId={player.id} />
+
+      {/* Main game area — green felt */}
+      <div className="mx-2 mb-0 mt-1.5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_35%,rgba(22,130,90,0.80)_0%,rgba(3,30,20,0.97)_65%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.09),inset_0_1px_0_rgba(245,217,155,0.08)]">
+        <div className="flex h-full min-h-0 flex-col gap-3 p-4">
+          {/* Player name + deck badge */}
+          <div className="flex shrink-0 items-start justify-between gap-3">
+            <h2 className="min-w-0 truncate text-[clamp(2.2rem,9vw,3.5rem)] font-black leading-[0.9] tracking-tight text-[#fff7e6]">
+              {player.name}
+            </h2>
+            <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-black/30 px-2 py-1.5 ring-1 ring-white/[0.09]">
+              <CardBack id={state.cardBackId} size="compact" />
+              <div className="text-center leading-none">
+                <div className="text-xl font-black text-[#fff7e6]">{state.shoe.length}</div>
+                <div className="mt-0.5 text-[8px] font-black uppercase tracking-[0.16em] text-[#fff7e6]/40">deck</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Center — hand or flip result */}
+          <div className="min-h-0 flex-1">
+            <AnimatePresence mode="wait">
+              {awaitingContinue ? (
+                <motion.div
+                  key="result"
+                  className="flex h-full flex-col items-center justify-center gap-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {latestCard && (
+                    <motion.div
+                      initial={{ scale: 0.80, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+                    >
+                      <PlayingCard card={latestCard} size="hero" highlighted />
+                    </motion.div>
+                  )}
+                  {state.deal.lastAssignment && (
+                    <motion.div
+                      className="w-full"
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.18, duration: 0.22 }}
+                    >
+                      <div className="rounded-2xl bg-[#f5d99b] px-5 py-3 text-center shadow-glow">
+                        <p className="text-[clamp(1.1rem,4.8vw,1.4rem)] font-black leading-tight text-[#142019]">
+                          {state.deal.lastAssignment.label}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="hand"
+                  className="h-full"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <ActiveHand cards={player.hand} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom action zone */}
+      <div className="shrink-0 px-2 pb-3 pt-2">
+        <AnimatePresence mode="wait">
+          {awaitingContinue ? (
+            <motion.div
+              key="next-btn"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Button
+                className="w-full text-base"
+                style={{ minHeight: '58px' }}
+                onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}
+              >
+                Next
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="guess-btns"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <GuessPicker
+                options={options}
+                onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/82">
+          <p className="text-sm leading-6 text-[#fff7e6]/72">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -76,7 +175,7 @@ export function DealScreen() {
         </div>
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/82">
+        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
           <p>Deal uses Red/Black, Higher/Lower/Same, Inside/Outside/Same, then Suit. Use Give and Take units.</p>
           <p>The Table flips eleven cards. Matching ranks from player hands autoplay and give the row value.</p>
           <p>The riders with the most cards left ride together. The Bus starts from a fresh single deck.</p>
@@ -89,19 +188,19 @@ export function DealScreen() {
 
 function TurnRail({ activePlayerId, players }: { activePlayerId: string; players: Player[] }) {
   return (
-    <div className="flex shrink-0 snap-x gap-2 overflow-x-auto bg-black/12 p-1">
+    <div className="flex shrink-0 snap-x gap-2 overflow-x-auto px-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {players.map((candidate) => {
         const active = candidate.id === activePlayerId;
         return (
           <div
             key={candidate.id}
-            className={`min-w-[clamp(6.25rem,28vw,7.5rem)] snap-start rounded-2xl px-2 py-[clamp(0.35rem,1dvh,0.5rem)] text-center ring-1 ${
+            className={`min-w-[clamp(5.5rem,26vw,7.5rem)] shrink-0 snap-start rounded-xl px-2.5 py-2 text-center ring-1 transition-colors duration-200 ${
               active
-                ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b]'
-                : 'bg-black/20 text-[#fff7e6]/65 ring-white/10'
+                ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
+                : 'bg-black/28 text-[#fff7e6]/58 ring-white/[0.07]'
             }`}
           >
-            <div className="truncate text-sm font-bold">{candidate.name}</div>
+            <div className="truncate text-[0.72rem] font-bold leading-snug">{candidate.name}</div>
             <MiniHand cards={candidate.hand} active={active} />
           </div>
         );
@@ -110,69 +209,22 @@ function TurnRail({ activePlayerId, players }: { activePlayerId: string; players
   );
 }
 
-function ActionPanel({
-  assignmentLabel,
-  awaitingContinue,
-  card,
-  className = '',
-  onContinue,
-  onGuess,
-  onHome,
-  onLog,
-  onRules,
-  options,
-  playerName
-}: {
-  assignmentLabel?: string;
-  awaitingContinue: boolean;
-  card: Card | null;
-  className?: string;
-  onContinue: () => void;
-  onGuess: (guess: BusGuess) => void;
-  onHome: () => void;
-  onLog: () => void;
-  onRules: () => void;
-  options: GuessOption[];
-  playerName: string;
-}) {
-  return (
-    <div className={`grid min-h-0 gap-2 rounded-2xl bg-black/16 p-2 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)] ${className}`}>
-      <div className="grid grid-cols-3 gap-1">
-        <IconButton label="Home" className="h-10 w-full rounded-xl" onClick={onHome}>
-          <House size={18} />
-        </IconButton>
-        <IconButton label="Rules" className="h-10 w-full rounded-xl" onClick={onRules}>
-          <BookOpen size={18} />
-        </IconButton>
-        <IconButton label="Game log" className="h-10 w-full rounded-xl" onClick={onLog}>
-          <History size={18} />
-        </IconButton>
-      </div>
-      <ResultPanel assignmentLabel={assignmentLabel} awaitingContinue={awaitingContinue} card={card} playerName={playerName} />
-      {awaitingContinue ? (
-        <Button className="min-h-12 text-base" onClick={onContinue}>
-          Next
-        </Button>
-      ) : (
-        <GuessPicker options={options} onGuess={onGuess} />
-      )}
-    </div>
-  );
-}
-
 function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
-  if (!cards.length) {
-    return <div className="mt-0.5 text-xs font-semibold opacity-70">0/4</div>;
-  }
-
   return (
-    <div className="mt-1 flex min-h-5 items-center justify-center gap-0.5">
-      {cards.map((card) => (
-        <MiniCard key={card.id} active={active} card={card} />
-      ))}
-      {Array.from({ length: Math.max(0, 4 - cards.length) }, (_, index) => (
-        <span key={index} className={`h-5 w-3 rounded-sm border ${active ? 'border-[#142019]/20' : 'border-white/10'}`} />
-      ))}
+    <div className="mt-1 flex justify-center gap-[3px]">
+      {Array.from({ length: 4 }, (_, index) => {
+        const card = cards[index];
+        return card ? (
+          <MiniCard key={card.id} active={active} card={card} />
+        ) : (
+          <span
+            key={index}
+            className={`h-[1.1rem] w-[0.75rem] rounded-[3px] border ${
+              active ? 'border-[#142019]/22' : 'border-white/[0.12]'
+            }`}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -181,63 +233,36 @@ function MiniCard({ active, card }: { active: boolean; card: Card }) {
   const red = card.color === 'red';
   return (
     <span
-      className={`grid h-6 w-5 place-items-center rounded-sm border text-[10px] font-black leading-none ${
-        active
-          ? 'border-[#142019]/20 bg-white/70'
-          : 'border-black/20 bg-[#fbf2d9]'
+      className={`grid h-[1.1rem] w-[0.75rem] place-items-center rounded-[3px] border text-[0.52rem] font-black leading-none ${
+        active ? 'border-[#142019]/18 bg-white/70' : 'border-black/18 bg-[#fbf2d9]'
       } ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
       title={`${card.rank} ${card.suit}`}
     >
-      <span>{card.rank}</span>
-      <span className="-mt-1">{suitGlyphs[card.suit]}</span>
+      {suitGlyphs[card.suit]}
     </span>
   );
 }
 
-function StageHeader({
-  cardBackId,
-  player,
-  shoeCount,
-  subphase
-}: {
-  cardBackId: CardBackId;
-  player: Player;
-  shoeCount: number;
-  subphase: DealSubphase;
-}) {
+function ActiveHand({ cards }: { cards: Card[] }) {
   return (
-    <div className="flex shrink-0 items-start justify-between gap-3">
-      <div className="min-w-0">
-        <p className="text-[clamp(0.75rem,2.8vw,0.9rem)] font-black uppercase tracking-[0.16em] text-[#f5d99b]">{dealSubphaseLabels[subphase]}</p>
-        <h2 className="mt-0.5 truncate text-[clamp(2rem,8vw,3.2rem)] font-black leading-none text-[#fff7e6] landscape:text-[clamp(1.8rem,5vw,3rem)]">{player.name}</h2>
-      </div>
-      <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-black/20 p-1.5 ring-1 ring-white/10 landscape:hidden">
-        <CardBack id={cardBackId} size="compact" />
-        <div className="text-center">
-          <div className="text-lg font-black text-[#fff7e6]">{shoeCount}</div>
-          <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#fff7e6]/45">deck</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ActiveHand({ cards, highlightedCardId }: { cards: Card[]; highlightedCardId?: string | null }) {
-  return (
-    <div className="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] rounded-[1.25rem] bg-black/16 p-3 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)]">
+    <div className="flex h-full flex-col rounded-[1.1rem] bg-black/[0.18] p-3 ring-1 ring-white/[0.06]">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-xs font-black uppercase tracking-[0.16em] text-[#f5d99b]/78">hand</div>
-        <div className="rounded-full bg-black/24 px-3 py-1 text-sm font-black text-[#fff7e6]">{cards.length}/4</div>
+        <span className="text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/60">
+          Hand
+        </span>
+        <span className="rounded-full bg-black/30 px-2.5 py-0.5 text-[0.68rem] font-black text-[#fff7e6]/75">
+          {cards.length}/4
+        </span>
       </div>
-      <div className="grid min-h-0 grid-cols-4 items-center gap-2">
+      <div className="grid min-h-0 flex-1 grid-cols-4 items-center gap-2">
         {Array.from({ length: 4 }, (_, index) => {
           const card = cards[index];
           return (
-            <div key={card?.id ?? `active-empty-${index}`} className="grid h-full min-h-0 min-w-0 w-full place-items-center">
+            <div key={card?.id ?? `slot-${index}`} className="grid h-full min-h-0 w-full place-items-center">
               {card ? (
-                <PlayingCard card={card} highlighted={card.id === highlightedCardId} size="hand" />
+                <PlayingCard card={card} size="hand" />
               ) : (
-                <div className="grid aspect-[5/7] h-full max-h-[9rem] w-auto max-w-full place-items-center rounded-lg border border-dashed border-[#f5d99b]/20 bg-white/[0.035] text-sm font-black text-[#fff7e6]/24">
+                <div className="grid aspect-[5/7] h-full max-h-[8.5rem] w-auto max-w-full place-items-center rounded-lg border border-dashed border-[#f5d99b]/16 bg-white/[0.025] text-base font-black text-[#fff7e6]/18">
                   {index + 1}
                 </div>
               )}
@@ -249,38 +274,27 @@ function ActiveHand({ cards, highlightedCardId }: { cards: Card[]; highlightedCa
   );
 }
 
-function ResultPanel({
-  assignmentLabel,
-  awaitingContinue,
-  card,
-  playerName
+function GuessPicker({
+  className = '',
+  onGuess,
+  options,
 }: {
-  assignmentLabel?: string;
-  awaitingContinue: boolean;
-  card: Card | null;
-  playerName: string;
+  className?: string;
+  onGuess: (guess: BusGuess) => void;
+  options: GuessOption[];
 }) {
-  if (!awaitingContinue) {
-    return null;
-  }
-
   return (
-    <div className="shrink-0 rounded-2xl bg-[#f5d99b] px-3 py-[clamp(0.45rem,1.5dvh,0.75rem)] text-center text-[#142019] shadow-glow landscape:py-2">
-      <div className="text-xs font-black uppercase tracking-[0.12em]">{card ? `${card.rank}${suitGlyphs[card.suit]}` : 'Flipped'}</div>
-      <div className="mt-0.5 text-[clamp(1rem,4vw,1.25rem)] font-black">{assignmentLabel}</div>
-    </div>
-  );
-}
-
-function GuessPicker({ className = '', onGuess, options }: { className?: string; onGuess: (guess: BusGuess) => void; options: GuessOption[] }) {
-  return (
-    <div className={`grid shrink-0 gap-2 ${options.length === 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-4'} ${className}`}>
+    <div
+      className={`grid gap-2 ${
+        options.length === 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+      } ${className}`}
+    >
       {options.map((option) => (
         <button
           key={option.label}
           type="button"
           onClick={() => onGuess(option.guess)}
-          className={`min-h-[clamp(3rem,8dvh,4rem)] rounded-2xl px-2 text-[clamp(1rem,4.8vw,1.25rem)] font-black outline-none ring-1 transition focus-visible:ring-2 focus-visible:ring-[#f5d99b] active:scale-[0.98] ${optionClasses[option.tone]}`}
+          className={`min-h-[58px] rounded-2xl px-2 text-[clamp(1rem,4.5vw,1.2rem)] font-black outline-none transition-transform duration-100 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${optionClasses[option.tone]}`}
         >
           {option.label}
         </button>
@@ -293,33 +307,33 @@ function getGuessOptions(subphase: DealSubphase): GuessOption[] {
   if (subphase === 'redBlack') {
     return [
       { guess: 'red', label: 'Red', tone: 'red' },
-      { guess: 'black', label: 'Black', tone: 'dark' }
+      { guess: 'black', label: 'Black', tone: 'dark' },
     ];
   }
   if (subphase === 'higherLowerSame') {
     return [
       { guess: 'higher', label: 'Higher', tone: 'dark' },
       { guess: 'lower', label: 'Lower', tone: 'dark' },
-      { guess: 'same', label: 'Same', tone: 'gold' }
+      { guess: 'same', label: 'Same', tone: 'gold' },
     ];
   }
   if (subphase === 'insideOutsideSame') {
     return [
       { guess: 'inside', label: 'Inside', tone: 'dark' },
       { guess: 'outside', label: 'Outside', tone: 'dark' },
-      { guess: 'same', label: 'Same', tone: 'gold' }
+      { guess: 'same', label: 'Same', tone: 'gold' },
     ];
   }
   const suits: Suit[] = ['spades', 'hearts', 'diamonds', 'clubs'];
   return suits.map((suit) => ({
     guess: suit,
     label: suitGlyphs[suit],
-    tone: suit === 'hearts' || suit === 'diamonds' ? 'red' : 'dark'
+    tone: suit === 'hearts' || suit === 'diamonds' ? 'red' : 'dark',
   }));
 }
 
 const optionClasses = {
-  dark: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35',
-  red: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35',
-  gold: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35'
+  dark: 'bg-[#1a3428] text-[#f5d99b] ring-1 ring-[#f5d99b]/18 shadow-[inset_0_1px_0_rgba(245,217,155,0.07)]',
+  red: 'bg-[#9b1c22] text-white ring-1 ring-red-900/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]',
+  gold: 'bg-[#f5d99b] text-[#142019] ring-1 ring-[#c9a84c]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.40)]',
 };
