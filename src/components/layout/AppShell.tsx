@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </IconButton>
             </div>
           </header>
-          <div className="min-h-0 flex-1 overflow-y-auto pb-2">{children}</div>
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-2">{children}</div>
         </div>
       </SafeArea>
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
