@@ -13,7 +13,8 @@ import { TableFlipSummary } from './TableFlipSummary';
 export function TableScreen() {
   const { state, dispatch } = useGame();
   const [historyOpen, setHistoryOpen] = useState(false);
-  const lastFlipped = state.table.cards.filter((card) => card.faceUp).at(-1);
+  const faceUpCards = state.table.cards.filter((card) => card.faceUp);
+  const lastFlipped = faceUpCards[faceUpCards.length - 1];
   const nextCard = state.table.cards[state.table.activeIndex];
 
   return (

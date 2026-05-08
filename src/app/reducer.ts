@@ -76,7 +76,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 function withUndo(previous: GameState, next: GameState): GameState {
   if (next === previous) return previous;
-  const undo: UndoSnapshot = { ...previous, undo: null };
+  const { undo: _undo, ...undo } = previous;
   return { ...next, undo };
 }
 
