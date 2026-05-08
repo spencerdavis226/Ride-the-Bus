@@ -9,11 +9,21 @@ const backClasses: Record<CardBackId, string> = {
   plaid: 'from-[#174532] to-[#872d32] border-[#f5d99b]/25'
 };
 
-export function CardBack({ id, compact = false }: { id: CardBackId; compact?: boolean }) {
+type CardSize = 'compact' | 'normal' | 'hero';
+
+const sizeClasses: Record<CardSize, string> = {
+  compact: 'h-20 w-14',
+  normal: 'h-28 w-20',
+  hero: 'h-44 w-32'
+};
+
+export function CardBack({ id, compact = false, size }: { id: CardBackId; compact?: boolean; size?: CardSize }) {
+  const resolvedSize = size ?? (compact ? 'compact' : 'normal');
+  const markClass = resolvedSize === 'hero' ? 'h-16 w-16' : 'h-9 w-9';
   return (
-    <div className={`relative grid place-items-center overflow-hidden rounded-lg border bg-gradient-to-br ${backClasses[id]} ${compact ? 'h-20 w-14' : 'h-28 w-20'} shadow-card`}>
+    <div className={`relative grid place-items-center overflow-hidden rounded-lg border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card`}>
       <div className="absolute inset-2 rounded-md border border-current/25" />
-      <div className="h-9 w-9 rounded-full border border-current/30 bg-black/15" />
+      <div className={`${markClass} rounded-full border border-current/30 bg-black/15`} />
     </div>
   );
 }
