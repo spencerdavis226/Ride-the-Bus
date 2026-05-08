@@ -54,7 +54,7 @@ export function createSetupState(settings: Settings = defaultSettings): GameStat
     settings,
     phaseOneTwoDecks: calculatePhaseOneTwoDecks(settings.playerNames.length),
     shoe: [],
-    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null },
+    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, awaitingContinue: false },
     table: emptyTable(),
     bus: null,
     gameOverReason: null,
@@ -85,7 +85,7 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
     settings: { ...settings, playerNames },
     phaseOneTwoDecks,
     shoe: shuffleFisherYates(createShoe(phaseOneTwoDecks), rng),
-    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null },
+    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, awaitingContinue: false },
     table: emptyTable(),
     bus: null,
     gameOverReason: null,
@@ -99,6 +99,7 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
 }
 
 export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
+  if (state.deal.awaitingContinue) return state;
   const player = state.players[state.deal.playerIndex];
   const { card, deck } = drawOne(state.shoe);
   const score = scoreDealGuess(state.deal, player.hand, guess, card);
@@ -106,27 +107,34 @@ export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
   const players = state.players.map((candidate) =>
     candidate.id === player.id ? { ...candidate, hand: [...candidate.hand, card] } : candidate
   );
-  const position = nextDealPosition(state.deal.playerIndex, state.deal.subphase, state.players.length);
   const logText = `${player.name} guessed ${formatGuess(guess)}: ${score.correct ? 'correct' : 'wrong'}, ${assignment.label}`;
+  return stamp({
+    ...state,
+    players,
+    shoe: deck,
+    deal: { ...state.deal, lastAssignment: assignment, awaitingContinue: true },
+    log: [...state.log, makeLog(logText, 'deal')]
+  });
+}
+
+export function continueDeal(state: GameState): GameState {
+  if (!state.deal.awaitingContinue) return state;
+  const position = nextDealPosition(state.deal.playerIndex, state.deal.subphase, state.players.length);
   if (!position.done) {
     return stamp({
       ...state,
-      players,
-      shoe: deck,
-      deal: { subphase: position.subphase, playerIndex: position.playerIndex, lastAssignment: assignment },
-      log: [...state.log, makeLog(logText, 'deal')]
+      deal: { subphase: position.subphase, playerIndex: position.playerIndex, lastAssignment: null, awaitingContinue: false }
     });
   }
 
-  const tableBuild = createTableFromShoe(deck);
+  const tableBuild = createTableFromShoe(state.shoe);
   return stamp({
     ...state,
     phase: 'table',
-    players,
     shoe: tableBuild.shoe,
     table: tableBuild.table,
-    deal: { ...state.deal, lastAssignment: assignment },
-    log: [...state.log, makeLog(logText, 'deal'), makeLog('The Table is ready.', 'table')]
+    deal: { ...state.deal, awaitingContinue: false },
+    log: [...state.log, makeLog('The Table is ready.', 'table')]
   });
 }
 

@@ -14,23 +14,29 @@ export function PlayingCard({
   faceUp?: boolean;
   compact?: boolean;
   highlighted?: boolean;
-  size?: 'compact' | 'normal' | 'hero';
+  size?: 'compact' | 'normal' | 'deal' | 'hand' | 'hero';
 }) {
   const { state } = useGame();
   const resolvedSize = size ?? (compact ? 'compact' : 'normal');
   const sizeClasses = {
     compact: 'h-20 w-14 p-2',
     normal: 'h-28 w-20 p-2',
+    deal: 'h-36 w-24 p-2.5',
+    hand: 'aspect-[5/7] w-full max-w-[5.75rem] p-2',
     hero: 'h-44 w-32 p-3'
   };
   const centerClasses = {
     compact: 'text-3xl',
     normal: 'text-3xl',
+    deal: 'text-5xl',
+    hand: 'text-[clamp(1.8rem,8vw,3rem)]',
     hero: 'text-6xl'
   };
   const cornerClasses = {
     compact: 'text-base',
     normal: 'text-base',
+    deal: 'text-xl',
+    hand: 'text-[clamp(0.9rem,4vw,1.2rem)]',
     hero: 'text-2xl'
   };
   if (!faceUp || !card) return <CardBack id={state.cardBackId} size={resolvedSize} />;

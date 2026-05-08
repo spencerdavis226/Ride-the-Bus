@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
 import { dealSubphaseLabels, type DealSubphase } from '../../game/phases';
@@ -6,6 +5,7 @@ import type { BusGuess } from '../../game/rules';
 import type { CardBackId, Player } from '../../game/state';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
+import { Button } from '../common/Button';
 
 type GuessOption = {
   guess: BusGuess;
@@ -16,87 +16,63 @@ type GuessOption = {
 export function DealScreen() {
   const { state, dispatch } = useGame();
   const player = state.players[state.deal.playerIndex];
-  const [selectedGuess, setSelectedGuess] = useState<BusGuess | null>(null);
-  const latestPlayerId = state.deal.lastAssignment?.playerId;
-  const latestPlayer = latestPlayerId ? state.players.find((candidate) => candidate.id === latestPlayerId) : null;
-  const latestCard = latestPlayer?.hand[latestPlayer.hand.length - 1] ?? null;
+  const awaitingContinue = state.deal.awaitingContinue;
+  const latestCard = awaitingContinue ? player.hand[player.hand.length - 1] : null;
   const options = getGuessOptions(state.deal.subphase);
 
-  useEffect(() => {
-    setSelectedGuess(null);
-  }, [player.id, player.hand.length, state.deal.subphase]);
-
-  function flipSelectedGuess() {
-    if (!selectedGuess) return;
-    dispatch({ type: 'DEAL_GUESS', guess: selectedGuess });
-  }
-
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden">
-      <TurnRail players={state.players} activePlayerId={player.id} latestPlayerId={latestPlayerId} />
+    <section className="flex min-h-full min-w-0 flex-col overflow-hidden rounded-[2rem] bg-[#042317] p-2 shadow-[inset_0_0_0_1px_rgba(245,217,155,0.14),inset_0_24px_80px_rgba(245,217,155,0.08)]">
+      <div className="mb-2 shrink-0 overflow-hidden rounded-[1.6rem]">
+        <TurnRail players={state.players} activePlayerId={player.id} />
+      </div>
 
-      <div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-[#f5d99b]/18 bg-[#062119]/80 p-3 shadow-card sm:p-4">
-        <div className="flex h-full min-h-0 flex-col gap-3">
-          <div className="flex shrink-0 items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#f5d99b]">{dealSubphaseLabels[state.deal.subphase]}</p>
-              <h2 className="truncate text-4xl font-black leading-none text-[#fff7e6]">{player.name}</h2>
-            </div>
-            <div className="rounded-xl bg-black/25 px-3 py-2 text-right ring-1 ring-white/10">
-              <div className="text-2xl font-black">{player.hand.length}/4</div>
-              <div className="text-xs uppercase tracking-[0.14em] text-[#fff7e6]/50">hand</div>
-            </div>
-          </div>
+      <div className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[1.5rem] bg-[radial-gradient(circle_at_50%_42%,rgba(19,118,82,0.78),rgba(3,28,19,0.96)_62%,rgba(0,0,0,0.36))] p-3 shadow-[inset_0_0_0_1px_rgba(245,217,155,0.08)] sm:p-5">
+        <div className="relative flex h-full min-h-0 flex-col gap-3">
+          <StageHeader
+            cardBackId={state.cardBackId}
+            player={player}
+            shoeCount={state.shoe.length}
+            subphase={state.deal.subphase}
+          />
 
-          <div className="grid min-h-0 flex-1 place-items-center rounded-2xl bg-[radial-gradient(circle_at_center,rgba(245,217,155,0.12),rgba(0,0,0,0)_62%)]">
-            <div className="grid w-full max-w-xl grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
-              <DeckButton
-                armed={Boolean(selectedGuess)}
-                cardBackId={state.cardBackId}
-                count={state.shoe.length}
-                selectedLabel={selectedGuess ? labelForGuess(selectedGuess) : null}
-                onFlip={flipSelectedGuess}
-              />
-              <div className="text-2xl font-black text-[#f5d99b]/70">→</div>
-              <RevealPile card={latestCard} playerName={latestPlayer?.name} assignmentLabel={state.deal.lastAssignment?.label} />
-            </div>
-          </div>
+          <ActiveHand cards={player.hand} highlightedCardId={latestCard?.id} />
 
-          <GuessPicker options={options} selectedGuess={selectedGuess} onSelect={setSelectedGuess} />
-          <ActiveHand cards={player.hand} highlightedCardId={latestPlayerId === player.id ? latestCard?.id : null} />
+          <ResultPanel
+            assignmentLabel={state.deal.lastAssignment?.label}
+            awaitingContinue={awaitingContinue}
+            card={latestCard}
+            playerName={player.name}
+          />
+
+          {awaitingContinue ? (
+            <Button className="shrink-0 text-lg" onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}>
+              Next
+            </Button>
+          ) : (
+            <GuessPicker options={options} onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })} />
+          )}
         </div>
       </div>
     </section>
   );
 }
 
-function TurnRail({
-  activePlayerId,
-  latestPlayerId,
-  players
-}: {
-  activePlayerId: string;
-  latestPlayerId?: string;
-  players: Player[];
-}) {
+function TurnRail({ activePlayerId, players }: { activePlayerId: string; players: Player[] }) {
   return (
-    <div className="mb-3 flex shrink-0 gap-2 overflow-x-auto pb-1">
+    <div className="flex shrink-0 snap-x gap-2 overflow-x-auto bg-black/12 p-1">
       {players.map((candidate) => {
         const active = candidate.id === activePlayerId;
-        const latest = candidate.id === latestPlayerId;
         return (
           <div
             key={candidate.id}
-            className={`min-w-28 rounded-xl px-3 py-2 text-center ring-1 ${
+            className={`min-w-[7.5rem] snap-start rounded-2xl px-3 py-2 text-center ring-1 ${
               active
                 ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b]'
-                : latest
-                  ? 'bg-white/14 text-[#fff7e6] ring-[#f5d99b]/45'
-                  : 'bg-black/20 text-[#fff7e6]/65 ring-white/10'
+                : 'bg-black/20 text-[#fff7e6]/65 ring-white/10'
             }`}
           >
             <div className="truncate text-sm font-bold">{candidate.name}</div>
-            <div className="text-xs font-semibold opacity-75">{candidate.hand.length}/4</div>
+            <MiniHand cards={candidate.hand} active={active} />
           </div>
         );
       })}
@@ -104,113 +80,88 @@ function TurnRail({
   );
 }
 
-function DeckButton({
-  armed,
-  cardBackId,
-  count,
-  onFlip,
-  selectedLabel
-}: {
-  armed: boolean;
-  cardBackId: CardBackId;
-  count: number;
-  onFlip: () => void;
-  selectedLabel: string | null;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onFlip}
-      disabled={!armed}
-      className={`group grid justify-items-center gap-3 rounded-2xl p-2 text-center outline-none transition focus-visible:ring-2 focus-visible:ring-[#f5d99b] disabled:opacity-65 ${
-        armed ? 'active:scale-[0.98]' : ''
-      }`}
-    >
-      <div className="relative h-48 w-36">
-        <div className="absolute left-3 top-2 rotate-6 transition group-active:translate-y-1">
-          <CardBack id={cardBackId} size="hero" />
-        </div>
-        <div className="absolute left-1 top-0 rotate-2 transition group-active:translate-y-1">
-          <CardBack id={cardBackId} size="hero" />
-        </div>
-      </div>
-      <div>
-        <div className="text-2xl font-black text-[#fff7e6]">{count}</div>
-        <div className="text-xs uppercase tracking-[0.16em] text-[#fff7e6]/55">cards left</div>
-        <div className={`mt-2 text-sm font-bold ${armed ? 'text-[#f5d99b]' : 'text-[#fff7e6]/45'}`}>
-          {selectedLabel ? `Tap deck: ${selectedLabel}` : 'Pick a guess'}
-        </div>
-      </div>
-    </button>
-  );
-}
+function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
+  if (!cards.length) {
+    return <div className="mt-1 text-xs font-semibold opacity-70">0/4</div>;
+  }
 
-function RevealPile({
-  assignmentLabel,
-  card,
-  playerName
-}: {
-  assignmentLabel?: string;
-  card: Card | null;
-  playerName?: string;
-}) {
   return (
-    <div className="grid justify-items-center gap-3 text-center">
-      {card ? (
-        <PlayingCard card={card} highlighted size="hero" />
-      ) : (
-        <div className="grid h-44 w-32 place-items-center rounded-lg border-2 border-dashed border-[#f5d99b]/25 bg-black/15 text-sm font-bold text-[#fff7e6]/40">
-          Flip
-        </div>
-      )}
-      <div className="min-h-14">
-        <div className="text-sm font-bold text-[#fff7e6]">{card && playerName ? `${playerName} flipped` : 'Next card'}</div>
-        <div className="mt-1 text-sm font-semibold text-[#f5d99b]">{assignmentLabel ?? 'Waiting on the deck'}</div>
-      </div>
+    <div className="mt-1 flex min-h-6 items-center justify-center gap-1">
+      {cards.map((card) => (
+        <MiniCard key={card.id} active={active} card={card} />
+      ))}
+      {Array.from({ length: Math.max(0, 4 - cards.length) }, (_, index) => (
+        <span key={index} className={`h-5 w-3 rounded-sm border ${active ? 'border-[#142019]/20' : 'border-white/10'}`} />
+      ))}
     </div>
   );
 }
 
-function GuessPicker({
-  onSelect,
-  options,
-  selectedGuess
+function MiniCard({ active, card }: { active: boolean; card: Card }) {
+  const red = card.color === 'red';
+  return (
+    <span
+      className={`grid h-6 w-5 place-items-center rounded-sm border text-[10px] font-black leading-none ${
+        active
+          ? 'border-[#142019]/20 bg-white/70'
+          : 'border-black/20 bg-[#fbf2d9]'
+      } ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+      title={`${card.rank} ${card.suit}`}
+    >
+      <span>{card.rank}</span>
+      <span className="-mt-1">{suitGlyphs[card.suit]}</span>
+    </span>
+  );
+}
+
+function StageHeader({
+  cardBackId,
+  player,
+  shoeCount,
+  subphase
 }: {
-  onSelect: (guess: BusGuess) => void;
-  options: GuessOption[];
-  selectedGuess: BusGuess | null;
+  cardBackId: CardBackId;
+  player: Player;
+  shoeCount: number;
+  subphase: DealSubphase;
 }) {
   return (
-    <div className={`grid shrink-0 gap-2 ${options.length === 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
-      {options.map((option) => (
-        <button
-          key={option.label}
-          type="button"
-          onClick={() => onSelect(option.guess)}
-          className={`min-h-14 rounded-xl px-2 text-lg font-black outline-none ring-1 transition focus-visible:ring-2 focus-visible:ring-[#f5d99b] active:scale-[0.98] ${
-            selectedGuess === option.guess ? selectedClasses[option.tone] : optionClasses[option.tone]
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
+    <div className="flex shrink-0 items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-sm font-black uppercase tracking-[0.16em] text-[#f5d99b]">{dealSubphaseLabels[subphase]}</p>
+        <h2 className="mt-1 truncate text-5xl font-black leading-none text-[#fff7e6]">{player.name}</h2>
+      </div>
+      <div className="grid shrink-0 justify-items-center gap-1">
+        <div className="relative h-20 w-16">
+          <div className="absolute left-1 top-1 rotate-6 opacity-70">
+            <CardBack id={cardBackId} compact />
+          </div>
+          <div className="absolute left-0 top-0 -rotate-3">
+            <CardBack id={cardBackId} compact />
+          </div>
+        </div>
+        <div className="rounded-full bg-black/28 px-3 py-1 text-xs font-black text-[#fff7e6] ring-1 ring-white/10">{shoeCount}</div>
+      </div>
     </div>
   );
 }
 
 function ActiveHand({ cards, highlightedCardId }: { cards: Card[]; highlightedCardId?: string | null }) {
   return (
-    <div className="shrink-0 rounded-2xl bg-black/20 p-3 ring-1 ring-white/10">
-      <div className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-[#f5d99b]/75">Current hand</div>
-      <div className="flex min-h-28 items-center justify-center">
+    <div className="grid min-h-[clamp(14rem,42dvh,26rem)] flex-1 content-center rounded-[1.25rem] bg-black/16 p-3 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)]">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="text-xs font-black uppercase tracking-[0.16em] text-[#f5d99b]/78">hand</div>
+        <div className="rounded-full bg-black/24 px-3 py-1 text-sm font-black text-[#fff7e6]">{cards.length}/4</div>
+      </div>
+      <div className="grid min-h-44 grid-cols-4 items-center gap-2">
         {Array.from({ length: 4 }, (_, index) => {
           const card = cards[index];
           return (
-            <div key={card?.id ?? `active-empty-${index}`} className={index > 0 ? '-ml-5' : ''}>
+            <div key={card?.id ?? `active-empty-${index}`} className="grid min-w-0 place-items-center">
               {card ? (
-                <PlayingCard card={card} highlighted={card.id === highlightedCardId} />
+                <PlayingCard card={card} highlighted={card.id === highlightedCardId} size="hand" />
               ) : (
-                <div className="grid h-28 w-20 place-items-center rounded-lg border border-dashed border-white/15 bg-white/[0.03] text-xs font-bold text-[#fff7e6]/25">
+                <div className="grid aspect-[5/7] w-full max-w-[5.75rem] place-items-center rounded-lg border border-dashed border-[#f5d99b]/20 bg-white/[0.035] text-sm font-black text-[#fff7e6]/24">
                   {index + 1}
                 </div>
               )}
@@ -218,6 +169,50 @@ function ActiveHand({ cards, highlightedCardId }: { cards: Card[]; highlightedCa
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function ResultPanel({
+  assignmentLabel,
+  awaitingContinue,
+  card,
+  playerName
+}: {
+  assignmentLabel?: string;
+  awaitingContinue: boolean;
+  card: Card | null;
+  playerName: string;
+}) {
+  if (!awaitingContinue) {
+    return (
+      <div className="shrink-0 rounded-2xl bg-black/20 px-4 py-3 text-center ring-1 ring-white/10">
+        <div className="text-sm font-bold text-[#fff7e6]/62">Tap a guess to flip straight into {playerName}'s hand.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="shrink-0 rounded-2xl bg-[#f5d99b] px-4 py-3 text-center text-[#142019] shadow-glow">
+      <div className="text-sm font-black uppercase tracking-[0.12em]">{card ? `${card.rank}${suitGlyphs[card.suit]}` : 'Flipped'}</div>
+      <div className="mt-1 text-xl font-black">{assignmentLabel}</div>
+    </div>
+  );
+}
+
+function GuessPicker({ onGuess, options }: { onGuess: (guess: BusGuess) => void; options: GuessOption[] }) {
+  return (
+    <div className={`grid shrink-0 gap-2 ${options.length === 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
+      {options.map((option) => (
+        <button
+          key={option.label}
+          type="button"
+          onClick={() => onGuess(option.guess)}
+          className={`min-h-16 rounded-2xl px-2 text-xl font-black outline-none ring-1 transition focus-visible:ring-2 focus-visible:ring-[#f5d99b] active:scale-[0.98] ${optionClasses[option.tone]}`}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -251,19 +246,8 @@ function getGuessOptions(subphase: DealSubphase): GuessOption[] {
   }));
 }
 
-function labelForGuess(guess: BusGuess): string {
-  if (guess === 'spades' || guess === 'hearts' || guess === 'diamonds' || guess === 'clubs') return suitGlyphs[guess];
-  return guess.charAt(0).toUpperCase() + guess.slice(1);
-}
-
 const optionClasses = {
-  dark: 'bg-white/[0.1] text-[#fff7e6] ring-white/12',
-  red: 'bg-[#b72e35]/82 text-white ring-[#ff9a9a]/25',
-  gold: 'bg-[#f5d99b]/88 text-[#142019] ring-[#f5d99b]/40'
-};
-
-const selectedClasses = {
-  dark: 'bg-[#fff7e6] text-[#111827] ring-[#f5d99b]',
-  red: 'bg-[#e33b46] text-white ring-[#ffd1d1]',
-  gold: 'bg-[#f5d99b] text-[#142019] ring-white'
+  dark: 'bg-[#111719] text-[#fff7e6] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ring-white/14',
+  red: 'bg-[#c8313b] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_24px_rgba(184,46,53,0.24)] ring-[#ffb4b4]/28',
+  gold: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35'
 };

@@ -6,7 +6,15 @@ export function loadSavedGame(): GameState | null {
   if (typeof localStorage === 'undefined') return null;
   try {
     const raw = localStorage.getItem(ACTIVE_GAME_KEY);
-    return raw ? (JSON.parse(raw) as GameState) : null;
+    if (!raw) return null;
+    const state = JSON.parse(raw) as GameState;
+    return {
+      ...state,
+      deal: {
+        ...state.deal,
+        awaitingContinue: Boolean(state.deal.awaitingContinue)
+      }
+    };
   } catch {
     return null;
   }

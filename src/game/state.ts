@@ -35,6 +35,7 @@ export type DealState = {
   subphase: DealSubphase;
   playerIndex: number;
   lastAssignment: DrinkAssignment | null;
+  awaitingContinue: boolean;
 };
 
 export type TableCard = {

@@ -1,4 +1,4 @@
-import { BookOpen, History, House, RotateCcw } from 'lucide-react';
+import { BookOpen, History, House } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { getThemeClass } from '../../styles/themes';
@@ -13,7 +13,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
-  const canQuitRun = state.phase !== 'setup' && state.phase !== 'gameOver';
+  const showHome = state.phase !== 'setup';
 
   function quitToSetup() {
     setQuitOpen(false);
@@ -30,14 +30,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <h1 className="text-2xl font-bold leading-tight">{phaseTitle(state.phase)}</h1>
             </div>
             <div className="flex gap-2">
-              {canQuitRun && (
-                <IconButton label="Quit to setup" onClick={() => setQuitOpen(true)}>
+              {showHome && (
+                <IconButton label="Home" onClick={() => setQuitOpen(true)}>
                   <House size={19} />
-                </IconButton>
-              )}
-              {state.undo && (
-                <IconButton label="Undo latest action" onClick={() => dispatch({ type: 'UNDO_LAST_ACTION' })}>
-                  <RotateCcw size={19} />
                 </IconButton>
               )}
               <IconButton label="Rules" onClick={() => setRulesOpen(true)}>
@@ -52,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </SafeArea>
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
-      <Drawer open={quitOpen} title="Quit Run" onClose={() => setQuitOpen(false)}>
+      <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
           <p className="text-sm leading-6 text-[#fff7e6]/82">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
@@ -62,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               Cancel
             </Button>
             <Button variant="danger" onClick={quitToSetup}>
-              Quit
+              Go Home
             </Button>
           </div>
         </div>
@@ -72,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <p>Deal uses Red/Black, Higher/Lower/Same, Inside/Outside/Same, then Suit. Use Give and Take units.</p>
           <p>The Table flips eleven cards. Matching ranks from player hands autoplay and give the row value.</p>
           <p>The riders with the most cards left ride together. The Bus starts from a fresh single deck.</p>
-          <p className="text-[#f5d99b]">Small table superstition: on September 1, Aces sit low.</p>
+          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
         </div>
       </Drawer>
     </main>

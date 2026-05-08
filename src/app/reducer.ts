@@ -1,6 +1,7 @@
 import {
   applyBusGuess,
   applyDealGuess,
+  continueDeal,
   createSetupState,
   defaultSettings,
   namesToPlayers,
@@ -18,6 +19,7 @@ export type GameAction =
   | { type: 'SETUP_SET_BUS_MODE'; mode: BusMode }
   | { type: 'START_GAME' }
   | { type: 'DEAL_GUESS'; guess: BusGuess }
+  | { type: 'DEAL_CONTINUE' }
   | { type: 'TABLE_FLIP_NEXT' }
   | { type: 'BUS_START' }
   | { type: 'BUS_GUESS'; guess: BusGuess }
@@ -56,6 +58,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return startGame(state.settings);
     case 'DEAL_GUESS':
       return withUndo(state, applyDealGuess(state, action.guess));
+    case 'DEAL_CONTINUE':
+      return continueDeal(state);
     case 'TABLE_FLIP_NEXT':
       return withUndo(state, flipNextTableCard(state));
     case 'BUS_START':
