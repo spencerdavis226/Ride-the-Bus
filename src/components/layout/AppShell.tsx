@@ -21,10 +21,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <main className={`${getThemeClass(state.theme)} min-h-dvh overflow-hidden text-[#fff7e6]`}>
+    <main className={`${getThemeClass(state.theme)} h-dvh overflow-hidden text-[#fff7e6]`}>
       <SafeArea>
-        <div className="mx-auto flex min-h-[calc(100dvh-32px)] w-full max-w-3xl flex-col">
-          <header className="mb-3 flex items-center justify-between">
+        <div className="mx-auto flex h-[calc(100dvh-32px)] w-full max-w-3xl flex-col">
+          <header className="mb-3 flex shrink-0 items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-[#f5d99b]/70">Ride the Bus</p>
               <h1 className="text-2xl font-bold leading-tight">{phaseTitle(state.phase)}</h1>
@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </IconButton>
             </div>
           </header>
-          {children}
+          <div className="min-h-0 flex-1 overflow-y-auto pb-2">{children}</div>
         </div>
       </SafeArea>
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />

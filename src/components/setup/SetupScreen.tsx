@@ -4,7 +4,6 @@ import { useGame } from '../../app/GameProvider';
 import { calculatePhaseOneTwoDecks } from '../../game/deck';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
-import { BottomActionBar } from '../layout/BottomActionBar';
 import { PlayerEditor } from './PlayerEditor';
 import { SettingsPanel } from './SettingsPanel';
 
@@ -16,9 +15,9 @@ export function SetupScreen() {
   const validNames = names.map((name, index) => name.trim() || `Player ${index + 1}`);
 
   return (
-    <section className="flex flex-1 flex-col gap-4">
-      <div className="glass-panel rounded-xl p-4">
-        <div className="mb-4 flex items-start justify-between gap-3">
+    <section className="flex min-h-full flex-col gap-4">
+      <div className="glass-panel flex min-h-0 flex-1 flex-col rounded-xl p-4">
+        <div className="mb-4 flex shrink-0 items-start justify-between gap-3">
           <div>
             <p className="text-sm text-[#fff7e6]/70">Players</p>
             <p className="text-3xl font-bold">{names.length}</p>
@@ -31,13 +30,16 @@ export function SetupScreen() {
             <Settings size={18} /> Settings
           </button>
         </div>
-        <PlayerEditor names={names} onChange={(nextNames) => dispatch({ type: 'SETUP_SET_PLAYERS', names: nextNames })} />
+        <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+          <PlayerEditor names={names} onChange={(nextNames) => dispatch({ type: 'SETUP_SET_PLAYERS', names: nextNames })} />
+        </div>
       </div>
-      <div className="rounded-xl border border-[#f5d99b]/20 bg-black/[0.18] p-4 text-sm text-[#fff7e6]/74">
+      <div className="shrink-0 rounded-xl border border-[#f5d99b]/20 bg-black/[0.18] p-4 text-sm text-[#fff7e6]/74">
         <p className="font-semibold text-[#fff7e6]">Using {deckCount} deck{deckCount === 1 ? '' : 's'} for this game.</p>
         <p className="mt-1">Deal and The Table share this shoe. The Bus always starts fresh.</p>
       </div>
-      <BottomActionBar>
+      <div className="sticky bottom-0 z-10 -mx-1 shrink-0 bg-gradient-to-t from-black/55 via-black/25 to-transparent px-1 pb-1 pt-4">
+        <div className="grid gap-2">
         {hasSavedGame && (
           <Button variant="secondary" onClick={() => savedGame && dispatch({ type: 'HYDRATE', state: savedGame })}>
             Resume Game
@@ -50,7 +52,8 @@ export function SetupScreen() {
         >
           Quick Launch Names
         </Button>
-      </BottomActionBar>
+        </div>
+      </div>
       <Drawer open={settingsOpen} title="Settings" onClose={() => setSettingsOpen(false)}>
         <SettingsPanel
           busMode={state.settings.busMode}
