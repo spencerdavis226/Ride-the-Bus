@@ -12,7 +12,7 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
   };
 
   return (
-    <div className="min-w-0 space-y-3">
+    <div className="min-w-0 space-y-3 pb-1">
       {names.map((name, index) => (
         <label key={index} className="flex min-w-0 items-center gap-2 rounded-lg bg-white/[0.08] p-2 ring-1 ring-white/10">
           <span className="w-8 shrink-0 text-center text-sm text-[#f5d99b]/75">{index + 1}</span>
