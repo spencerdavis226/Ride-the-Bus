@@ -15,7 +15,7 @@ const sizeClasses: Record<CardSize, string> = {
   compact: 'h-20 w-14',
   normal: 'h-28 w-20',
   deal: 'h-36 w-24',
-  hand: 'aspect-[5/7] w-full max-w-[5.75rem]',
+  hand: 'aspect-[5/7] h-full max-h-[9rem] w-auto max-w-full',
   hero: 'h-44 w-32'
 };
 
@@ -23,8 +23,7 @@ export function CardBack({ id, compact = false, size }: { id: CardBackId; compac
   const resolvedSize = size ?? (compact ? 'compact' : 'normal');
   const markClass = resolvedSize === 'hero' ? 'h-16 w-16' : resolvedSize === 'deal' || resolvedSize === 'hand' ? 'h-12 w-12' : 'h-9 w-9';
   return (
-    <div className={`relative grid place-items-center overflow-hidden rounded-lg border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card`}>
-      <div className="absolute inset-2 rounded-md border border-current/25" />
+    <div className={`grid place-items-center rounded-lg border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card shadow-[inset_0_0_0_8px_rgba(255,255,255,0.12)]`}>
       <div className={`${markClass} rounded-full border border-current/30 bg-black/15`} />
     </div>
   );

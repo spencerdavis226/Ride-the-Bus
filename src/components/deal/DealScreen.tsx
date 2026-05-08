@@ -21,13 +21,23 @@ export function DealScreen() {
   const options = getGuessOptions(state.deal.subphase);
 
   return (
-    <section className="flex min-h-full min-w-0 flex-col overflow-hidden rounded-[2rem] bg-[#042317] p-2 shadow-[inset_0_0_0_1px_rgba(245,217,155,0.14),inset_0_24px_80px_rgba(245,217,155,0.08)]">
-      <div className="mb-2 shrink-0 overflow-hidden rounded-[1.6rem]">
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] p-1 shadow-[inset_0_0_0_1px_rgba(245,217,155,0.14),inset_0_24px_80px_rgba(245,217,155,0.08)]">
+      <div className="mb-1 grid shrink-0 grid-cols-1 gap-2 overflow-hidden rounded-[1.1rem] landscape:grid-cols-[minmax(0,1fr)_clamp(15rem,34vw,24rem)]">
         <TurnRail players={state.players} activePlayerId={player.id} />
+        <ActionPanel
+          assignmentLabel={state.deal.lastAssignment?.label}
+          awaitingContinue={awaitingContinue}
+          card={latestCard}
+          className="hidden landscape:grid"
+          onContinue={() => dispatch({ type: 'DEAL_CONTINUE' })}
+          onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })}
+          options={options}
+          playerName={player.name}
+        />
       </div>
 
-      <div className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[1.5rem] bg-[radial-gradient(circle_at_50%_42%,rgba(19,118,82,0.78),rgba(3,28,19,0.96)_62%,rgba(0,0,0,0.36))] p-3 shadow-[inset_0_0_0_1px_rgba(245,217,155,0.08)] sm:p-5">
-        <div className="relative flex h-full min-h-0 flex-col gap-3">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-[1.1rem] bg-[radial-gradient(circle_at_50%_42%,rgba(19,118,82,0.78),rgba(3,28,19,0.96)_62%,rgba(0,0,0,0.36))] p-[clamp(0.45rem,1.5vw,0.75rem)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.08)]">
+        <div className="flex h-full min-h-0 flex-col gap-[clamp(0.35rem,1.2dvh,0.65rem)]">
           <StageHeader
             cardBackId={state.cardBackId}
             player={player}
@@ -45,11 +55,11 @@ export function DealScreen() {
           />
 
           {awaitingContinue ? (
-            <Button className="shrink-0 text-lg" onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}>
+            <Button className="shrink-0 text-lg landscape:hidden" onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}>
               Next
             </Button>
           ) : (
-            <GuessPicker options={options} onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })} />
+            <GuessPicker className="landscape:hidden" options={options} onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })} />
           )}
         </div>
       </div>
@@ -65,7 +75,7 @@ function TurnRail({ activePlayerId, players }: { activePlayerId: string; players
         return (
           <div
             key={candidate.id}
-            className={`min-w-[7.5rem] snap-start rounded-2xl px-3 py-2 text-center ring-1 ${
+            className={`min-w-[clamp(6.25rem,28vw,7.5rem)] snap-start rounded-2xl px-2 py-[clamp(0.35rem,1dvh,0.5rem)] text-center ring-1 ${
               active
                 ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b]'
                 : 'bg-black/20 text-[#fff7e6]/65 ring-white/10'
@@ -80,13 +90,46 @@ function TurnRail({ activePlayerId, players }: { activePlayerId: string; players
   );
 }
 
+function ActionPanel({
+  assignmentLabel,
+  awaitingContinue,
+  card,
+  className = '',
+  onContinue,
+  onGuess,
+  options,
+  playerName
+}: {
+  assignmentLabel?: string;
+  awaitingContinue: boolean;
+  card: Card | null;
+  className?: string;
+  onContinue: () => void;
+  onGuess: (guess: BusGuess) => void;
+  options: GuessOption[];
+  playerName: string;
+}) {
+  return (
+    <div className={`min-h-0 gap-2 rounded-2xl bg-black/16 p-2 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)] ${className}`}>
+      <ResultPanel assignmentLabel={assignmentLabel} awaitingContinue={awaitingContinue} card={card} playerName={playerName} />
+      {awaitingContinue ? (
+        <Button className="min-h-12 text-base" onClick={onContinue}>
+          Next
+        </Button>
+      ) : (
+        <GuessPicker options={options} onGuess={onGuess} />
+      )}
+    </div>
+  );
+}
+
 function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
   if (!cards.length) {
-    return <div className="mt-1 text-xs font-semibold opacity-70">0/4</div>;
+    return <div className="mt-0.5 text-xs font-semibold opacity-70">0/4</div>;
   }
 
   return (
-    <div className="mt-1 flex min-h-6 items-center justify-center gap-1">
+    <div className="mt-1 flex min-h-5 items-center justify-center gap-0.5">
       {cards.map((card) => (
         <MiniCard key={card.id} active={active} card={card} />
       ))}
@@ -128,19 +171,15 @@ function StageHeader({
   return (
     <div className="flex shrink-0 items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-sm font-black uppercase tracking-[0.16em] text-[#f5d99b]">{dealSubphaseLabels[subphase]}</p>
-        <h2 className="mt-1 truncate text-5xl font-black leading-none text-[#fff7e6]">{player.name}</h2>
+        <p className="text-[clamp(0.75rem,2.8vw,0.9rem)] font-black uppercase tracking-[0.16em] text-[#f5d99b]">{dealSubphaseLabels[subphase]}</p>
+        <h2 className="mt-0.5 truncate text-[clamp(2rem,8vw,3.2rem)] font-black leading-none text-[#fff7e6] landscape:text-[clamp(1.8rem,5vw,3rem)]">{player.name}</h2>
       </div>
-      <div className="grid shrink-0 justify-items-center gap-1">
-        <div className="relative h-20 w-16">
-          <div className="absolute left-1 top-1 rotate-6 opacity-70">
-            <CardBack id={cardBackId} compact />
-          </div>
-          <div className="absolute left-0 top-0 -rotate-3">
-            <CardBack id={cardBackId} compact />
-          </div>
+      <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-black/20 p-1.5 ring-1 ring-white/10 landscape:hidden">
+        <CardBack id={cardBackId} size="compact" />
+        <div className="text-center">
+          <div className="text-lg font-black text-[#fff7e6]">{shoeCount}</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.12em] text-[#fff7e6]/45">deck</div>
         </div>
-        <div className="rounded-full bg-black/28 px-3 py-1 text-xs font-black text-[#fff7e6] ring-1 ring-white/10">{shoeCount}</div>
       </div>
     </div>
   );
@@ -148,20 +187,20 @@ function StageHeader({
 
 function ActiveHand({ cards, highlightedCardId }: { cards: Card[]; highlightedCardId?: string | null }) {
   return (
-    <div className="grid min-h-[clamp(14rem,42dvh,26rem)] flex-1 content-center rounded-[1.25rem] bg-black/16 p-3 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)]">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] rounded-[1.25rem] bg-black/16 p-3 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)]">
+      <div className="mb-2 flex items-center justify-between">
         <div className="text-xs font-black uppercase tracking-[0.16em] text-[#f5d99b]/78">hand</div>
         <div className="rounded-full bg-black/24 px-3 py-1 text-sm font-black text-[#fff7e6]">{cards.length}/4</div>
       </div>
-      <div className="grid min-h-44 grid-cols-4 items-center gap-2">
+      <div className="grid min-h-0 grid-cols-4 items-center gap-2">
         {Array.from({ length: 4 }, (_, index) => {
           const card = cards[index];
           return (
-            <div key={card?.id ?? `active-empty-${index}`} className="grid min-w-0 place-items-center">
+            <div key={card?.id ?? `active-empty-${index}`} className="grid h-full min-h-0 min-w-0 w-full place-items-center">
               {card ? (
                 <PlayingCard card={card} highlighted={card.id === highlightedCardId} size="hand" />
               ) : (
-                <div className="grid aspect-[5/7] w-full max-w-[5.75rem] place-items-center rounded-lg border border-dashed border-[#f5d99b]/20 bg-white/[0.035] text-sm font-black text-[#fff7e6]/24">
+                <div className="grid aspect-[5/7] h-full max-h-[9rem] w-auto max-w-full place-items-center rounded-lg border border-dashed border-[#f5d99b]/20 bg-white/[0.035] text-sm font-black text-[#fff7e6]/24">
                   {index + 1}
                 </div>
               )}
@@ -186,29 +225,29 @@ function ResultPanel({
 }) {
   if (!awaitingContinue) {
     return (
-      <div className="shrink-0 rounded-2xl bg-black/20 px-4 py-3 text-center ring-1 ring-white/10">
-        <div className="text-sm font-bold text-[#fff7e6]/62">Tap a guess to flip straight into {playerName}'s hand.</div>
+      <div className="shrink-0 rounded-2xl bg-black/20 px-3 py-[clamp(0.45rem,1.4dvh,0.75rem)] text-center ring-1 ring-white/10 landscape:py-2">
+        <div className="text-[clamp(0.78rem,3vw,0.9rem)] font-bold text-[#fff7e6]/62">Tap a guess to flip into {playerName}'s hand.</div>
       </div>
     );
   }
 
   return (
-    <div className="shrink-0 rounded-2xl bg-[#f5d99b] px-4 py-3 text-center text-[#142019] shadow-glow">
-      <div className="text-sm font-black uppercase tracking-[0.12em]">{card ? `${card.rank}${suitGlyphs[card.suit]}` : 'Flipped'}</div>
-      <div className="mt-1 text-xl font-black">{assignmentLabel}</div>
+    <div className="shrink-0 rounded-2xl bg-[#f5d99b] px-3 py-[clamp(0.45rem,1.5dvh,0.75rem)] text-center text-[#142019] shadow-glow landscape:py-2">
+      <div className="text-xs font-black uppercase tracking-[0.12em]">{card ? `${card.rank}${suitGlyphs[card.suit]}` : 'Flipped'}</div>
+      <div className="mt-0.5 text-[clamp(1rem,4vw,1.25rem)] font-black">{assignmentLabel}</div>
     </div>
   );
 }
 
-function GuessPicker({ onGuess, options }: { onGuess: (guess: BusGuess) => void; options: GuessOption[] }) {
+function GuessPicker({ className = '', onGuess, options }: { className?: string; onGuess: (guess: BusGuess) => void; options: GuessOption[] }) {
   return (
-    <div className={`grid shrink-0 gap-2 ${options.length === 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
+    <div className={`grid shrink-0 gap-2 ${options.length === 2 ? 'grid-cols-2' : options.length === 3 ? 'grid-cols-3' : 'grid-cols-4'} ${className}`}>
       {options.map((option) => (
         <button
           key={option.label}
           type="button"
           onClick={() => onGuess(option.guess)}
-          className={`min-h-16 rounded-2xl px-2 text-xl font-black outline-none ring-1 transition focus-visible:ring-2 focus-visible:ring-[#f5d99b] active:scale-[0.98] ${optionClasses[option.tone]}`}
+          className={`min-h-[clamp(3rem,8dvh,4rem)] rounded-2xl px-2 text-[clamp(1rem,4.8vw,1.25rem)] font-black outline-none ring-1 transition focus-visible:ring-2 focus-visible:ring-[#f5d99b] active:scale-[0.98] ${optionClasses[option.tone]}`}
         >
           {option.label}
         </button>
