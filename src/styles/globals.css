@@ -29,10 +29,10 @@ select {
 
 .safe-screen {
   height: 100dvh;
-  padding-top: max(env(safe-area-inset-top), 6px);
-  padding-right: max(env(safe-area-inset-right), 6px);
-  padding-bottom: max(env(safe-area-inset-bottom), 6px);
-  padding-left: max(env(safe-area-inset-left), 6px);
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
 }
 
 .theme-poker {

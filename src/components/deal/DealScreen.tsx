@@ -1,3 +1,5 @@
+import { BookOpen, History, House } from 'lucide-react';
+import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
 import { dealSubphaseLabels, type DealSubphase } from '../../game/phases';
@@ -6,6 +8,9 @@ import type { CardBackId, Player } from '../../game/state';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
+import { Drawer } from '../common/Drawer';
+import { IconButton } from '../common/IconButton';
+import { LogDrawer } from '../log/LogDrawer';
 
 type GuessOption = {
   guess: BusGuess;
@@ -15,20 +20,25 @@ type GuessOption = {
 
 export function DealScreen() {
   const { state, dispatch } = useGame();
+  const [logOpen, setLogOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [quitOpen, setQuitOpen] = useState(false);
   const player = state.players[state.deal.playerIndex];
   const awaitingContinue = state.deal.awaitingContinue;
   const latestCard = awaitingContinue ? player.hand[player.hand.length - 1] : null;
   const options = getGuessOptions(state.deal.subphase);
 
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] p-1 shadow-[inset_0_0_0_1px_rgba(245,217,155,0.14),inset_0_24px_80px_rgba(245,217,155,0.08)]">
-      <div className="mb-1 grid shrink-0 grid-cols-1 gap-2 overflow-hidden rounded-[1.1rem] landscape:grid-cols-[minmax(0,1fr)_clamp(15rem,34vw,24rem)]">
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.14),inset_0_24px_80px_rgba(245,217,155,0.08)]">
+      <div className="grid shrink-0 grid-cols-[minmax(0,1fr)_clamp(8.5rem,34vw,24rem)] gap-1 overflow-hidden">
         <TurnRail players={state.players} activePlayerId={player.id} />
         <ActionPanel
           assignmentLabel={state.deal.lastAssignment?.label}
           awaitingContinue={awaitingContinue}
           card={latestCard}
-          className="hidden landscape:grid"
+          onHome={() => setQuitOpen(true)}
+          onLog={() => setLogOpen(true)}
+          onRules={() => setRulesOpen(true)}
           onContinue={() => dispatch({ type: 'DEAL_CONTINUE' })}
           onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })}
           options={options}
@@ -47,22 +57,32 @@ export function DealScreen() {
 
           <ActiveHand cards={player.hand} highlightedCardId={latestCard?.id} />
 
-          <ResultPanel
-            assignmentLabel={state.deal.lastAssignment?.label}
-            awaitingContinue={awaitingContinue}
-            card={latestCard}
-            playerName={player.name}
-          />
-
-          {awaitingContinue ? (
-            <Button className="shrink-0 text-lg landscape:hidden" onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}>
-              Next
-            </Button>
-          ) : (
-            <GuessPicker className="landscape:hidden" options={options} onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })} />
-          )}
         </div>
       </div>
+      <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
+      <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
+        <div className="space-y-4">
+          <p className="text-sm leading-6 text-[#fff7e6]/82">
+            Return to setup and clear this run? Your player names and settings will stay ready for the next game.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="secondary" onClick={() => setQuitOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={() => dispatch({ type: 'QUIT_TO_SETUP' })}>
+              Go Home
+            </Button>
+          </div>
+        </div>
+      </Drawer>
+      <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
+        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/82">
+          <p>Deal uses Red/Black, Higher/Lower/Same, Inside/Outside/Same, then Suit. Use Give and Take units.</p>
+          <p>The Table flips eleven cards. Matching ranks from player hands autoplay and give the row value.</p>
+          <p>The riders with the most cards left ride together. The Bus starts from a fresh single deck.</p>
+          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
+        </div>
+      </Drawer>
     </section>
   );
 }
@@ -97,6 +117,9 @@ function ActionPanel({
   className = '',
   onContinue,
   onGuess,
+  onHome,
+  onLog,
+  onRules,
   options,
   playerName
 }: {
@@ -106,11 +129,25 @@ function ActionPanel({
   className?: string;
   onContinue: () => void;
   onGuess: (guess: BusGuess) => void;
+  onHome: () => void;
+  onLog: () => void;
+  onRules: () => void;
   options: GuessOption[];
   playerName: string;
 }) {
   return (
-    <div className={`min-h-0 gap-2 rounded-2xl bg-black/16 p-2 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)] ${className}`}>
+    <div className={`grid min-h-0 gap-2 rounded-2xl bg-black/16 p-2 shadow-[inset_0_0_0_1px_rgba(255,247,230,0.08)] ${className}`}>
+      <div className="grid grid-cols-3 gap-1">
+        <IconButton label="Home" className="h-10 w-full rounded-xl" onClick={onHome}>
+          <House size={18} />
+        </IconButton>
+        <IconButton label="Rules" className="h-10 w-full rounded-xl" onClick={onRules}>
+          <BookOpen size={18} />
+        </IconButton>
+        <IconButton label="Game log" className="h-10 w-full rounded-xl" onClick={onLog}>
+          <History size={18} />
+        </IconButton>
+      </div>
       <ResultPanel assignmentLabel={assignmentLabel} awaitingContinue={awaitingContinue} card={card} playerName={playerName} />
       {awaitingContinue ? (
         <Button className="min-h-12 text-base" onClick={onContinue}>
@@ -224,11 +261,7 @@ function ResultPanel({
   playerName: string;
 }) {
   if (!awaitingContinue) {
-    return (
-      <div className="shrink-0 rounded-2xl bg-black/20 px-3 py-[clamp(0.45rem,1.4dvh,0.75rem)] text-center ring-1 ring-white/10 landscape:py-2">
-        <div className="text-[clamp(0.78rem,3vw,0.9rem)] font-bold text-[#fff7e6]/62">Tap a guess to flip into {playerName}'s hand.</div>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -286,7 +319,7 @@ function getGuessOptions(subphase: DealSubphase): GuessOption[] {
 }
 
 const optionClasses = {
-  dark: 'bg-[#111719] text-[#fff7e6] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ring-white/14',
-  red: 'bg-[#c8313b] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_24px_rgba(184,46,53,0.24)] ring-[#ffb4b4]/28',
+  dark: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35',
+  red: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35',
   gold: 'bg-[#f5d99b] text-[#142019] shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] ring-white/35'
 };
