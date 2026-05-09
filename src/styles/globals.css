@@ -72,7 +72,191 @@ select {
   container-type: inline-size;
 }
 
+@media (min-width: 1600px) and (min-height: 900px) {
+  .setup-screen {
+    width: min(100%, 92rem);
+    margin: 0 auto;
+    gap: 1rem !important;
+  }
+
+  .setup-table {
+    border-radius: 1.75rem !important;
+  }
+
+  .setup-table-header {
+    padding: 1.35rem 1.5rem !important;
+  }
+
+  .setup-eyebrow {
+    font-size: 0.8rem !important;
+  }
+
+  .setup-player-count {
+    font-size: clamp(4.6rem, 4.8vw, 7rem) !important;
+  }
+
+  .setup-player-count-label {
+    font-size: 1.15rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  .setup-reset {
+    min-height: 4rem !important;
+    border-radius: 1.1rem !important;
+    padding-inline: 1.25rem !important;
+    font-size: 1rem !important;
+  }
+
+  .bus-mode-selector {
+    margin-top: 1.1rem !important;
+  }
+
+  .deck-mode-button {
+    min-height: 5.6rem !important;
+    border-radius: 1.25rem !important;
+    padding-inline: 1.1rem !important;
+  }
+
+  .deck-mode-label {
+    font-size: 1.05rem !important;
+  }
+
+  .setup-editor {
+    padding: 1.1rem !important;
+  }
+
+  .player-editor {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .player-row,
+  .add-player-button {
+    border-radius: 1.15rem !important;
+  }
+
+  .player-index {
+    height: 2.4rem !important;
+    width: 2.4rem !important;
+    font-size: 1rem !important;
+  }
+
+  .player-input {
+    min-height: 4rem !important;
+    font-size: 1.12rem !important;
+  }
+
+  .player-remove {
+    height: 3rem !important;
+    width: 3rem !important;
+  }
+
+  .add-player-button {
+    min-height: 4.4rem !important;
+    font-size: 1.05rem !important;
+  }
+
+  .setup-summary {
+    width: min(100%, 92rem);
+    margin: 0 auto;
+    padding: 1.1rem 1.35rem !important;
+  }
+
+  .setup-summary-title {
+    font-size: 1.05rem !important;
+  }
+
+  .setup-summary-copy {
+    font-size: 0.95rem !important;
+  }
+
+  .setup-footer {
+    width: min(100%, 92rem);
+    margin: 0 auto;
+  }
+
+  .setup-footer button {
+    min-height: 4.3rem !important;
+    font-size: 1.1rem !important;
+  }
+}
+
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  .setup-screen {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 28vw);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "players info"
+      "players actions";
+    gap: 0.6rem !important;
+    overflow: hidden;
+  }
+
+  .setup-table {
+    grid-area: players;
+    min-height: 0;
+  }
+
+  .setup-table-header {
+    padding: 0.75rem 0.85rem !important;
+  }
+
+  .setup-player-count {
+    font-size: clamp(2.25rem, 7vw, 3.25rem) !important;
+  }
+
+  .setup-player-count-label {
+    font-size: 0.78rem !important;
+    padding-bottom: 0.2rem !important;
+  }
+
+  .bus-mode-selector {
+    margin-top: 0.5rem !important;
+  }
+
+  .bus-mode-selector legend {
+    margin-bottom: 0.35rem !important;
+  }
+
+  .deck-mode-button {
+    min-height: 3.2rem !important;
+    border-radius: 0.85rem !important;
+  }
+
+  .deck-mode-button > span {
+    gap: 0.55rem !important;
+  }
+
+  .setup-editor {
+    padding: 0.65rem !important;
+  }
+
+  .setup-summary {
+    grid-area: info;
+    align-self: start;
+    padding: 0.85rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .setup-summary p {
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .setup-footer {
+    grid-area: actions;
+    align-self: end;
+    padding-bottom: 0 !important;
+  }
+
+  .setup-footer button {
+    min-height: 2.9rem !important;
+    border-radius: 1rem !important;
+    box-shadow: none !important;
+  }
+
   .deal-nav {
     min-height: 2rem;
     padding-top: 0.125rem !important;
@@ -141,22 +325,23 @@ select {
   }
 
   .deal-action-zone {
-    padding: 0.45rem 0.75rem 0.55rem !important;
+    padding: 0.65rem 1rem 0.75rem !important;
   }
 
   .deal-guess-picker {
-    gap: 0.45rem !important;
+    gap: 0.65rem !important;
   }
 
   .deal-guess-picker button {
-    min-height: 2.8rem !important;
-    border-radius: 0.9rem !important;
+    min-height: 3.25rem !important;
+    border-radius: 1rem !important;
     font-size: clamp(0.95rem, 2.5vw, 1.15rem) !important;
+    padding: 0.45rem 0.6rem !important;
   }
 
   .deal-action-zone button {
-    min-height: 2.8rem !important;
-    border-radius: 0.9rem !important;
+    min-height: 3.25rem !important;
+    border-radius: 1rem !important;
   }
 }
 

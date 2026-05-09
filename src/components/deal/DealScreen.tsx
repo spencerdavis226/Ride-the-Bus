@@ -16,6 +16,7 @@ import { LogDrawer } from '../log/LogDrawer';
 type GuessOption = {
   guess: BusGuess;
   label: string;
+  icon?: string;
   tone: 'dark' | 'red' | 'gold';
 };
 
@@ -178,20 +179,36 @@ function TurnRail({
   const playerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
+    const rail = railRef.current;
     const activeTile = playerRefs.current[activePlayerId];
-    if (!activeTile) return;
+    if (!rail || !activeTile) return;
 
-    activeTile.scrollIntoView({
+    const gutter = 16;
+    const railLeft = rail.getBoundingClientRect().left;
+    const tileLeft = activeTile.getBoundingClientRect().left;
+    const tileRight = activeTile.getBoundingClientRect().right;
+    const visibleLeft = railLeft + gutter;
+    const visibleRight = railLeft + rail.clientWidth - gutter;
+    let nextScrollLeft = rail.scrollLeft;
+
+    if (tileLeft < visibleLeft) {
+      nextScrollLeft -= visibleLeft - tileLeft;
+    } else if (tileRight > visibleRight) {
+      nextScrollLeft += tileRight - visibleRight;
+    } else {
+      return;
+    }
+
+    rail.scrollTo({
+      left: Math.max(0, nextScrollLeft),
       behavior: 'smooth',
-      block: 'nearest',
-      inline: 'nearest',
     });
   }, [activePlayerId]);
 
   return (
     <div
       ref={railRef}
-      className="turn-rail flex shrink-0 snap-x gap-2 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="turn-rail flex shrink-0 gap-2 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {players.map((candidate) => {
         const active = candidate.id === activePlayerId;
@@ -203,7 +220,7 @@ function TurnRail({
             }}
             type="button"
             onClick={() => onPreviewPlayer(candidate.id)}
-            className={`turn-tile min-w-[clamp(6.8rem,31vw,9.2rem)] shrink-0 snap-start rounded-xl px-3 py-2.5 text-center outline-none ring-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${
+            className={`turn-tile min-w-[clamp(6.8rem,31vw,9.2rem)] shrink-0 rounded-xl px-3 py-2.5 text-center outline-none ring-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${
               active
                 ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
                 : 'bg-black/28 text-[#fff7e6]/58 ring-white/[0.07]'
@@ -438,7 +455,16 @@ function GuessPicker({
           onClick={() => onGuess(option.guess)}
           className={`min-h-[58px] rounded-2xl px-2 text-[clamp(1rem,4.5vw,1.2rem)] font-black outline-none transition-transform duration-100 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${optionClasses[option.tone]}`}
         >
-          {option.label}
+          {option.icon ? (
+            <span className="flex flex-col items-center justify-center gap-0.5 leading-none">
+              <span className="text-[clamp(1.7rem,7vw,2.25rem)] leading-none">{option.icon}</span>
+              <span className="text-[clamp(0.68rem,2.7vw,0.82rem)] font-black uppercase tracking-[0.04em] opacity-80">
+                {option.label}
+              </span>
+            </span>
+          ) : (
+            option.label
+          )}
         </button>
       ))}
     </div>
@@ -466,16 +492,21 @@ function getGuessOptions(subphase: DealSubphase): GuessOption[] {
       { guess: 'same', label: 'Same', tone: 'dark' },
     ];
   }
-  const suits: Suit[] = ['spades', 'hearts', 'diamonds', 'clubs'];
+  const suits: Suit[] = ['spades', 'clubs', 'hearts', 'diamonds'];
   return suits.map((suit) => ({
     guess: suit,
-    label: suitGlyphs[suit],
+    label: formatSuitName(suit),
+    icon: suitGlyphs[suit],
     tone: suit === 'hearts' || suit === 'diamonds' ? 'red' : 'dark',
   }));
 }
 
+function formatSuitName(suit: Suit): string {
+  return `${suit[0].toUpperCase()}${suit.slice(1)}`;
+}
+
 const optionClasses = {
-  dark: 'bg-[#1a3428] text-[#f5d99b] ring-1 ring-[#f5d99b]/18 shadow-[inset_0_1px_0_rgba(245,217,155,0.07)]',
+  dark: 'bg-[#1a3428] text-[#f5d99b] shadow-[inset_0_1px_0_rgba(245,217,155,0.07)]',
   red: 'bg-[#9b1c22] text-white ring-1 ring-red-900/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]',
   gold: 'bg-[#f5d99b] text-[#142019] ring-1 ring-[#c9a84c]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.40)]',
 };

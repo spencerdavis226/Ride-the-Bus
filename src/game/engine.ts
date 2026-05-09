@@ -69,7 +69,7 @@ const cardBackIds: CardBackId[] = [
 ];
 
 export const defaultSettings: Settings = {
-  playerNames: ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
+  playerNames: ['', ''],
   busMode: 'singleDeck',
   themePreference: 'poker'
 };
@@ -104,7 +104,7 @@ export function namesToPlayers(names: string[]): Player[] {
 }
 
 export function startGame(settings: Settings, rng: () => number = Math.random): GameState {
-  const playerNames = settings.playerNames.length >= 2 ? settings.playerNames : ['Player 1', 'Player 2'];
+  const playerNames = settings.playerNames.length >= 2 ? settings.playerNames : ['', ''];
   const phaseOneTwoDecks = calculatePhaseOneTwoDecks(playerNames.length);
   const now = Date.now();
   return {
