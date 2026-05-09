@@ -87,6 +87,6 @@ function setupUpdate(state: GameState, settings: Settings): GameState {
     players: namesToPlayers(settings.playerNames),
     settings,
     log: state.log,
-    theme: settings.themePreference === 'random' ? state.theme : settings.themePreference
+    theme: 'poker'
   };
 }

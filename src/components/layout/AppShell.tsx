@@ -13,7 +13,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
+  const isSetup = state.phase === 'setup';
   const showHome = state.phase !== 'setup';
+  const showLog = state.phase !== 'setup';
   const hideChrome = state.phase === 'deal';
 
   function quitToSetup() {
@@ -30,15 +32,24 @@ export function AppShell({ children }: { children: ReactNode }) {
       <SafeArea>
         <div className="mx-auto flex h-full w-full max-w-none flex-col">
           {!hideChrome && (
-            <header className="mb-3 flex shrink-0 items-center justify-between gap-3 px-4 pt-1">
-              <div className="min-w-0">
-                <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-[#f5d99b]/60">
-                  Ride the Bus
-                </p>
-                <h1 className="text-[1.8rem] font-black leading-tight tracking-tight text-[#fff7e6]">
-                  {phaseTitle(state.phase)}
-                </h1>
-              </div>
+            <header className={`relative mb-3 flex shrink-0 items-center justify-between gap-3 px-4 ${isSetup ? 'pt-1' : 'pt-1'}`}>
+              {isSetup ? (
+                <>
+                  <div className="h-10 w-10 shrink-0" aria-hidden="true" />
+                  <p className="pointer-events-none absolute left-1/2 max-w-[52vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-[#d8c79f]/72">
+                    Ride the Bus
+                  </p>
+                </>
+              ) : (
+                <div className="min-w-0">
+                  <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-[#f5d99b]/60">
+                    Ride the Bus
+                  </p>
+                  <h1 className="text-[1.8rem] font-black leading-tight tracking-tight text-[#fff7e6]">
+                    {phaseTitle(state.phase)}
+                  </h1>
+                </div>
+              )}
               <div className="flex shrink-0">
                 {showHome && (
                   <IconButton ghost label="Home" onClick={() => setQuitOpen(true)}>
@@ -48,9 +59,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <IconButton ghost label="Rules" onClick={() => setRulesOpen(true)}>
                   <BookOpen size={20} />
                 </IconButton>
-                <IconButton ghost label="Game log" onClick={() => setLogOpen(true)}>
-                  <History size={20} />
-                </IconButton>
+                {showLog && (
+                  <IconButton ghost label="Game log" onClick={() => setLogOpen(true)}>
+                    <History size={20} />
+                  </IconButton>
+                )}
               </div>
             </header>
           )}

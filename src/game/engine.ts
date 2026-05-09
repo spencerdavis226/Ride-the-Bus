@@ -35,7 +35,6 @@ import type {
   ThemePreference
 } from './state';
 
-const themeIds: ThemeId[] = ['poker', 'coffee', 'picnic', 'lounge', 'kitchen', 'velvet', 'ocean', 'copper', 'midnight', 'garden'];
 const cardBackIds: CardBackId[] = [
   'emerald',
   'ivory',
@@ -72,7 +71,7 @@ const cardBackIds: CardBackId[] = [
 export const defaultSettings: Settings = {
   playerNames: ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
   busMode: 'singleDeck',
-  themePreference: 'random'
+  themePreference: 'poker'
 };
 
 export function createSetupState(settings: Settings = defaultSettings): GameState {
@@ -427,9 +426,8 @@ function emptyTable(): TableState {
   return { cards: [], activeIndex: 0, completed: false };
 }
 
-function chooseTheme(preference: ThemePreference, rng: () => number = Math.random): ThemeId {
-  if (preference !== 'random') return preference;
-  return themeIds[Math.floor(rng() * themeIds.length)] ?? 'poker';
+function chooseTheme(_preference: ThemePreference, _rng: () => number = Math.random): ThemeId {
+  return 'poker';
 }
 
 function chooseCardBack(rng: () => number = Math.random): CardBackId {
