@@ -22,7 +22,7 @@ export function PlayingCard({
   if (!faceUp || !card) return <CardBack id={state.cardBackId} size={resolvedSize} />;
 
   const red = card.color === 'red';
-  const animDuration = state.settings.animationSpeed === 'fast' ? 0.12 : 0.22;
+  const animDuration = 0.22;
 
   if (resolvedSize === 'fluid') {
     return (

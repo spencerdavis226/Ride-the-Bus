@@ -20,7 +20,6 @@ import {
   type RedBlackGuess
 } from './rules';
 import type {
-  AnimationSpeed,
   BusMode,
   BusPositionGuess,
   CardBackId,
@@ -36,13 +35,43 @@ import type {
   ThemePreference
 } from './state';
 
-const themeIds: ThemeId[] = ['poker', 'coffee', 'picnic', 'lounge', 'kitchen'];
-const cardBackIds: CardBackId[] = ['emerald', 'ivory', 'ruby', 'midnight', 'brass', 'plaid'];
+const themeIds: ThemeId[] = ['poker', 'coffee', 'picnic', 'lounge', 'kitchen', 'velvet', 'ocean', 'copper', 'midnight', 'garden'];
+const cardBackIds: CardBackId[] = [
+  'emerald',
+  'ivory',
+  'ruby',
+  'midnight',
+  'brass',
+  'plaid',
+  'obsidian',
+  'sapphire',
+  'amethyst',
+  'jade',
+  'cherry',
+  'carbon',
+  'casino',
+  'sunset',
+  'frost',
+  'moss',
+  'pearl',
+  'royal',
+  'ember',
+  'mint',
+  'grape',
+  'slate',
+  'rose',
+  'lagoon',
+  'whiskey',
+  'noir',
+  'coral',
+  'linen',
+  'orchid',
+  'cobalt'
+];
 
 export const defaultSettings: Settings = {
   playerNames: ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
   busMode: 'singleDeck',
-  animationSpeed: 'normal',
   themePreference: 'random'
 };
 

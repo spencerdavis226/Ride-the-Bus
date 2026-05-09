@@ -5,9 +5,48 @@ import type { GameLogEntry } from './log';
 
 export type GamePhase = 'setup' | 'deal' | 'table' | 'busIntro' | 'bus' | 'gameOver';
 export type BusMode = 'singleDeck' | 'endless';
-export type AnimationSpeed = 'normal' | 'fast';
-export type ThemeId = 'poker' | 'coffee' | 'picnic' | 'lounge' | 'kitchen';
-export type CardBackId = 'emerald' | 'ivory' | 'ruby' | 'midnight' | 'brass' | 'plaid';
+export type ThemeId =
+  | 'poker'
+  | 'coffee'
+  | 'picnic'
+  | 'lounge'
+  | 'kitchen'
+  | 'velvet'
+  | 'ocean'
+  | 'copper'
+  | 'midnight'
+  | 'garden';
+export type CardBackId =
+  | 'emerald'
+  | 'ivory'
+  | 'ruby'
+  | 'midnight'
+  | 'brass'
+  | 'plaid'
+  | 'obsidian'
+  | 'sapphire'
+  | 'amethyst'
+  | 'jade'
+  | 'cherry'
+  | 'carbon'
+  | 'casino'
+  | 'sunset'
+  | 'frost'
+  | 'moss'
+  | 'pearl'
+  | 'royal'
+  | 'ember'
+  | 'mint'
+  | 'grape'
+  | 'slate'
+  | 'rose'
+  | 'lagoon'
+  | 'whiskey'
+  | 'noir'
+  | 'coral'
+  | 'linen'
+  | 'orchid'
+  | 'cobalt';
 export type ThemePreference = 'random' | ThemeId;
 
 export type Player = {
@@ -19,7 +58,6 @@ export type Player = {
 export type Settings = {
   playerNames: string[];
   busMode: BusMode;
-  animationSpeed: AnimationSpeed;
   themePreference: ThemePreference;
 };
 

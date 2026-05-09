@@ -11,19 +11,19 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       {names.map((name, index) => (
         <label
           key={index}
-          className="flex min-w-0 items-center gap-3 rounded-xl bg-white/[0.07] px-3 py-0.5 ring-1 ring-white/[0.07] transition-[box-shadow] duration-150 focus-within:ring-[#f5d99b]/50"
+          className="flex min-w-0 items-center gap-3 rounded-xl bg-[#183428]/72 px-3 py-1 ring-1 ring-white/[0.07] transition-[box-shadow,background-color] duration-150 focus-within:bg-[#1c3c2e] focus-within:ring-[#f5d99b]/50"
         >
-          <span className="w-6 shrink-0 text-center text-sm font-black text-[#f5d99b]/55">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-black/18 text-sm font-black text-[#f5d99b]/62">
             {index + 1}
           </span>
           <input
             value={name}
             onChange={(e) => updateName(index, e.target.value)}
-            className="min-h-[48px] min-w-0 flex-1 bg-transparent text-[0.95rem] font-semibold text-[#fff7e6] outline-none placeholder:text-white/28"
+            className="min-h-[48px] min-w-0 flex-1 bg-transparent text-[1rem] font-black text-[#fff7e6] outline-none placeholder:text-white/28"
             placeholder={`Player ${index + 1}`}
           />
           <button
@@ -40,7 +40,7 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
       <button
         type="button"
         onClick={addPlayer}
-        className="tap-target flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.07] text-sm font-semibold text-[#f5d99b]/80 ring-1 ring-white/[0.07] transition-[transform,background-color] duration-100 active:scale-[0.98] active:bg-white/[0.12]"
+        className="tap-target flex w-full items-center justify-center gap-2 rounded-xl bg-[#183428]/72 text-sm font-black text-[#f5d99b]/82 ring-1 ring-white/[0.07] transition-[transform,background-color] duration-100 active:scale-[0.98] active:bg-white/[0.12]"
       >
         <Plus size={16} />
         Add Player

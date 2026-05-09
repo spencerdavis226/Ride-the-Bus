@@ -69,6 +69,36 @@ select {
   background-size: 38px 38px, auto;
 }
 
+.theme-velvet {
+  background:
+    radial-gradient(circle at 46% 8%, rgba(240, 198, 122, 0.12), transparent 20rem),
+    linear-gradient(145deg, #4a1226, #12070c 74%);
+}
+
+.theme-ocean {
+  background:
+    radial-gradient(circle at 35% 12%, rgba(158, 231, 223, 0.13), transparent 19rem),
+    linear-gradient(145deg, #0b4a5b, #061820 72%);
+}
+
+.theme-copper {
+  background:
+    radial-gradient(circle at 72% 10%, rgba(231, 167, 102, 0.15), transparent 18rem),
+    linear-gradient(145deg, #51311f, #120d09 72%);
+}
+
+.theme-midnight {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(185, 207, 247, 0.12), transparent 22rem),
+    linear-gradient(145deg, #172544, #050812 72%);
+}
+
+.theme-garden {
+  background:
+    radial-gradient(circle at 20% 14%, rgba(231, 213, 140, 0.12), transparent 18rem),
+    linear-gradient(145deg, #315232, #101a11 74%);
+}
+
 .glass-panel {
   border: 1px solid rgba(255, 247, 230, 0.10);
   background: rgba(6, 18, 14, 0.72);

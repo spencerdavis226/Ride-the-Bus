@@ -10,7 +10,7 @@ import {
 } from '../game/engine';
 import { flipNextTableCard } from '../game/engine';
 import type { BusGuess } from '../game/rules';
-import type { AnimationSpeed, BusMode, GameState, Settings, ThemePreference, UndoSnapshot } from '../game/state';
+import type { BusMode, GameState, Settings, ThemePreference, UndoSnapshot } from '../game/state';
 import { clearSavedGame } from './persistence';
 
 export type GameAction =
@@ -26,7 +26,6 @@ export type GameAction =
   | { type: 'UNDO_LAST_ACTION' }
   | { type: 'OPEN_NEW_GAME_FROM_EXISTING_PLAYERS' }
   | { type: 'QUIT_TO_SETUP' }
-  | { type: 'SET_ANIMATION_SPEED'; speed: AnimationSpeed }
   | { type: 'SET_THEME'; theme: ThemePreference };
 
 export function makeInitialState(settings: Settings = defaultSettings): GameState {
@@ -47,8 +46,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state.settings,
         busMode: action.mode
       });
-    case 'SET_ANIMATION_SPEED':
-      return { ...state, settings: { ...state.settings, animationSpeed: action.speed }, undo: null };
     case 'SET_THEME':
       return setupUpdate(state, {
         ...state.settings,

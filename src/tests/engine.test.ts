@@ -6,7 +6,6 @@ describe('engine start', () => {
     const state = startGame({
       playerNames: Array.from({ length: 11 }, (_, index) => `P${index + 1}`),
       busMode: 'singleDeck',
-      animationSpeed: 'fast',
       themePreference: 'poker'
     });
     expect(state.phase).toBe('deal');
@@ -18,7 +17,6 @@ describe('engine start', () => {
     const state = startGame({
       playerNames: ['P1', 'P2'],
       busMode: 'singleDeck',
-      animationSpeed: 'fast',
       themePreference: 'poker'
     });
 
