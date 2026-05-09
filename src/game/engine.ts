@@ -54,7 +54,7 @@ export function createSetupState(settings: Settings = defaultSettings): GameStat
     settings,
     phaseOneTwoDecks: calculatePhaseOneTwoDecks(settings.playerNames.length),
     shoe: [],
-    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, awaitingContinue: false },
+    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, lastResult: null, awaitingContinue: false },
     table: emptyTable(),
     bus: null,
     gameOverReason: null,
@@ -85,7 +85,7 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
     settings: { ...settings, playerNames },
     phaseOneTwoDecks,
     shoe: shuffleFisherYates(createShoe(phaseOneTwoDecks), rng),
-    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, awaitingContinue: false },
+    deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, lastResult: null, awaitingContinue: false },
     table: emptyTable(),
     bus: null,
     gameOverReason: null,
@@ -112,7 +112,12 @@ export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
     ...state,
     players,
     shoe: deck,
-    deal: { ...state.deal, lastAssignment: assignment, awaitingContinue: true },
+    deal: {
+      ...state.deal,
+      lastAssignment: assignment,
+      lastResult: { guess, actual: score.actual, correct: score.correct },
+      awaitingContinue: true
+    },
     log: [...state.log, makeLog(logText, 'deal')]
   });
 }
@@ -123,7 +128,13 @@ export function continueDeal(state: GameState): GameState {
   if (!position.done) {
     return stamp({
       ...state,
-      deal: { subphase: position.subphase, playerIndex: position.playerIndex, lastAssignment: null, awaitingContinue: false }
+      deal: {
+        subphase: position.subphase,
+        playerIndex: position.playerIndex,
+        lastAssignment: null,
+        lastResult: null,
+        awaitingContinue: false
+      }
     });
   }
 
@@ -133,7 +144,7 @@ export function continueDeal(state: GameState): GameState {
     phase: 'table',
     shoe: tableBuild.shoe,
     table: tableBuild.table,
-    deal: { ...state.deal, awaitingContinue: false },
+    deal: { ...state.deal, lastResult: null, awaitingContinue: false },
     log: [...state.log, makeLog('The Table is ready.', 'table')]
   });
 }

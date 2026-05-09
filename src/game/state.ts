@@ -1,5 +1,6 @@
 import type { Card, Suit } from './cards';
 import type { DealSubphase } from './phases';
+import type { BusGuess } from './rules';
 import type { GameLogEntry } from './log';
 
 export type GamePhase = 'setup' | 'deal' | 'table' | 'busIntro' | 'bus' | 'gameOver';
@@ -31,10 +32,17 @@ export type DrinkAssignment = {
   label: string;
 };
 
+export type DealResult = {
+  guess: BusGuess;
+  actual: string;
+  correct: boolean;
+};
+
 export type DealState = {
   subphase: DealSubphase;
   playerIndex: number;
   lastAssignment: DrinkAssignment | null;
+  lastResult: DealResult | null;
   awaitingContinue: boolean;
 };
 

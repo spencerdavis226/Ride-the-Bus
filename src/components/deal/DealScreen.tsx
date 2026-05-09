@@ -5,7 +5,7 @@ import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
 import { dealSubphaseLabels, type DealSubphase } from '../../game/phases';
 import type { BusGuess } from '../../game/rules';
-import type { Player } from '../../game/state';
+import type { DealResult, DrinkAssignment, Player } from '../../game/state';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
@@ -60,33 +60,40 @@ export function DealScreen() {
 
       {/* Main game area - green felt */}
       <div className="mx-2 mb-0 mt-1.5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_35%,rgba(22,130,90,0.80)_0%,rgba(3,30,20,0.97)_65%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.09),inset_0_1px_0_rgba(245,217,155,0.08)]">
-        <div className="flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]">
-          <div className="shrink-0">
-            <h2 className="max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
-              {player.name}
-            </h2>
-            <AnimatePresence>
-              {awaitingContinue && state.deal.lastAssignment && (
-                <motion.div
-                  className="mt-2 inline-flex max-w-full rounded-xl bg-[#f5d99b] px-4 py-2 text-[#142019] shadow-glow"
-                  initial={{ y: 8, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -4, opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                >
-                  <p className="truncate text-[clamp(1rem,3.8vw,1.5rem)] font-black leading-tight">
-                    {state.deal.lastAssignment.label}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`${player.id}-${state.deal.subphase}`}
+            className="flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
+            initial={{ y: 18, scale: 0.985 }}
+            animate={{ y: 0, scale: 1 }}
+            exit={{ y: -14, scale: 0.985 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+          >
+            <div className="shrink-0">
+              <motion.h2
+                className="max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]"
+                initial={{ y: 10 }}
+                animate={{ y: 0 }}
+                transition={{ type: 'spring', damping: 24, stiffness: 260 }}
+              >
+                {player.name}
+              </motion.h2>
+              <AnimatePresence>
+                {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
+                  <DealOutcome
+                    assignment={state.deal.lastAssignment}
+                    result={state.deal.lastResult}
+                  />
+                )}
+              </AnimatePresence>
+            </div>
 
-          {/* Center - four-card turn stage */}
-          <div className="min-h-0 flex-1">
-            <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
-          </div>
-        </div>
+            {/* Center - four-card turn stage */}
+            <div className="min-h-0 flex-1">
+              <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Bottom action zone */}
@@ -110,11 +117,11 @@ export function DealScreen() {
             </motion.div>
           ) : (
             <motion.div
-              key="guess-btns"
-              initial={{ opacity: 0, y: 8 }}
+              key={`guess-btns-${player.id}-${state.deal.subphase}`}
+              initial={{ opacity: 0, y: 14, scale: 0.98 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 290 }}
             >
               <GuessPicker
                 options={options}
@@ -274,6 +281,60 @@ function HandPreviewOverlay({ onClose, player }: { onClose: () => void; player: 
   );
 }
 
+function DealOutcome({
+  assignment,
+  result,
+}: {
+  assignment: DrinkAssignment;
+  result: DealResult;
+}) {
+  const correct = result.correct;
+  const actual = formatOutcomeValue(result.actual);
+  const guessed = formatOutcomeValue(result.guess);
+  const action = assignment.direction === 'give' ? 'Give' : 'Take';
+  const shellClass = correct
+    ? 'border-[#7fd8a3]/45 bg-[#123a2a] text-[#dff8e8] shadow-[0_12px_40px_rgba(47,160,99,0.18)]'
+    : 'border-[#f0a0a8]/45 bg-[#481923] text-[#ffe5e8] shadow-[0_12px_40px_rgba(163,38,54,0.20)]';
+  const statusClass = correct
+    ? 'bg-[#7fd8a3] text-[#062015]'
+    : 'bg-[#f0a0a8] text-[#2b080d]';
+  const actionClass = assignment.direction === 'give'
+    ? 'bg-[#dff8e8] text-[#123a2a]'
+    : 'bg-[#ffe1a8] text-[#34210a]';
+
+  return (
+    <motion.div
+      className={`mt-2 inline-flex max-w-full flex-wrap items-center gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
+      initial={{ y: 8, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -4, opacity: 0 }}
+      transition={{ duration: 0.18 }}
+    >
+      <span className={`rounded-lg px-2.5 py-1 text-[0.72rem] font-black uppercase tracking-[0.08em] ${statusClass}`}>
+        {correct ? 'Correct' : 'Wrong'}
+      </span>
+      <span className="text-[clamp(0.95rem,3.4vw,1.2rem)] font-black leading-tight">
+        Guessed {guessed}
+      </span>
+      {!correct && (
+        <span className="text-[clamp(0.9rem,3vw,1.08rem)] font-bold leading-tight opacity-85">
+          Actual {actual}
+        </span>
+      )}
+      <span className={`rounded-lg px-2.5 py-1 text-[clamp(0.9rem,3vw,1.08rem)] font-black leading-tight ${actionClass}`}>
+        {action} {assignment.units}
+      </span>
+    </motion.div>
+  );
+}
+
+function formatOutcomeValue(value: string): string {
+  if (value === 'spades' || value === 'hearts' || value === 'diamonds' || value === 'clubs') {
+    return suitGlyphs[value];
+  }
+  return `${value[0]?.toUpperCase() ?? ''}${value.slice(1)}`;
+}
+
 function computeFan(containerW: number, containerH: number) {
   const N = 4;
   const ASPECT = 5 / 7; // card width / height
@@ -341,8 +402,9 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
                 key={card?.id ?? `face-down-${i}`}
                 className="absolute top-0"
                 style={{ left: i * fan.step, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
-                animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0 }}
-                transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+                initial={{ y: 26 + i * 4, scale: 0.94, rotate: -1.5 + i * 0.7 }}
+                animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0, scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 300, delay: i * 0.045 }}
               >
                 {card ? (
                   <PlayingCard card={card} size="fluid" highlighted={highlighted} />

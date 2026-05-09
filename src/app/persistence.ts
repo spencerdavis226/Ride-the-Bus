@@ -12,6 +12,7 @@ export function loadSavedGame(): GameState | null {
       ...state,
       deal: {
         ...state.deal,
+        lastResult: state.deal.lastResult ?? null,
         awaitingContinue: Boolean(state.deal.awaitingContinue)
       }
     };
