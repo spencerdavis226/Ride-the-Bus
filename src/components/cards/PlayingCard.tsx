@@ -35,17 +35,17 @@ export function PlayingCard({
         className={`card-fluid relative flex h-full w-full flex-col justify-between rounded-xl border bg-[#fbf2d9] text-[#111827] shadow-card ${
           highlighted ? 'ring-2 ring-[#f5d99b]' : 'border-black/10'
         }`}
-        style={{ padding: '6%' }}
+        style={{ padding: '6%', transformPerspective: 900 }}
         initial={animateEntry ? { rotateY: 90 } : false}
         animate={{ rotateY: 0 }}
-        transition={{ duration: animDuration }}
+        transition={{ duration: animDuration, ease: 'easeOut' }}
       >
         <div
-          className={`text-left font-bold leading-none ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+          className={`inline-flex flex-col items-center gap-0 self-start font-bold leading-none tabular-nums ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
           style={{ fontSize: '14cqw' }}
         >
-          <div>{card.rank}</div>
-          <div>{suitGlyphs[card.suit]}</div>
+          <span>{card.rank}</span>
+          <span className="block leading-none">{suitGlyphs[card.suit]}</span>
         </div>
         <div
           className={`self-center ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
@@ -54,11 +54,11 @@ export function PlayingCard({
           {suitGlyphs[card.suit]}
         </div>
         <div
-          className={`rotate-180 text-left font-bold leading-none ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+          className={`inline-flex rotate-180 flex-col items-center gap-0 self-end font-bold leading-none tabular-nums ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
           style={{ fontSize: '14cqw' }}
         >
-          <div>{card.rank}</div>
-          <div>{suitGlyphs[card.suit]}</div>
+          <span>{card.rank}</span>
+          <span className="block leading-none">{suitGlyphs[card.suit]}</span>
         </div>
       </motion.div>
     );
@@ -92,18 +92,23 @@ export function PlayingCard({
       className={`relative flex flex-col justify-between rounded-lg border bg-[#fbf2d9] text-[#111827] shadow-card ${sizeClasses[resolvedSize]} ${
         highlighted ? 'ring-2 ring-[#f5d99b]' : 'border-black/10'
       }`}
+      style={{ transformPerspective: 900 }}
       initial={animateEntry ? { rotateY: 90 } : false}
       animate={{ rotateY: 0 }}
-      transition={{ duration: animDuration }}
+      transition={{ duration: animDuration, ease: 'easeOut' }}
     >
-      <div className={`text-left font-bold leading-none ${cornerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}>
-        <div>{card.rank}</div>
-        <div>{suitGlyphs[card.suit]}</div>
+      <div
+        className={`inline-flex flex-col items-center gap-0 self-start font-bold leading-none tabular-nums ${cornerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+      >
+        <span>{card.rank}</span>
+        <span className="block leading-none">{suitGlyphs[card.suit]}</span>
       </div>
       <div className={`self-center ${centerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}>{suitGlyphs[card.suit]}</div>
-      <div className={`rotate-180 text-left font-bold leading-none ${cornerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}>
-        <div>{card.rank}</div>
-        <div>{suitGlyphs[card.suit]}</div>
+      <div
+        className={`inline-flex rotate-180 flex-col items-center gap-0 self-end font-bold leading-none tabular-nums ${cornerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+      >
+        <span>{card.rank}</span>
+        <span className="block leading-none">{suitGlyphs[card.suit]}</span>
       </div>
     </motion.div>
   );

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card } from '../../game/cards';
@@ -20,6 +20,7 @@ import {
 
 export function DealScreen() {
   const { state, dispatch } = useGame();
+  const reduceMotion = useReducedMotion();
   const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
@@ -28,6 +29,7 @@ export function DealScreen() {
   const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
+  const handPresenceKey = `${player.id}-${state.deal.subphase}`;
 
   return (
     <PlayScreen>
@@ -44,37 +46,51 @@ export function DealScreen() {
       />
 
       <PlayFelt>
-        <motion.div
-          className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
-          initial={{ y: 18, scale: 0.985 }}
-          animate={{ y: 0, scale: 1 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
-        >
-          <div className="deal-hero shrink-0">
-            <motion.h2
-              key={player.id}
-              className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]"
-              initial={{ y: 10 }}
-              animate={{ y: 0 }}
-              transition={{ type: 'spring', damping: 24, stiffness: 260 }}
-            >
-              {player.name}
-            </motion.h2>
-            <AnimatePresence>
-              {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
-                <DealOutcome
-                  assignment={state.deal.lastAssignment}
-                  result={state.deal.lastResult}
-                />
-              )}
-            </AnimatePresence>
-          </div>
+        <LayoutGroup>
+          <motion.div
+            className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
+            initial={{ y: 18, scale: 0.985 }}
+            animate={{ y: 0, scale: 1 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+          >
+            <motion.div layout className="deal-hero shrink-0">
+              <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
+                {player.name}
+              </h2>
+              <AnimatePresence>
+                {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
+                  <DealOutcome
+                    assignment={state.deal.lastAssignment}
+                    result={state.deal.lastResult}
+                  />
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-          {/* Center - four-card turn stage */}
-          <div className="deal-stage min-h-0 flex-1">
-            <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
-          </div>
-        </motion.div>
+            {/* Center - four-card turn stage */}
+            <motion.div
+              layout
+              className="deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible"
+            >
+              <AnimatePresence initial={false}>
+                <motion.div
+                  key={handPresenceKey}
+                  className="col-start-1 row-start-1 flex h-full min-h-0 w-full min-w-0"
+                  initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 26 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -14 }}
+                  transition={
+                    reduceMotion
+                      ? { duration: 0.12, ease: 'easeOut' }
+                      : { type: 'spring', damping: 28, stiffness: 300, mass: 0.82 }
+                  }
+                >
+                  <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        </LayoutGroup>
       </PlayFelt>
 
       <PlayActionZone>
@@ -168,7 +184,7 @@ function DealOutcome({
       initial={{ y: 8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: -4, opacity: 0 }}
-      transition={{ duration: 0.18 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
     >
       <span className={`deal-outcome-summary justify-self-start rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
         {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
@@ -251,15 +267,15 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
             const highlighted = highlightedIndex === i;
             return (
               <motion.div
-                key={card?.id ?? `face-down-${i}`}
+                key={i}
                 className="absolute top-0"
                 style={{ left: i * fan.step, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
                 initial={{ y: 26 + i * 4, scale: 0.94, rotate: -1.5 + i * 0.7 }}
                 animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0, scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 22, stiffness: 300, delay: i * 0.045 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 300, delay: i * 0.045 }}
               >
                 {card ? (
-                  <PlayingCard card={card} size="fluid" highlighted={highlighted} />
+                  <PlayingCard card={card} size="fluid" highlighted={highlighted} motionLayout={false} />
                 ) : (
                   <div className="h-full w-full rotate-180">
                     <CardBack id={state.cardBackId} size="fluid" />
