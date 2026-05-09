@@ -72,6 +72,14 @@ select {
   container-type: inline-size;
 }
 
+/* Deal-only: bounded hand strip scales with viewport; Table/Bus reuse .deal-stage with flex-1 instead */
+.deal-layout .deal-stage {
+  flex-shrink: 0;
+  min-height: clamp(11rem, 40dvh, 32rem);
+  height: clamp(11rem, 42dvh, 32rem);
+  max-height: min(34rem, 52dvh);
+}
+
 .table-carousel-stage {
   height: 100%;
   perspective: 900px;
@@ -387,6 +395,10 @@ select {
     padding: 0.75rem 0.9rem !important;
   }
 
+  .deal-turn-main {
+    display: contents;
+  }
+
   .deal-hero {
     display: grid;
     gap: 0.35rem;
@@ -414,6 +426,12 @@ select {
 
   .deal-outcome-guess {
     font-size: clamp(0.82rem, 2.1vw, 0.98rem) !important;
+  }
+
+  .deal-layout .deal-stage {
+    height: 100%;
+    max-height: none;
+    min-height: 0;
   }
 
   .deal-stage {

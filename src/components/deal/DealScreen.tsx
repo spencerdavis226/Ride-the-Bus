@@ -1,4 +1,4 @@
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card } from '../../game/cards';
@@ -20,7 +20,6 @@ import {
 
 export function DealScreen() {
   const { state, dispatch } = useGame();
-  const reduceMotion = useReducedMotion();
   const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
@@ -29,10 +28,9 @@ export function DealScreen() {
   const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
-  const handPresenceKey = `${player.id}-${state.deal.subphase}`;
 
   return (
-    <PlayScreen>
+    <PlayScreen className="deal-layout">
       <PlayTopBar
         onHome={() => setQuitOpen(true)}
         onLog={() => setLogOpen(true)}
@@ -46,14 +44,14 @@ export function DealScreen() {
       />
 
       <PlayFelt>
-        <LayoutGroup>
-          <motion.div
-            className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
-            initial={{ y: 18, scale: 0.985 }}
-            animate={{ y: 0, scale: 1 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
-          >
-            <motion.div layout className="deal-hero shrink-0">
+        <motion.div
+          className="deal-turn-content flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
+          initial={{ y: 18, scale: 0.985 }}
+          animate={{ y: 0, scale: 1 }}
+          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+        >
+          <div className="deal-turn-main mx-auto mt-auto mb-auto flex w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
+            <div className="deal-hero shrink-0">
               <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
                 {player.name}
               </h2>
@@ -65,32 +63,13 @@ export function DealScreen() {
                   />
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
 
-            {/* Center - four-card turn stage */}
-            <motion.div
-              layout
-              className="deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible"
-            >
-              <AnimatePresence initial={false}>
-                <motion.div
-                  key={handPresenceKey}
-                  className="col-start-1 row-start-1 flex h-full min-h-0 w-full min-w-0"
-                  initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 26 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -14 }}
-                  transition={
-                    reduceMotion
-                      ? { duration: 0.12, ease: 'easeOut' }
-                      : { type: 'spring', damping: 28, stiffness: 300, mass: 0.82 }
-                  }
-                >
-                  <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-          </motion.div>
-        </LayoutGroup>
+            <div className="deal-stage grid grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible">
+              <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
+            </div>
+          </div>
+        </motion.div>
       </PlayFelt>
 
       <PlayActionZone>
@@ -168,6 +147,7 @@ function DealOutcome({
   assignment: DrinkAssignment;
   result: DealResult;
 }) {
+  const reduceMotion = useReducedMotion();
   const correct = result.correct;
   const guessed = formatOutcomeValue(result.guess);
   const action = assignment.direction === 'give' ? 'Give' : 'Take';
@@ -181,10 +161,10 @@ function DealOutcome({
   return (
     <motion.div
       className={`deal-outcome mt-2 inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
-      initial={{ y: 8, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -4, opacity: 0 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
       <span className={`deal-outcome-summary justify-self-start rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
         {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
@@ -244,12 +224,29 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    const measure = () => {
+      const { width, height } = el.getBoundingClientRect();
+      if (width > 0 && height > 0) {
+        setDims({ w: width, h: height });
+      }
+    };
+    measure();
     const obs = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      setDims({ w: width, h: height });
+      if (width > 0 && height > 0) {
+        setDims({ w: width, h: height });
+      }
     });
     obs.observe(el);
-    return () => obs.disconnect();
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(measure);
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      obs.disconnect();
+    };
   }, []);
 
   const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, dims.h) : null;
@@ -258,7 +255,7 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
   return (
     <div
       ref={containerRef}
-      className="flex h-full min-h-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
+      className="flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
     >
       {fan && (
         <div className="relative flex-shrink-0" style={{ width: totalFanW, height: fan.cardH }}>
@@ -270,9 +267,9 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
                 key={i}
                 className="absolute top-0"
                 style={{ left: i * fan.step, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
-                initial={{ y: 26 + i * 4, scale: 0.94, rotate: -1.5 + i * 0.7 }}
+                initial={false}
                 animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0, scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 26, stiffness: 300, delay: i * 0.045 }}
+                transition={{ type: 'spring', damping: 30, stiffness: 340 }}
               >
                 {card ? (
                   <PlayingCard card={card} size="fluid" highlighted={highlighted} motionLayout={false} />

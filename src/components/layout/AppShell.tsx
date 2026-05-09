@@ -68,8 +68,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             </header>
           )}
           <div
-            className={`min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden ${
-              hideChrome ? 'pb-0' : 'px-3 pb-4'
+            className={`min-h-0 min-w-0 flex-1 ${
+              hideChrome ? 'flex flex-col overflow-hidden pb-0' : 'overflow-y-auto overflow-x-hidden px-3 pb-4'
             }`}
           >
             {children}
