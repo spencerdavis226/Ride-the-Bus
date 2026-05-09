@@ -1,4 +1,4 @@
-import { BookOpen, History, House } from 'lucide-react';
+import { BookOpen, History, House, RotateCcw } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { getThemeClass } from '../../styles/themes';
@@ -23,6 +23,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <main className={`${getThemeClass(state.theme)} h-dvh overflow-hidden text-[#fff7e6]`}>
+      <div className="landscape-blocker fixed inset-0 z-50 flex-col items-center justify-center gap-4 bg-[#071812] text-[#fff7e6]">
+        <RotateCcw size={36} className="text-[#f5d99b]/60" />
+        <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fff7e6]/60">Rotate to play</p>
+      </div>
       <SafeArea>
         <div className="mx-auto flex h-full w-full max-w-none flex-col">
           {!hideChrome && (
@@ -35,24 +39,24 @@ export function AppShell({ children }: { children: ReactNode }) {
                   {phaseTitle(state.phase)}
                 </h1>
               </div>
-              <div className="flex shrink-0 gap-1.5">
+              <div className="flex shrink-0">
                 {showHome && (
-                  <IconButton label="Home" onClick={() => setQuitOpen(true)}>
+                  <IconButton ghost label="Home" onClick={() => setQuitOpen(true)}>
                     <House size={18} />
                   </IconButton>
                 )}
-                <IconButton label="Rules" onClick={() => setRulesOpen(true)}>
+                <IconButton ghost label="Rules" onClick={() => setRulesOpen(true)}>
                   <BookOpen size={18} />
                 </IconButton>
-                <IconButton label="Game log" onClick={() => setLogOpen(true)}>
+                <IconButton ghost label="Game log" onClick={() => setLogOpen(true)}>
                   <History size={18} />
                 </IconButton>
               </div>
             </header>
           )}
           <div
-            className={`min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-3 ${
-              hideChrome ? 'pb-0' : 'pb-4'
+            className={`min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden ${
+              hideChrome ? 'pb-0' : 'px-3 pb-4'
             }`}
           >
             {children}

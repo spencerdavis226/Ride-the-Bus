@@ -83,6 +83,16 @@ select {
   min-height: 52px;
 }
 
+.landscape-blocker {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-blocker {
+    display: flex;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

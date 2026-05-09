@@ -32,18 +32,18 @@ export function DealScreen() {
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_24px_80px_rgba(245,217,155,0.06)]">
       {/* Slim navigation bar */}
-      <div className="flex shrink-0 items-center gap-2 px-3 pb-1 pt-2.5">
-        <IconButton label="Home" onClick={() => setQuitOpen(true)} className="h-9 w-9 shrink-0">
+      <div className="flex shrink-0 items-center px-1 pb-0.5 pt-1.5">
+        <IconButton ghost label="Home" onClick={() => setQuitOpen(true)} className="h-9 w-9 shrink-0">
           <House size={17} />
         </IconButton>
-        <p className="flex-1 text-center text-[0.72rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/80">
+        <p className="flex-1 text-center text-[0.75rem] font-bold uppercase tracking-[0.18em] text-[#f5d99b]/60">
           {dealSubphaseLabels[state.deal.subphase]}
         </p>
-        <div className="flex shrink-0 gap-1.5">
-          <IconButton label="Rules" onClick={() => setRulesOpen(true)} className="h-9 w-9">
+        <div className="flex shrink-0">
+          <IconButton ghost label="Rules" onClick={() => setRulesOpen(true)} className="h-9 w-9">
             <BookOpen size={16} />
           </IconButton>
-          <IconButton label="Game log" onClick={() => setLogOpen(true)} className="h-9 w-9">
+          <IconButton ghost label="Game log" onClick={() => setLogOpen(true)} className="h-9 w-9">
             <History size={16} />
           </IconButton>
         </div>
