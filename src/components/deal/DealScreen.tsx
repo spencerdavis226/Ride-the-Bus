@@ -44,40 +44,37 @@ export function DealScreen() {
       />
 
       <PlayFelt>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={`${player.id}-${state.deal.subphase}`}
-            className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
-            initial={{ y: 18, scale: 0.985 }}
-            animate={{ y: 0, scale: 1 }}
-            exit={{ y: -14, scale: 0.985 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
-          >
-            <div className="deal-hero shrink-0">
-              <motion.h2
-                className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]"
-                initial={{ y: 10 }}
-                animate={{ y: 0 }}
-                transition={{ type: 'spring', damping: 24, stiffness: 260 }}
-              >
-                {player.name}
-              </motion.h2>
-              <AnimatePresence>
-                {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
-                  <DealOutcome
-                    assignment={state.deal.lastAssignment}
-                    result={state.deal.lastResult}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
+        <motion.div
+          className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
+          initial={{ y: 18, scale: 0.985 }}
+          animate={{ y: 0, scale: 1 }}
+          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+        >
+          <div className="deal-hero shrink-0">
+            <motion.h2
+              key={player.id}
+              className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]"
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 260 }}
+            >
+              {player.name}
+            </motion.h2>
+            <AnimatePresence>
+              {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
+                <DealOutcome
+                  assignment={state.deal.lastAssignment}
+                  result={state.deal.lastResult}
+                />
+              )}
+            </AnimatePresence>
+          </div>
 
-            {/* Center - four-card turn stage */}
-            <div className="deal-stage min-h-0 flex-1">
-              <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
-            </div>
-          </motion.div>
-        </AnimatePresence>
+          {/* Center - four-card turn stage */}
+          <div className="deal-stage min-h-0 flex-1">
+            <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
+          </div>
+        </motion.div>
       </PlayFelt>
 
       <PlayActionZone>
@@ -161,29 +158,23 @@ function DealOutcome({
   const shellClass = correct
     ? 'border-[#7fd8a3]/45 bg-[#123a2a] text-[#dff8e8] shadow-[0_12px_40px_rgba(47,160,99,0.18)]'
     : 'border-[#f0a0a8]/45 bg-[#481923] text-[#ffe5e8] shadow-[0_12px_40px_rgba(163,38,54,0.20)]';
-  const statusClass = correct
-    ? 'bg-[#7fd8a3] text-[#062015]'
-    : 'bg-[#f0a0a8] text-[#2b080d]';
-  const actionClass = assignment.direction === 'give'
+  const summaryClass = correct
     ? 'bg-[#dff8e8] text-[#123a2a]'
     : 'bg-[#ffe1a8] text-[#34210a]';
 
   return (
     <motion.div
-      className={`mt-2 inline-flex max-w-full flex-wrap items-center gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
+      className={`deal-outcome mt-2 inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
       initial={{ y: 8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: -4, opacity: 0 }}
       transition={{ duration: 0.18 }}
     >
-      <span className={`rounded-lg px-2.5 py-1 text-[0.72rem] font-black uppercase tracking-[0.08em] ${statusClass}`}>
-        {correct ? 'Correct' : 'Wrong'}
+      <span className={`deal-outcome-summary justify-self-start rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
+        {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
       </span>
-      <span className="text-[clamp(0.95rem,3.4vw,1.2rem)] font-black leading-tight">
-        Guessed {guessed}
-      </span>
-      <span className={`rounded-lg px-2.5 py-1 text-[clamp(0.9rem,3vw,1.08rem)] font-black leading-tight ${actionClass}`}>
-        {action} {assignment.units}
+      <span className="deal-outcome-guess min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90">
+        Your guess: {guessed}
       </span>
     </motion.div>
   );

@@ -251,7 +251,7 @@ function CarouselSlot({
 function TableResult({ card }: { card: TableCard | null }) {
   if (!card) {
     return (
-      <div className="rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/48 ring-1 ring-white/[0.06]">
+      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/48 ring-1 ring-white/[0.06]">
         Flip the center card to start table matches.
       </div>
     );
@@ -259,7 +259,7 @@ function TableResult({ card }: { card: TableCard | null }) {
 
   if (!card.matchedAssignments.length) {
     return (
-      <div className="rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/58 ring-1 ring-white/[0.06]">
+      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/58 ring-1 ring-white/[0.06]">
         No matches on {cardName(card)}.
       </div>
     );
@@ -267,13 +267,13 @@ function TableResult({ card }: { card: TableCard | null }) {
 
   const grouped = groupAssignments(card.matchedAssignments);
   return (
-    <div className="rounded-2xl bg-[#f5d99b]/[0.09] px-4 py-3 ring-1 ring-[#f5d99b]/20">
-      <p className="mb-2 text-[0.58rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+    <div className="table-result rounded-2xl bg-[#f5d99b]/[0.09] px-4 py-3 ring-1 ring-[#f5d99b]/20">
+      <p className="table-result-label mb-2 text-[0.58rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
         Match
       </p>
       <div className="grid gap-2">
         {grouped.map((summary) => (
-          <div key={summary.playerId} className="flex items-center justify-between gap-3">
+          <div key={summary.playerId} className="table-result-row flex items-center justify-between gap-3">
             <span className="truncate text-sm font-black text-[#fff7e6]">{summary.name}</span>
             <span className="shrink-0 rounded-lg bg-[#f5d99b] px-2.5 py-1 text-xs font-black text-[#142019]">
               Give {summary.units}

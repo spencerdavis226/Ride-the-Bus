@@ -221,7 +221,7 @@ select {
   }
 
   .table-screen .table-turn-content {
-    grid-template-columns: minmax(9rem, 28vw) minmax(0, 1fr) !important;
+    grid-template-columns: minmax(9rem, 21vw) minmax(0, 1fr) minmax(10rem, 24vw) !important;
     grid-template-rows: minmax(0, 1fr) !important;
     align-items: center !important;
     gap: clamp(0.75rem, 2vw, 1.25rem) !important;
@@ -235,8 +235,26 @@ select {
     min-height: 0;
   }
 
-  .table-screen .table-turn-content > div:last-child {
-    display: none;
+  .table-screen .table-result {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    max-height: 100%;
+    overflow: hidden;
+    border-radius: 1rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .table-screen .table-result-label {
+    margin-bottom: 0.45rem !important;
+    font-size: 0.5rem !important;
+    letter-spacing: 0.18em !important;
+  }
+
+  .table-screen .table-result-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem !important;
   }
 
   .table-carousel-card {
@@ -371,14 +389,32 @@ select {
   }
 
   .deal-hero {
+    display: grid;
+    gap: 0.35rem;
     min-width: 0;
     align-self: center;
   }
 
   .deal-player-name {
     white-space: normal !important;
-    font-size: clamp(2rem, 6.4vw, 3.4rem) !important;
+    font-size: clamp(1.9rem, 5.8vw, 3.2rem) !important;
     line-height: 0.95 !important;
+  }
+
+  .deal-outcome {
+    justify-self: start;
+    max-width: min(100%, 18rem) !important;
+    gap: 0.45rem !important;
+    padding: 0.65rem 0.75rem !important;
+  }
+
+  .deal-outcome-summary {
+    font-size: clamp(0.9rem, 2.35vw, 1.05rem) !important;
+    padding: 0.4rem 0.65rem !important;
+  }
+
+  .deal-outcome-guess {
+    font-size: clamp(0.82rem, 2.1vw, 0.98rem) !important;
   }
 
   .deal-stage {
