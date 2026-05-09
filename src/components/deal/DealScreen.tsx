@@ -24,7 +24,9 @@ export function DealScreen() {
   const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
+  const [previewPlayerId, setPreviewPlayerId] = useState<string | null>(null);
   const player = state.players[state.deal.playerIndex];
+  const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
   const options = getGuessOptions(state.deal.subphase);
@@ -50,13 +52,17 @@ export function DealScreen() {
       </div>
 
       {/* Player turn rail */}
-      <TurnRail players={state.players} activePlayerId={player.id} />
+      <TurnRail
+        players={state.players}
+        activePlayerId={player.id}
+        onPreviewPlayer={(playerId) => setPreviewPlayerId(playerId)}
+      />
 
       {/* Main game area - green felt */}
       <div className="mx-2 mb-0 mt-1.5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_35%,rgba(22,130,90,0.80)_0%,rgba(3,30,20,0.97)_65%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.09),inset_0_1px_0_rgba(245,217,155,0.08)]">
         <div className="flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]">
           <div className="shrink-0">
-            <h2 className="max-w-full truncate text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.82] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
+            <h2 className="max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
               {player.name}
             </h2>
             <AnimatePresence>
@@ -120,6 +126,11 @@ export function DealScreen() {
       </div>
 
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
+      <AnimatePresence>
+        {previewPlayer && (
+          <HandPreviewOverlay player={previewPlayer} onClose={() => setPreviewPlayerId(null)} />
+        )}
+      </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
           <p className="text-sm leading-6 text-[#fff7e6]/72">
@@ -147,23 +158,53 @@ export function DealScreen() {
   );
 }
 
-function TurnRail({ activePlayerId, players }: { activePlayerId: string; players: Player[] }) {
+function TurnRail({
+  activePlayerId,
+  onPreviewPlayer,
+  players,
+}: {
+  activePlayerId: string;
+  onPreviewPlayer: (playerId: string) => void;
+  players: Player[];
+}) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const playerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  useEffect(() => {
+    const activeTile = playerRefs.current[activePlayerId];
+    if (!activeTile) return;
+
+    activeTile.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    });
+  }, [activePlayerId]);
+
   return (
-    <div className="flex shrink-0 snap-x gap-2 overflow-x-auto px-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div
+      ref={railRef}
+      className="flex shrink-0 snap-x gap-2 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
       {players.map((candidate) => {
         const active = candidate.id === activePlayerId;
         return (
-          <div
+          <button
             key={candidate.id}
-            className={`min-w-[clamp(5.5rem,26vw,7.5rem)] shrink-0 snap-start rounded-xl px-2.5 py-2 text-center ring-1 transition-colors duration-200 ${
+            ref={(node) => {
+              playerRefs.current[candidate.id] = node;
+            }}
+            type="button"
+            onClick={() => onPreviewPlayer(candidate.id)}
+            className={`min-w-[clamp(6.8rem,31vw,9.2rem)] shrink-0 snap-start rounded-xl px-3 py-2.5 text-center outline-none ring-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${
               active
                 ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
                 : 'bg-black/28 text-[#fff7e6]/58 ring-white/[0.07]'
             }`}
           >
-            <div className="truncate text-[0.72rem] font-bold leading-snug">{candidate.name}</div>
+            <div className="truncate text-[0.86rem] font-black leading-snug">{candidate.name}</div>
             <MiniHand cards={candidate.hand} active={active} />
-          </div>
+          </button>
         );
       })}
     </div>
@@ -172,11 +213,11 @@ function TurnRail({ activePlayerId, players }: { activePlayerId: string; players
 
 function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
   if (cards.length === 0) {
-    return <div className="mt-1 h-[1.1rem]" />;
+    return <div className="mt-1.5 h-[2rem]" />;
   }
 
   return (
-    <div className="mt-1 flex justify-center gap-[3px]">
+    <div className="mt-1.5 flex justify-center gap-1">
       {cards.slice(0, 4).map((card) => (
         <MiniCard key={card.id} active={active} card={card} />
       ))}
@@ -188,13 +229,48 @@ function MiniCard({ active, card }: { active: boolean; card: Card }) {
   const red = card.color === 'red';
   return (
     <span
-      className={`grid h-[1.1rem] w-[0.75rem] place-items-center rounded-[3px] border text-[0.52rem] font-black leading-none ${
+      className={`flex h-[2rem] w-[1.35rem] flex-col items-center justify-center rounded-[4px] border text-[0.66rem] font-black leading-[0.9] shadow-sm ${
         active ? 'border-[#142019]/18 bg-[#fbf2d9]' : 'border-black/18 bg-[#fbf2d9]'
       } ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
       title={`${card.rank} ${card.suit}`}
     >
-      {suitGlyphs[card.suit]}
+      <span>{card.rank}</span>
+      <span className="text-[0.74rem]">{suitGlyphs[card.suit]}</span>
     </span>
+  );
+}
+
+function HandPreviewOverlay({ onClose, player }: { onClose: () => void; player: Player }) {
+  return (
+    <motion.button
+      type="button"
+      className="fixed inset-0 z-40 flex items-start justify-center bg-black/45 px-4 pt-[clamp(7rem,18vh,11rem)] outline-none backdrop-blur-[2px]"
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
+    >
+      <motion.div
+        className="w-full max-w-[27rem] rounded-2xl bg-[#08291d] p-4 text-left shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(245,217,155,0.16)]"
+        onClick={(event) => event.stopPropagation()}
+        initial={{ scale: 0.82, y: -8, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.86, y: -8, opacity: 0 }}
+        transition={{ type: 'spring', damping: 22, stiffness: 330 }}
+      >
+        <div className="truncate pb-3 text-center text-[clamp(1.3rem,5vw,1.8rem)] font-black leading-tight text-[#fff7e6]">
+          {player.name}
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {player.hand.slice(0, 4).map((card) => (
+            <div key={card.id} className="grid aspect-[5/7] min-h-0 place-items-center">
+              <PlayingCard card={card} size="fluid" />
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </motion.button>
   );
 }
 
