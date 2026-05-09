@@ -4,16 +4,20 @@ import { useGame } from '../../app/GameProvider';
 import { CardBack } from './CardBack';
 
 export function PlayingCard({
+  animateEntry = true,
   card,
   faceUp = true,
   compact = false,
   highlighted = false,
+  motionLayout = true,
   size
 }: {
+  animateEntry?: boolean;
   card?: Card | null;
   faceUp?: boolean;
   compact?: boolean;
   highlighted?: boolean;
+  motionLayout?: boolean;
   size?: 'compact' | 'normal' | 'deal' | 'hand' | 'hero' | 'fluid';
 }) {
   const { state } = useGame();
@@ -27,12 +31,12 @@ export function PlayingCard({
   if (resolvedSize === 'fluid') {
     return (
       <motion.div
-        layout
+        layout={motionLayout}
         className={`card-fluid relative flex h-full w-full flex-col justify-between rounded-xl border bg-[#fbf2d9] text-[#111827] shadow-card ${
           highlighted ? 'ring-2 ring-[#f5d99b]' : 'border-black/10'
         }`}
         style={{ padding: '6%' }}
-        initial={{ rotateY: 90 }}
+        initial={animateEntry ? { rotateY: 90 } : false}
         animate={{ rotateY: 0 }}
         transition={{ duration: animDuration }}
       >
@@ -84,11 +88,11 @@ export function PlayingCard({
 
   return (
     <motion.div
-      layout
+      layout={motionLayout}
       className={`relative flex flex-col justify-between rounded-lg border bg-[#fbf2d9] text-[#111827] shadow-card ${sizeClasses[resolvedSize]} ${
         highlighted ? 'ring-2 ring-[#f5d99b]' : 'border-black/10'
       }`}
-      initial={{ rotateY: 90 }}
+      initial={animateEntry ? { rotateY: 90 } : false}
       animate={{ rotateY: 0 }}
       transition={{ duration: animDuration }}
     >

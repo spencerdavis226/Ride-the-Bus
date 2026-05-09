@@ -15,7 +15,7 @@ export function SetupScreen() {
 
   return (
     <section className="setup-screen flex h-full min-w-0 flex-col gap-3 overflow-hidden">
-      <div className="setup-table flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_28%,rgba(22,130,90,0.62)_0%,rgba(3,30,20,0.98)_68%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_1px_0_rgba(245,217,155,0.08)]">
+      <div className="setup-table flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_32%,rgba(22,104,74,0.48)_0%,rgba(3,30,20,0.98)_68%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_1px_0_rgba(245,217,155,0.08)]">
         <div className="setup-table-header shrink-0 border-b border-[#f5d99b]/10 px-4 py-3">
           <div className="flex items-end justify-between gap-3">
             <div className="min-w-0">

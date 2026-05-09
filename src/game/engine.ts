@@ -342,9 +342,9 @@ export function createTableFromShoe(shoe: Card[]): { table: TableState; shoe: Ca
   const drawn = drawMany(shoe, 11);
   const rows: Array<{ row: 1 | 2 | 3 | 4 | 5; count: number; value: 1 | 2 | 3 | 4 | 5 }> = [
     { row: 1, count: 1, value: 1 },
-    { row: 2, count: 4, value: 2 },
+    { row: 2, count: 2, value: 2 },
     { row: 3, count: 3, value: 3 },
-    { row: 4, count: 2, value: 4 },
+    { row: 4, count: 4, value: 4 },
     { row: 5, count: 1, value: 5 }
   ];
   let cardIndex = 0;

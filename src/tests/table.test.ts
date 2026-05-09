@@ -17,8 +17,8 @@ describe('table rules', () => {
     const shoe = Array.from({ length: 20 }, (_, index) => c(`card-${index}`, index + 2, '2'));
     const { table } = createTableFromShoe(shoe);
     expect(table.cards).toHaveLength(11);
-    expect(table.cards.map((card) => card.row)).toEqual([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5]);
-    expect(table.cards.map((card) => card.value)).toEqual([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5]);
+    expect(table.cards.map((card) => card.row)).toEqual([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5]);
+    expect(table.cards.map((card) => card.value)).toEqual([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5]);
   });
 
   it('autoplays all matching hand cards with one assignment per card', () => {
