@@ -87,10 +87,14 @@ select {
   display: none;
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
+@media (orientation: landscape) and (max-height: 320px) {
   .landscape-blocker {
     display: flex;
   }
+}
+
+.card-fluid {
+  container-type: inline-size;
 }
 
 @media (prefers-reduced-motion: reduce) {

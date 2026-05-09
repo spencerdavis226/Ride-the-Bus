@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, History, House } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
 import { dealSubphaseLabels, type DealSubphase } from '../../game/phases';
@@ -26,25 +26,25 @@ export function DealScreen() {
   const [quitOpen, setQuitOpen] = useState(false);
   const player = state.players[state.deal.playerIndex];
   const awaitingContinue = state.deal.awaitingContinue;
-  const latestCard = awaitingContinue ? player.hand[player.hand.length - 1] : null;
+  const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
   const options = getGuessOptions(state.deal.subphase);
 
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_24px_80px_rgba(245,217,155,0.06)]">
       {/* Slim navigation bar */}
       <div className="flex shrink-0 items-center px-1 pb-0.5 pt-1.5">
-        <IconButton ghost label="Home" onClick={() => setQuitOpen(true)} className="h-9 w-9 shrink-0">
-          <House size={17} />
+        <IconButton ghost label="Home" onClick={() => setQuitOpen(true)} className="shrink-0">
+          <House size={19} />
         </IconButton>
         <p className="flex-1 text-center text-[0.75rem] font-bold uppercase tracking-[0.18em] text-[#f5d99b]/60">
           {dealSubphaseLabels[state.deal.subphase]}
         </p>
         <div className="flex shrink-0">
-          <IconButton ghost label="Rules" onClick={() => setRulesOpen(true)} className="h-9 w-9">
-            <BookOpen size={16} />
+          <IconButton ghost label="Rules" onClick={() => setRulesOpen(true)}>
+            <BookOpen size={19} />
           </IconButton>
-          <IconButton ghost label="Game log" onClick={() => setLogOpen(true)} className="h-9 w-9">
-            <History size={16} />
+          <IconButton ghost label="Game log" onClick={() => setLogOpen(true)}>
+            <History size={19} />
           </IconButton>
         </div>
       </div>
@@ -52,72 +52,33 @@ export function DealScreen() {
       {/* Player turn rail */}
       <TurnRail players={state.players} activePlayerId={player.id} />
 
-      {/* Main game area — green felt */}
+      {/* Main game area - green felt */}
       <div className="mx-2 mb-0 mt-1.5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_35%,rgba(22,130,90,0.80)_0%,rgba(3,30,20,0.97)_65%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.09),inset_0_1px_0_rgba(245,217,155,0.08)]">
-        <div className="flex h-full min-h-0 flex-col gap-3 p-4">
-          {/* Player name + deck badge */}
-          <div className="flex shrink-0 items-start justify-between gap-3">
-            <h2 className="min-w-0 truncate text-[clamp(2.2rem,9vw,3.5rem)] font-black leading-[0.9] tracking-tight text-[#fff7e6]">
+        <div className="flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]">
+          <div className="shrink-0">
+            <h2 className="max-w-full truncate text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.82] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
               {player.name}
             </h2>
-            <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-black/30 px-2 py-1.5 ring-1 ring-white/[0.09]">
-              <CardBack id={state.cardBackId} size="compact" />
-              <div className="text-center leading-none">
-                <div className="text-xl font-black text-[#fff7e6]">{state.shoe.length}</div>
-                <div className="mt-0.5 text-[8px] font-black uppercase tracking-[0.16em] text-[#fff7e6]/40">deck</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Center — hand or flip result */}
-          <div className="min-h-0 flex-1">
-            <AnimatePresence mode="wait">
-              {awaitingContinue ? (
+            <AnimatePresence>
+              {awaitingContinue && state.deal.lastAssignment && (
                 <motion.div
-                  key="result"
-                  className="flex h-full flex-col items-center justify-center gap-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
+                  className="mt-2 inline-flex max-w-full rounded-xl bg-[#f5d99b] px-4 py-2 text-[#142019] shadow-glow"
+                  initial={{ y: 8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -4, opacity: 0 }}
+                  transition={{ duration: 0.18 }}
                 >
-                  {latestCard && (
-                    <motion.div
-                      initial={{ scale: 0.80, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: 'spring', damping: 22, stiffness: 300 }}
-                    >
-                      <PlayingCard card={latestCard} size="hero" highlighted />
-                    </motion.div>
-                  )}
-                  {state.deal.lastAssignment && (
-                    <motion.div
-                      className="w-full"
-                      initial={{ y: 10, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.18, duration: 0.22 }}
-                    >
-                      <div className="rounded-2xl bg-[#f5d99b] px-5 py-3 text-center shadow-glow">
-                        <p className="text-[clamp(1.1rem,4.8vw,1.4rem)] font-black leading-tight text-[#142019]">
-                          {state.deal.lastAssignment.label}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="hand"
-                  className="h-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <ActiveHand cards={player.hand} />
+                  <p className="truncate text-[clamp(1rem,3.8vw,1.5rem)] font-black leading-tight">
+                    {state.deal.lastAssignment.label}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* Center - four-card turn stage */}
+          <div className="min-h-0 flex-1">
+            <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
           </div>
         </div>
       </div>
@@ -210,21 +171,15 @@ function TurnRail({ activePlayerId, players }: { activePlayerId: string; players
 }
 
 function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
+  if (cards.length === 0) {
+    return <div className="mt-1 h-[1.1rem]" />;
+  }
+
   return (
     <div className="mt-1 flex justify-center gap-[3px]">
-      {Array.from({ length: 4 }, (_, index) => {
-        const card = cards[index];
-        return card ? (
-          <MiniCard key={card.id} active={active} card={card} />
-        ) : (
-          <span
-            key={index}
-            className={`h-[1.1rem] w-[0.75rem] rounded-[3px] border ${
-              active ? 'border-[#142019]/22' : 'border-white/[0.12]'
-            }`}
-          />
-        );
-      })}
+      {cards.slice(0, 4).map((card) => (
+        <MiniCard key={card.id} active={active} card={card} />
+      ))}
     </div>
   );
 }
@@ -234,7 +189,7 @@ function MiniCard({ active, card }: { active: boolean; card: Card }) {
   return (
     <span
       className={`grid h-[1.1rem] w-[0.75rem] place-items-center rounded-[3px] border text-[0.52rem] font-black leading-none ${
-        active ? 'border-[#142019]/18 bg-white/70' : 'border-black/18 bg-[#fbf2d9]'
+        active ? 'border-[#142019]/18 bg-[#fbf2d9]' : 'border-black/18 bg-[#fbf2d9]'
       } ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
       title={`${card.rank} ${card.suit}`}
     >
@@ -243,33 +198,88 @@ function MiniCard({ active, card }: { active: boolean; card: Card }) {
   );
 }
 
-function ActiveHand({ cards }: { cards: Card[] }) {
+function computeFan(containerW: number, containerH: number) {
+  const N = 4;
+  const ASPECT = 5 / 7; // card width / height
+  const GAP = Math.max(8, Math.min(18, containerW * 0.02));
+  const MAX_CARD_W = 340;
+  const MIN_VISIBLE = 0.42; // min fraction visible on non-last cards when overlapping
+  const TINY_OVERLAP = 0.88; // if step would be > this fraction of cardW, skip overlap
+
+  let cardW = Math.min(containerH * ASPECT, MAX_CARD_W);
+
+  // No overlap needed?
+  if (N * cardW + (N - 1) * GAP <= containerW) {
+    return { cardW, cardH: cardW / ASPECT, step: cardW + GAP };
+  }
+
+  const idealStep = (containerW - cardW) / (N - 1);
+
+  // Overlap is tiny - shrink cards to fit cleanly without overlap instead
+  if (idealStep >= cardW * TINY_OVERLAP) {
+    cardW = (containerW - (N - 1) * GAP) / N;
+    return { cardW, cardH: cardW / ASPECT, step: cardW + GAP };
+  }
+
+  // Real overlap - clamp to MIN_VISIBLE
+  if (idealStep >= cardW * MIN_VISIBLE) {
+    return { cardW, cardH: cardW / ASPECT, step: idealStep };
+  }
+
+  // Overlap too aggressive - shrink cards so MIN_VISIBLE fills the container
+  cardW = containerW / (1 + MIN_VISIBLE * (N - 1));
+  return { cardW, cardH: cardW / ASPECT, step: cardW * MIN_VISIBLE };
+}
+
+function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedIndex?: number }) {
+  const { state } = useGame();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dims, setDims] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setDims({ w: width, h: height });
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, dims.h) : null;
+  const totalFanW = fan ? fan.cardW + fan.step * 3 : 0;
+
   return (
-    <div className="flex h-full flex-col rounded-[1.1rem] bg-black/[0.18] p-3 ring-1 ring-white/[0.06]">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/60">
-          Hand
-        </span>
-        <span className="rounded-full bg-black/30 px-2.5 py-0.5 text-[0.68rem] font-black text-[#fff7e6]/75">
-          {cards.length}/4
-        </span>
-      </div>
-      <div className="grid min-h-0 flex-1 grid-cols-4 items-center gap-2">
-        {Array.from({ length: 4 }, (_, index) => {
-          const card = cards[index];
-          return (
-            <div key={card?.id ?? `slot-${index}`} className="grid h-full min-h-0 w-full place-items-center">
-              {card ? (
-                <PlayingCard card={card} size="hand" />
-              ) : (
-                <div className="grid aspect-[5/7] h-full max-h-[8.5rem] w-auto max-w-full place-items-center rounded-lg border border-dashed border-[#f5d99b]/16 bg-white/[0.025] text-base font-black text-[#fff7e6]/18">
-                  {index + 1}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+    <div
+      ref={containerRef}
+      className="flex h-full min-h-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
+    >
+      {fan && (
+        <div className="relative flex-shrink-0" style={{ width: totalFanW, height: fan.cardH }}>
+          {Array.from({ length: 4 }, (_, i) => {
+            const card = cards[i];
+            const highlighted = highlightedIndex === i;
+            return (
+              <motion.div
+                key={card?.id ?? `face-down-${i}`}
+                className="absolute top-0"
+                style={{ left: i * fan.step, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
+                animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+              >
+                {card ? (
+                  <PlayingCard card={card} size="fluid" highlighted={highlighted} />
+                ) : (
+                  <div className="h-full w-full rotate-180">
+                    <CardBack id={state.cardBackId} size="fluid" />
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -314,14 +324,14 @@ function getGuessOptions(subphase: DealSubphase): GuessOption[] {
     return [
       { guess: 'higher', label: 'Higher', tone: 'dark' },
       { guess: 'lower', label: 'Lower', tone: 'dark' },
-      { guess: 'same', label: 'Same', tone: 'gold' },
+      { guess: 'same', label: 'Same', tone: 'dark' },
     ];
   }
   if (subphase === 'insideOutsideSame') {
     return [
       { guess: 'inside', label: 'Inside', tone: 'dark' },
       { guess: 'outside', label: 'Outside', tone: 'dark' },
-      { guess: 'same', label: 'Same', tone: 'gold' },
+      { guess: 'same', label: 'Same', tone: 'dark' },
     ];
   }
   const suits: Suit[] = ['spades', 'hearts', 'diamonds', 'clubs'];

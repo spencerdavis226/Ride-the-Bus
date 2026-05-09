@@ -42,14 +42,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="flex shrink-0">
                 {showHome && (
                   <IconButton ghost label="Home" onClick={() => setQuitOpen(true)}>
-                    <House size={18} />
+                    <House size={20} />
                   </IconButton>
                 )}
                 <IconButton ghost label="Rules" onClick={() => setRulesOpen(true)}>
-                  <BookOpen size={18} />
+                  <BookOpen size={20} />
                 </IconButton>
                 <IconButton ghost label="Game log" onClick={() => setLogOpen(true)}>
-                  <History size={18} />
+                  <History size={20} />
                 </IconButton>
               </div>
             </header>

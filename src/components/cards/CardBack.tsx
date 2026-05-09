@@ -9,21 +9,27 @@ const backClasses: Record<CardBackId, string> = {
   plaid: 'from-[#174532] to-[#872d32] border-[#f5d99b]/25'
 };
 
-type CardSize = 'compact' | 'normal' | 'deal' | 'hand' | 'hero';
+type CardSize = 'compact' | 'normal' | 'deal' | 'hand' | 'hero' | 'fluid';
 
 const sizeClasses: Record<CardSize, string> = {
   compact: 'h-20 w-14',
   normal: 'h-28 w-20',
   deal: 'h-36 w-24',
   hand: 'aspect-[5/7] h-full max-h-[9rem] w-auto max-w-full',
-  hero: 'h-44 w-32'
+  hero: 'h-44 w-32',
+  fluid: 'w-full h-full'
 };
 
 export function CardBack({ id, compact = false, size }: { id: CardBackId; compact?: boolean; size?: CardSize }) {
   const resolvedSize = size ?? (compact ? 'compact' : 'normal');
-  const markClass = resolvedSize === 'hero' ? 'h-16 w-16' : resolvedSize === 'deal' || resolvedSize === 'hand' ? 'h-12 w-12' : 'h-9 w-9';
+  const markClass =
+    resolvedSize === 'hero' ? 'h-16 w-16'
+    : resolvedSize === 'fluid' ? 'h-[40%] w-[40%]'
+    : resolvedSize === 'deal' || resolvedSize === 'hand' ? 'h-12 w-12'
+    : 'h-9 w-9';
   return (
-    <div className={`grid place-items-center rounded-lg border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card shadow-[inset_0_0_0_8px_rgba(255,255,255,0.12)]`}>
+    <div className={`relative grid place-items-center overflow-hidden rounded-lg border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card shadow-[inset_0_0_0_8px_rgba(255,255,255,0.12)]`}>
+      <div className="absolute top-[10%] h-[5%] w-[30%] rounded-full bg-current/25" />
       <div className={`${markClass} rounded-full border border-current/30 bg-black/15`} />
     </div>
   );
