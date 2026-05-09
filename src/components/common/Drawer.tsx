@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { springs } from '../../lib/motion';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { IconButton } from './IconButton';
@@ -26,11 +27,11 @@ export function Drawer({ open, title, children, onClose }: DrawerProps) {
           />
           <motion.div
             key="sheet"
-            className="fixed inset-x-0 bottom-0 z-50 overflow-hidden rounded-t-[1.75rem] bg-[#0b1e16] shadow-sheet ring-1 ring-white/[0.09]"
+            className="fixed inset-x-0 bottom-0 z-50 overflow-hidden rounded-t-[1.75rem] bg-felt-surface shadow-sheet ring-1 ring-white/[0.09]"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 32, stiffness: 360 }}
+            transition={springs.drawer}
             role="dialog"
             aria-modal="true"
           >
@@ -40,7 +41,7 @@ export function Drawer({ open, title, children, onClose }: DrawerProps) {
             </div>
             {/* Header */}
             <div className="flex items-center justify-between px-5 pb-3 pt-1">
-              <h2 className="text-lg font-bold text-[#fff7e6]">{title}</h2>
+              <h2 className="text-lg font-bold text-cream">{title}</h2>
               <IconButton label="Close" onClick={onClose} className="h-9 w-9">
                 <X size={18} />
               </IconButton>

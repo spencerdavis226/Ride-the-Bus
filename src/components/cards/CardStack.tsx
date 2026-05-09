@@ -10,7 +10,7 @@ export function CardStack({ cards, maxVisible = 4 }: { cards: Card[]; maxVisible
           <PlayingCard card={card} compact />
         </div>
       ))}
-      {cards.length > maxVisible && <span className="ml-2 text-sm font-semibold text-[#f5d99b]">+{cards.length - maxVisible}</span>}
+      {cards.length > maxVisible && <span className="ml-2 text-sm font-semibold text-gold">+{cards.length - maxVisible}</span>}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs } from '../../game/cards';
 import type { DrinkAssignment, TableCard } from '../../game/state';
+import { springs, sceneEntryVariants } from '../../lib/motion';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
@@ -43,7 +44,7 @@ export function TableScreen() {
   }
 
   return (
-    <PlayScreen className="table-screen">
+    <PlayScreen className="table-screen landscape-xs:gap-[0.55rem]">
       <PlayTopBar
         onHome={() => setQuitOpen(true)}
         onRules={() => setRulesOpen(true)}
@@ -61,15 +62,16 @@ export function TableScreen() {
         onPreviewPlayer={(playerId) => setPreviewPlayerId(playerId)}
       />
 
-      <PlayFelt className="table-felt">
+      <PlayFelt className="table-felt landscape-xs:rounded-[1rem]">
         <motion.div
           key="table-stage"
-          className="table-turn-content deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
-          initial={{ y: 18, scale: 0.985 }}
-          animate={{ y: 0, scale: 1 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+          className="table-turn-content deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)] landscape-xs:grid landscape-xs:grid-cols-[minmax(9rem,21vw)_minmax(0,1fr)_minmax(10rem,24vw)] landscape-xs:grid-rows-[minmax(0,1fr)] landscape-xs:items-center landscape-xs:gap-[clamp(0.75rem,2vw,1.25rem)] landscape-xs:px-[0.9rem] landscape-xs:py-[0.75rem]"
+          variants={sceneEntryVariants}
+          initial="hidden"
+          animate="visible"
+          transition={springs.sceneEntry}
         >
-          <div className="deal-hero shrink-0">
+          <div className="deal-hero shrink-0 landscape-xs:self-center landscape-xs:min-w-0">
             <TableStatusLine
               card={focusCard}
               index={focusIndex}
@@ -78,7 +80,7 @@ export function TableScreen() {
             />
           </div>
 
-          <div className="deal-stage min-h-0 flex-1">
+          <div className="deal-stage min-h-0 flex-1 landscape-xs:col-start-2 landscape-xs:row-start-1 landscape-xs:h-full landscape-xs:min-h-0 landscape-xs:max-h-none">
             <TableCarousel
               current={focusCard}
               next={nextPreviewCard}
@@ -120,7 +122,7 @@ export function TableScreen() {
       </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-cream/72">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -134,10 +136,10 @@ export function TableScreen() {
         </div>
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
+        <div className="space-y-4 text-sm leading-6 text-cream/72">
           <p>Flip table cards in order. Matching ranks from player hands are played automatically.</p>
           <p>Rows give the row value. The riders with the most cards left ride together.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
+          <p className="text-gold">Aces are high, except on September 1st.</p>
         </div>
       </Drawer>
     </PlayScreen>
@@ -160,13 +162,13 @@ function TableStatusLine({
   }
   return (
     <div className="table-status-line grid max-w-full gap-2 overflow-hidden">
-      <span className="min-w-0 truncate text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/65">
+      <span className="min-w-0 truncate text-[0.62rem] font-black uppercase tracking-[0.2em] text-gold/65">
         {reviewing ? 'Revealed' : 'Next'} {Math.min(index + 1, total)}/{total}
       </span>
-      <span className="min-w-0 truncate text-[clamp(2.6rem,12vw,6rem)] font-black leading-[0.9] tracking-tight text-[#fff7e6] sm:text-[clamp(3rem,7vw,6.5rem)]">
+      <span className="min-w-0 truncate text-[clamp(2.6rem,12vw,6rem)] font-black leading-[0.9] tracking-tight text-cream sm:text-[clamp(3rem,7vw,6.5rem)] landscape-xs:text-[clamp(2rem,5.5vw,3rem)]">
         Row {card.row}
       </span>
-      <span className="min-w-0 truncate text-[clamp(1.1rem,4vw,1.6rem)] font-black leading-tight text-[#fff7e6]/70">
+      <span className="min-w-0 truncate text-[clamp(1.1rem,4vw,1.6rem)] font-black leading-tight text-cream/70">
         {reviewing ? cardName(card) : `Give ${card.value}`}
       </span>
     </div>
@@ -216,7 +218,7 @@ function CarouselSlot({
 
   return (
     <motion.div
-      className="table-carousel-card absolute top-1/2"
+      className="table-carousel-card absolute top-1/2 landscape-xs:h-[min(100%,12.8rem)] landscape-xs:min-h-[8.5rem] landscape-xs:max-w-[9.5rem]"
       initial={false}
       animate={{
         left: placementMotion.left,
@@ -225,7 +227,7 @@ function CarouselSlot({
         scale: placementMotion.scale,
         zIndex: placementMotion.zIndex,
       }}
-      transition={{ type: 'spring', damping: 30, stiffness: 260 }}
+      transition={springs.carousel}
     >
       <motion.div
         key={`${tableCard.id}-${tableCard.faceUp ? 'up' : 'down'}`}
@@ -251,7 +253,7 @@ function CarouselSlot({
 function TableResult({ card }: { card: TableCard | null }) {
   if (!card) {
     return (
-      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/48 ring-1 ring-white/[0.06]">
+      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-cream/48 ring-1 ring-white/[0.06] landscape-xs:col-start-3 landscape-xs:row-start-1 landscape-xs:self-center landscape-xs:max-h-full landscape-xs:overflow-hidden landscape-xs:rounded-[1rem] landscape-xs:p-3">
         Flip the center card to start table matches.
       </div>
     );
@@ -259,7 +261,7 @@ function TableResult({ card }: { card: TableCard | null }) {
 
   if (!card.matchedAssignments.length) {
     return (
-      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/58 ring-1 ring-white/[0.06]">
+      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-cream/58 ring-1 ring-white/[0.06] landscape-xs:col-start-3 landscape-xs:row-start-1 landscape-xs:self-center landscape-xs:max-h-full landscape-xs:overflow-hidden landscape-xs:rounded-[1rem] landscape-xs:p-3">
         No matches on {cardName(card)}.
       </div>
     );
@@ -267,15 +269,15 @@ function TableResult({ card }: { card: TableCard | null }) {
 
   const grouped = groupAssignments(card.matchedAssignments);
   return (
-    <div className="table-result rounded-2xl bg-[#f5d99b]/[0.09] px-4 py-3 ring-1 ring-[#f5d99b]/20">
-      <p className="table-result-label mb-2 text-[0.58rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+    <div className="table-result rounded-2xl bg-gold/[0.09] px-4 py-3 ring-1 ring-gold/20 landscape-xs:col-start-3 landscape-xs:row-start-1 landscape-xs:self-center landscape-xs:max-h-full landscape-xs:overflow-hidden landscape-xs:rounded-[1rem] landscape-xs:p-3">
+      <p className="table-result-label mb-2 text-[0.58rem] font-black uppercase tracking-[0.22em] text-gold/75 landscape-xs:mb-[0.45rem] landscape-xs:text-[0.5rem] landscape-xs:tracking-[0.18em]">
         Match
       </p>
       <div className="grid gap-2">
         {grouped.map((summary) => (
-          <div key={summary.playerId} className="table-result-row flex items-center justify-between gap-3">
-            <span className="truncate text-sm font-black text-[#fff7e6]">{summary.name}</span>
-            <span className="shrink-0 rounded-lg bg-[#f5d99b] px-2.5 py-1 text-xs font-black text-[#142019]">
+          <div key={summary.playerId} className="table-result-row flex items-center justify-between gap-3 landscape-xs:gap-[0.35rem]">
+            <span className="truncate text-sm font-black text-cream">{summary.name}</span>
+            <span className="shrink-0 rounded-lg bg-gold px-2.5 py-1 text-xs font-black text-ink">
               Give {summary.units}
             </span>
           </div>
@@ -295,8 +297,8 @@ function TableOverview({ activeIndex, cards, reviewIndex }: { activeIndex: numbe
         return (
           <div key={row} className="rounded-2xl bg-white/[0.05] p-3 ring-1 ring-white/[0.06]">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-[#f5d99b]/68">Row {row}</span>
-              <span className="text-xs font-bold text-[#fff7e6]/45">{rowCards.length} card{rowCards.length === 1 ? '' : 's'}</span>
+              <span className="text-xs font-black uppercase tracking-[0.18em] text-gold/68">Row {row}</span>
+              <span className="text-xs font-bold text-cream/45">{rowCards.length} card{rowCards.length === 1 ? '' : 's'}</span>
             </div>
             <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${rowCards.length}, minmax(0, 1fr))` }}>
               {rowCards.map((tableCard) => {
@@ -307,10 +309,10 @@ function TableOverview({ activeIndex, cards, reviewIndex }: { activeIndex: numbe
                     key={tableCard.id}
                     className={`rounded-xl px-2 py-2 text-center ring-1 ${
                       active
-                        ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b]'
+                        ? 'bg-gold text-ink ring-gold'
                         : tableCard.faceUp
-                          ? 'bg-[#fbf2d9] text-[#142019] ring-black/10'
-                          : 'bg-black/24 text-[#fff7e6]/62 ring-white/[0.08]'
+                          ? 'bg-card-face text-ink ring-black/10'
+                          : 'bg-black/24 text-cream/62 ring-white/[0.08]'
                     }`}
                   >
                     <div className="text-xs font-black">{tableCard.faceUp ? cardName(tableCard) : `Card ${index + 1}`}</div>

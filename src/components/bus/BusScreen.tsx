@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { DealSubphase } from '../../game/phases';
+import { springs, sceneEntryVariants } from '../../lib/motion';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
@@ -51,17 +52,18 @@ export function BusScreen() {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={`bus-${progressIndex}-${bus.drinksEach}`}
-            className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
-            initial={{ y: 18, scale: 0.985 }}
-            animate={{ y: 0, scale: 1 }}
-            exit={{ y: -14, scale: 0.985 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+            className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)] landscape-xs:grid landscape-xs:grid-cols-[minmax(9rem,28vw)_minmax(0,1fr)] landscape-xs:grid-rows-[minmax(0,1fr)] landscape-xs:items-center landscape-xs:gap-[clamp(0.75rem,2vw,1.25rem)] landscape-xs:px-[0.9rem] landscape-xs:py-[0.75rem]"
+            variants={sceneEntryVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={springs.sceneEntry}
           >
-            <div className="deal-hero shrink-0">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.24em] text-[#f5d99b]/65">
+            <div className="deal-hero shrink-0 landscape-xs:grid landscape-xs:gap-[0.35rem] landscape-xs:min-w-0 landscape-xs:self-center">
+              <p className="text-[0.62rem] font-black uppercase tracking-[0.24em] text-gold/65">
                 {phaseLabels[progressIndex]} {progressIndex + 1} of 4
               </p>
-              <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
+              <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-cream sm:text-[clamp(4rem,10vw,8rem)] landscape-xs:whitespace-normal landscape-xs:text-[clamp(1.9rem,5.8vw,3.2rem)]">
                 The Bus
               </h2>
               <BusStatus
@@ -72,7 +74,7 @@ export function BusScreen() {
               />
             </div>
 
-            <div className="deal-stage min-h-0 flex-1">
+            <div className="deal-stage min-h-0 flex-1 landscape-xs:h-full landscape-xs:min-h-0 landscape-xs:max-h-none">
               <BusCardsStage progressIndex={progressIndex} visibleCards={bus.visibleCards} />
             </div>
 
@@ -96,7 +98,7 @@ export function BusScreen() {
       </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-cream/72">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -110,11 +112,11 @@ export function BusScreen() {
         </div>
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
+        <div className="space-y-4 text-sm leading-6 text-cream/72">
           <p>Guess all four bus cards in order to escape.</p>
           <p>A wrong guess sends riders back to the start and adds drinks to each rider.</p>
           <p>The Bus uses its own fresh deck. Endless mode reshuffles when needed.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
+          <p className="text-gold">Aces are high, except on September 1st.</p>
         </div>
       </Drawer>
     </PlayScreen>
@@ -141,13 +143,13 @@ function BusStatus({
 }) {
   return (
     <div className="mt-2 flex max-w-full flex-wrap items-center gap-2">
-      <span className="max-w-full truncate rounded-xl bg-black/20 px-3 py-2 text-[clamp(0.9rem,3vw,1.05rem)] font-black text-[#fff7e6]/88 ring-1 ring-white/[0.06]">
+      <span className="max-w-full truncate rounded-xl bg-black/20 px-3 py-2 text-[clamp(0.9rem,3vw,1.05rem)] font-black text-cream/88 ring-1 ring-white/[0.06]">
         {riderNames}
       </span>
-      <span className="rounded-xl bg-[#f5d99b] px-3 py-2 text-[clamp(0.85rem,2.7vw,1rem)] font-black text-[#142019]">
+      <span className="rounded-xl bg-gold px-3 py-2 text-[clamp(0.85rem,2.7vw,1rem)] font-black text-ink">
         {drinksEach} each
       </span>
-      <span className="rounded-xl bg-white/[0.07] px-3 py-2 text-[clamp(0.78rem,2.5vw,0.92rem)] font-black text-[#fff7e6]/58 ring-1 ring-white/[0.07]">
+      <span className="rounded-xl bg-white/[0.07] px-3 py-2 text-[clamp(0.78rem,2.5vw,0.92rem)] font-black text-cream/58 ring-1 ring-white/[0.07]">
         {mode}
         {reshuffles > 0 ? ` · ${reshuffles} reshuffle${reshuffles === 1 ? '' : 's'}` : ''}
       </span>
@@ -171,7 +173,7 @@ function BusCardsStage({
             className="grid aspect-[5/7] min-h-0 place-items-center"
             initial={{ y: 12, opacity: 0, scale: 0.94 }}
             animate={{ y: 0, opacity: 1, scale: index === progressIndex ? 1 : 0.92 }}
-            transition={{ type: 'spring', damping: 24, stiffness: 270, delay: index * 0.03 }}
+            transition={{ ...springs.guessPicker, delay: index * 0.03 }}
           >
             <PlayingCard
               card={card}
@@ -189,7 +191,7 @@ function BusCardsStage({
 function BusResult({ label }: { label: string | null }) {
   if (!label) {
     return (
-      <div className="rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/48 ring-1 ring-white/[0.06]">
+      <div className="rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-cream/48 ring-1 ring-white/[0.06]">
         Guess the highlighted card to keep moving.
       </div>
     );
@@ -197,15 +199,15 @@ function BusResult({ label }: { label: string | null }) {
 
   return (
     <motion.div
-      className="rounded-2xl bg-[#f5d99b]/[0.10] px-4 py-3 ring-1 ring-[#f5d99b]/20"
+      className="rounded-2xl bg-gold/[0.10] px-4 py-3 ring-1 ring-gold/20"
       initial={{ y: 8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.18 }}
     >
-      <p className="mb-1 text-[0.58rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+      <p className="mb-1 text-[0.58rem] font-black uppercase tracking-[0.22em] text-gold/75">
         Last miss
       </p>
-      <p className="text-sm font-black text-[#fff7e6]">{label}</p>
+      <p className="text-sm font-black text-cream">{label}</p>
     </motion.div>
   );
 }

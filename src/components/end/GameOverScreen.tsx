@@ -1,5 +1,7 @@
+import { motion } from 'framer-motion';
 import { useGame } from '../../app/GameProvider';
 import { cansForDrinks } from '../../game/rules';
+import { useMotion } from '../../lib/motion';
 import { Button } from '../common/Button';
 import { BottomActionBar } from '../layout/BottomActionBar';
 import { ConfettiBurst } from './ConfettiBurst';
@@ -22,37 +24,50 @@ export function GameOverScreen() {
       : 'Four correct guesses in a row.';
 
   const drinksEach = bus?.drinksEach ?? 0;
+  const { sceneEntry, springs } = useMotion();
 
   return (
     <section className="relative flex flex-1 flex-col gap-4">
       {!exhausted && <ConfettiBurst />}
 
-      <div className="glass-panel mt-6 rounded-2xl p-6 text-center">
-        <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-[#f5d99b]/65">
+      <motion.div
+        className="glass-panel mt-6 rounded-2xl p-6 text-center"
+        variants={sceneEntry}
+        initial="hidden"
+        animate="visible"
+        transition={springs.sceneEntry}
+      >
+        <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-gold/65">
           Game Over
         </p>
-        <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-[#fff7e6]">
+        <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-cream">
           {title}
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#fff7e6]/55">{subtitle}</p>
+        <p className="mt-2 text-sm leading-relaxed text-cream/55">{subtitle}</p>
 
         {!emptyBus && (
-          <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-black/[0.28] p-4 ring-1 ring-white/[0.07]">
+          <motion.div
+            className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-black/[0.28] p-4 ring-1 ring-white/[0.07]"
+            variants={sceneEntry}
+            initial="hidden"
+            animate="visible"
+            transition={{ ...springs.sceneEntry, delay: 0.12 }}
+          >
             <div>
-              <p className="text-[0.60rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/65">
+              <p className="text-[0.60rem] font-black uppercase tracking-[0.2em] text-gold/65">
                 Drinks each
               </p>
-              <p className="mt-1 text-3xl font-black text-[#fff7e6]">{drinksEach}</p>
+              <p className="mt-1 text-3xl font-black text-cream">{drinksEach}</p>
             </div>
             <div>
-              <p className="text-[0.60rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/65">
+              <p className="text-[0.60rem] font-black uppercase tracking-[0.2em] text-gold/65">
                 Cans each
               </p>
-              <p className="mt-1 text-3xl font-black text-[#fff7e6]">{cansForDrinks(drinksEach)}</p>
+              <p className="mt-1 text-3xl font-black text-cream">{cansForDrinks(drinksEach)}</p>
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       <BottomActionBar>
         <Button

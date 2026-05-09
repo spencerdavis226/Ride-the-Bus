@@ -24,10 +24,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <main className={`${getThemeClass(state.theme)} h-dvh overflow-hidden text-[#fff7e6]`}>
-      <div className="landscape-blocker fixed inset-0 z-50 flex-col items-center justify-center gap-4 bg-[#071812] text-[#fff7e6]">
-        <RotateCcw size={36} className="text-[#f5d99b]/60" />
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fff7e6]/60">Rotate to play</p>
+    <main className={`${getThemeClass(state.theme)} h-dvh overflow-hidden text-cream`}>
+      <div className="landscape-blocker fixed inset-0 z-50 flex-col items-center justify-center gap-4 bg-felt-base text-cream">
+        <RotateCcw size={36} className="text-gold/60" />
+        <p className="text-sm font-bold uppercase tracking-[0.18em] text-cream/60">Rotate to play</p>
       </div>
       <SafeArea>
         <div className="mx-auto flex h-full w-full max-w-none flex-col">
@@ -36,16 +36,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               {isSetup ? (
                 <>
                   <div className="h-10 w-10 shrink-0" aria-hidden="true" />
-                  <p className="pointer-events-none absolute left-1/2 max-w-[52vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-[#d8c79f]/72">
+                  <p className="pointer-events-none absolute left-1/2 max-w-[52vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-gold-dim/72">
                     Ride the Bus
                   </p>
                 </>
               ) : (
                 <div className="min-w-0">
-                  <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-[#f5d99b]/60">
+                  <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-gold/60">
                     Ride the Bus
                   </p>
-                  <h1 className="text-[1.8rem] font-black leading-tight tracking-tight text-[#fff7e6]">
+                  <h1 className="text-[1.8rem] font-black leading-tight tracking-tight text-cream">
                     {phaseTitle(state.phase)}
                   </h1>
                 </div>
@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-cream/72">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -94,11 +94,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
+        <div className="space-y-4 text-sm leading-6 text-cream/72">
           <p>Deal uses Red/Black, Higher/Lower/Same, Inside/Outside/Same, then Suit. Use Give and Take units.</p>
           <p>The Table flips eleven cards. Matching ranks from player hands autoplay and give the row value.</p>
           <p>The riders with the most cards left ride together. The Bus starts from a fresh single deck.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
+          <p className="text-gold">Aces are high, except on September 1st.</p>
         </div>
       </Drawer>
     </main>

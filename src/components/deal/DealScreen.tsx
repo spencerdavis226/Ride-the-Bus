@@ -1,10 +1,10 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
-import { suitGlyphs, type Card } from '../../game/cards';
+import { suitGlyphs } from '../../game/cards';
 import type { DealResult, DrinkAssignment } from '../../game/state';
-import { CardBack } from '../cards/CardBack';
-import { PlayingCard } from '../cards/PlayingCard';
+import { useMotion } from '../../lib/motion';
+import { CardFanLayout } from '../cards/CardFanLayout';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { LogDrawer } from '../log/LogDrawer';
@@ -28,6 +28,7 @@ export function DealScreen() {
   const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
+  const { sceneEntry, actionZone, springs } = useMotion();
 
   return (
     <PlayScreen className="deal-layout">
@@ -45,14 +46,15 @@ export function DealScreen() {
 
       <PlayFelt>
         <motion.div
-          className="deal-turn-content flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
-          initial={{ y: 18, scale: 0.985 }}
-          animate={{ y: 0, scale: 1 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+          className="deal-turn-content flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)] landscape-xs:grid landscape-xs:grid-cols-[minmax(9rem,28vw)_minmax(0,1fr)] landscape-xs:grid-rows-[minmax(0,1fr)] landscape-xs:items-center landscape-xs:gap-[clamp(0.75rem,2vw,1.25rem)] landscape-xs:px-[0.9rem] landscape-xs:py-[0.75rem]"
+          variants={sceneEntry}
+          initial="hidden"
+          animate="visible"
+          transition={springs.sceneEntry}
         >
-          <div className="deal-turn-main mx-auto mt-auto mb-auto flex w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
-            <div className="deal-hero shrink-0">
-              <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
+          <div className="deal-turn-main mx-auto mt-auto mb-auto flex w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] landscape-xs:contents">
+            <div className="deal-hero shrink-0 landscape-xs:grid landscape-xs:gap-[0.35rem] landscape-xs:min-w-0 landscape-xs:self-center">
+              <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-cream sm:text-[clamp(4rem,10vw,8rem)] landscape-xs:whitespace-normal landscape-xs:text-[clamp(1.9rem,5.8vw,3.2rem)]">
                 {player.name}
               </h2>
               <AnimatePresence>
@@ -65,21 +67,26 @@ export function DealScreen() {
               </AnimatePresence>
             </div>
 
-            <div className="deal-stage grid grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible">
-              <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
+            <div className="deal-stage grid grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible landscape-xs:h-full landscape-xs:min-h-0 landscape-xs:max-h-none">
+              <CardFanLayout
+                cards={player.hand}
+                cardBackId={state.cardBackId}
+                highlightedIndex={highlightedCardIndex}
+              />
             </div>
           </div>
         </motion.div>
       </PlayFelt>
 
       <PlayActionZone>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {awaitingContinue ? (
             <motion.div
               key="next-btn"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
+              variants={actionZone}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               transition={{ duration: 0.15 }}
             >
               <Button
@@ -93,10 +100,11 @@ export function DealScreen() {
           ) : (
             <motion.div
               key={`guess-btns-${player.id}-${state.deal.subphase}`}
-              initial={{ opacity: 0, y: 14, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ type: 'spring', damping: 24, stiffness: 290 }}
+              variants={actionZone}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={springs.guessPicker}
             >
               <PlayGuessPicker
                 subphase={state.deal.subphase}
@@ -115,7 +123,7 @@ export function DealScreen() {
       </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-cream/72">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -129,11 +137,11 @@ export function DealScreen() {
         </div>
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
+        <div className="space-y-4 text-sm leading-6 text-cream/72">
           <p>Deal uses Red/Black, Higher/Lower/Same, Inside/Outside/Same, then Suit. Use Give and Take units.</p>
           <p>The Table flips eleven cards. Matching ranks from player hands autoplay and give the row value.</p>
           <p>The riders with the most cards left ride together. The Bus starts from a fresh single deck.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
+          <p className="text-gold">Aces are high, except on September 1st.</p>
         </div>
       </Drawer>
     </PlayScreen>
@@ -147,29 +155,34 @@ function DealOutcome({
   assignment: DrinkAssignment;
   result: DealResult;
 }) {
-  const reduceMotion = useReducedMotion();
+  const { dealOutcome, springs } = useMotion();
   const correct = result.correct;
   const guessed = formatOutcomeValue(result.guess);
   const action = assignment.direction === 'give' ? 'Give' : 'Take';
   const shellClass = correct
-    ? 'border-[#7fd8a3]/45 bg-[#123a2a] text-[#dff8e8] shadow-[0_12px_40px_rgba(47,160,99,0.18)]'
-    : 'border-[#f0a0a8]/45 bg-[#481923] text-[#ffe5e8] shadow-[0_12px_40px_rgba(163,38,54,0.20)]';
+    ? 'border-correct-border/45 bg-correct-bg text-correct-text shadow-deal-correct'
+    : 'border-wrong-border/45 bg-wrong-bg text-wrong-text shadow-deal-wrong';
   const summaryClass = correct
-    ? 'bg-[#dff8e8] text-[#123a2a]'
-    : 'bg-[#ffe1a8] text-[#34210a]';
+    ? 'bg-correct-text text-correct-bg'
+    : 'bg-wrong-summary-bg text-wrong-summary-text';
+  const variants = correct ? dealOutcome.correct : dealOutcome.wrong;
+  const transition = correct
+    ? springs.overlay
+    : { duration: 0.35 };
 
   return (
     <motion.div
-      className={`deal-outcome mt-2 inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
+      className={`deal-outcome mt-2 inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 landscape-xs:justify-self-start landscape-xs:max-w-[min(100%,18rem)] landscape-xs:gap-[0.45rem] landscape-xs:px-[0.75rem] landscape-xs:py-[0.65rem] ${shellClass}`}
+      variants={variants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      transition={transition}
     >
-      <span className={`deal-outcome-summary justify-self-start rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
+      <span className={`deal-outcome-summary justify-self-start rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight landscape-xs:text-[clamp(0.9rem,2.35vw,1.05rem)] landscape-xs:px-[0.65rem] landscape-xs:py-[0.4rem] ${summaryClass}`}>
         {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
       </span>
-      <span className="deal-outcome-guess min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90">
+      <span className="deal-outcome-guess min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90 landscape-xs:text-[clamp(0.82rem,2.1vw,0.98rem)]">
         Your guess: {guessed}
       </span>
     </motion.div>
@@ -181,108 +194,4 @@ function formatOutcomeValue(value: string): string {
     return suitGlyphs[value];
   }
   return `${value[0]?.toUpperCase() ?? ''}${value.slice(1)}`;
-}
-
-function computeFan(containerW: number, containerH: number) {
-  const N = 4;
-  const ASPECT = 5 / 7; // card width / height
-  const GAP = Math.max(8, Math.min(18, containerW * 0.02));
-  const MAX_CARD_W = 340;
-  const MIN_VISIBLE = 0.42; // min fraction visible on non-last cards when overlapping
-  const TINY_OVERLAP = 0.88; // if step would be > this fraction of cardW, skip overlap
-
-  let cardW = Math.min(containerH * ASPECT, MAX_CARD_W);
-
-  // No overlap needed?
-  if (N * cardW + (N - 1) * GAP <= containerW) {
-    return { cardW, cardH: cardW / ASPECT, step: cardW + GAP };
-  }
-
-  const idealStep = (containerW - cardW) / (N - 1);
-
-  // Overlap is tiny - shrink cards to fit cleanly without overlap instead
-  if (idealStep >= cardW * TINY_OVERLAP) {
-    cardW = (containerW - (N - 1) * GAP) / N;
-    return { cardW, cardH: cardW / ASPECT, step: cardW + GAP };
-  }
-
-  // Real overlap - clamp to MIN_VISIBLE
-  if (idealStep >= cardW * MIN_VISIBLE) {
-    return { cardW, cardH: cardW / ASPECT, step: idealStep };
-  }
-
-  // Overlap too aggressive - shrink cards so MIN_VISIBLE fills the container
-  cardW = containerW / (1 + MIN_VISIBLE * (N - 1));
-  return { cardW, cardH: cardW / ASPECT, step: cardW * MIN_VISIBLE };
-}
-
-function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedIndex?: number }) {
-  const { state } = useGame();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const measure = () => {
-      const { width, height } = el.getBoundingClientRect();
-      if (width > 0 && height > 0) {
-        setDims({ w: width, h: height });
-      }
-    };
-    measure();
-    const obs = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      if (width > 0 && height > 0) {
-        setDims({ w: width, h: height });
-      }
-    });
-    obs.observe(el);
-    let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(measure);
-    });
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      obs.disconnect();
-    };
-  }, []);
-
-  const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, dims.h) : null;
-  const totalFanW = fan ? fan.cardW + fan.step * 3 : 0;
-
-  return (
-    <div
-      ref={containerRef}
-      className="flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
-    >
-      {fan && (
-        <div className="relative flex-shrink-0" style={{ width: totalFanW, height: fan.cardH }}>
-          {Array.from({ length: 4 }, (_, i) => {
-            const card = cards[i];
-            const highlighted = highlightedIndex === i;
-            return (
-              <motion.div
-                key={i}
-                className="absolute top-0"
-                style={{ left: i * fan.step, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
-                initial={false}
-                animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0, scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 340 }}
-              >
-                {card ? (
-                  <PlayingCard card={card} size="fluid" highlighted={highlighted} motionLayout={false} />
-                ) : (
-                  <div className="h-full w-full rotate-180">
-                    <CardBack id={state.cardBackId} size="fluid" />
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
 }
