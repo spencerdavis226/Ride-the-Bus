@@ -8,7 +8,7 @@ type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 export function IconButton({ label, children, className = '', ghost = false, ...props }: IconButtonProps) {
   const base = ghost
-    ? 'text-[#fff7e6]/50 active:text-[#fff7e6]/90'
+    ? 'text-[#d8c79f]/62 active:text-[#f5d99b]/90'
     : 'bg-white/[0.10] text-[#fff7e6]/80 ring-1 ring-white/[0.10] active:bg-white/[0.18]';
   return (
     <button

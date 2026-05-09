@@ -87,7 +87,7 @@ select {
   display: none;
 }
 
-@media (orientation: landscape) and (max-height: 320px) {
+@media (orientation: landscape) and (max-height: 240px) {
   .landscape-blocker {
     display: flex;
   }
@@ -95,6 +95,94 @@ select {
 
 .card-fluid {
   container-type: inline-size;
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  .deal-nav {
+    min-height: 2rem;
+    padding-top: 0.125rem !important;
+    padding-bottom: 0 !important;
+  }
+
+  .deal-nav p {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+  }
+
+  .turn-rail {
+    gap: 0.45rem !important;
+    padding: 0.125rem 0.75rem 0.35rem !important;
+  }
+
+  .turn-tile {
+    min-width: clamp(5.8rem, 17vw, 8rem) !important;
+    padding: 0.38rem 0.65rem !important;
+    border-radius: 0.85rem !important;
+  }
+
+  .turn-tile-name {
+    font-size: 0.72rem !important;
+  }
+
+  .mini-card {
+    height: 1.45rem !important;
+    width: 1rem !important;
+    font-size: 0.5rem !important;
+    border-radius: 0.22rem !important;
+  }
+
+  .mini-card-suit {
+    font-size: 0.56rem !important;
+  }
+
+  .deal-table {
+    margin: 0.25rem 0.5rem 0 !important;
+    border-radius: 1rem !important;
+  }
+
+  .deal-turn-content {
+    display: grid !important;
+    grid-template-columns: minmax(9rem, 28vw) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 1.25rem) !important;
+    padding: 0.75rem 0.9rem !important;
+  }
+
+  .deal-hero {
+    min-width: 0;
+    align-self: center;
+  }
+
+  .deal-player-name {
+    white-space: normal !important;
+    font-size: clamp(2rem, 6.4vw, 3.4rem) !important;
+    line-height: 0.95 !important;
+  }
+
+  .deal-stage {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .deal-action-zone {
+    padding: 0.45rem 0.75rem 0.55rem !important;
+  }
+
+  .deal-guess-picker {
+    gap: 0.45rem !important;
+  }
+
+  .deal-guess-picker button {
+    min-height: 2.8rem !important;
+    border-radius: 0.9rem !important;
+    font-size: clamp(0.95rem, 2.5vw, 1.15rem) !important;
+  }
+
+  .deal-action-zone button {
+    min-height: 2.8rem !important;
+    border-radius: 0.9rem !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
