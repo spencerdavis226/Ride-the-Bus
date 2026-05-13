@@ -72,6 +72,35 @@ select {
   container-type: inline-size;
 }
 
+.deal-hero {
+  min-height: clamp(7.25rem, 20dvh, 12rem);
+  display: grid;
+  align-content: end;
+  gap: clamp(0.35rem, 1.4vh, 0.65rem);
+}
+
+.deal-outcome-slot {
+  min-height: clamp(4.45rem, 9dvh, 5.35rem);
+}
+
+.deal-card-flip {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+}
+
+.deal-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.deal-card-front {
+  transform: rotateY(180deg);
+}
+
 /* Deal-only: bounded hand strip scales with viewport; Table/Bus reuse .deal-stage with flex-1 instead */
 .deal-layout .deal-stage {
   flex-shrink: 0;
@@ -98,6 +127,13 @@ select {
     height: min(90%, 27rem);
     min-height: 14rem;
     max-width: min(34vw, 19rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .deal-hand-frame {
+    align-items: flex-start !important;
+    padding-top: clamp(0.6rem, 2vh, 1.1rem) !important;
   }
 }
 
