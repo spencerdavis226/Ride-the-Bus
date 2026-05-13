@@ -174,7 +174,7 @@ function DealOutcome({
 
   return (
     <motion.div
-      className={`deal-outcome inline-flex max-w-[22rem] flex-col items-start gap-2 rounded-xl border px-3 py-2 text-left ${shellClass}`}
+      className={`deal-outcome inline-flex max-w-[22rem] flex-col items-center gap-2 rounded-xl border px-3 py-2 text-center ${shellClass}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -183,7 +183,7 @@ function DealOutcome({
       <span className={`deal-outcome-summary rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
         {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
       </span>
-      <span className="deal-outcome-guess min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90">
+      <span className="deal-outcome-guess min-w-0 px-2.5 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90">
         Your guess: {guessed}
       </span>
     </motion.div>
