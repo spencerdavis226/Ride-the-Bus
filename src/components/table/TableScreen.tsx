@@ -64,29 +64,36 @@ export function TableScreen() {
       <PlayFelt className="table-felt">
         <motion.div
           key="table-stage"
-          className="table-turn-content deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
+          className="table-turn-content deal-turn-content flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}
         >
-          <div className="deal-hero shrink-0">
-            <TableStatusLine
-              card={focusCard}
-              index={focusIndex}
-              reviewing={reviewingFlip}
-              total={total}
-            />
-          </div>
+          <div className="deal-turn-main table-turn-main mx-auto mb-auto mt-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
+            <div className="deal-hero table-hero shrink-0">
+              <TableStatusLine
+                card={focusCard}
+                index={focusIndex}
+                reviewing={reviewingFlip}
+                total={total}
+              />
+              <div className="deal-outcome-slot table-outcome-slot">
+                <AnimatePresence initial={false}>
+                  {reviewingFlip && focusCard && (
+                    <TableResult key={focusCard.id} card={focusCard} />
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
 
-          <div className="deal-stage min-h-0 flex-1">
-            <TableCarousel
-              current={focusCard}
-              next={nextPreviewCard}
-              previous={previousCard}
-            />
+            <div className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible">
+              <TableCarousel
+                current={focusCard}
+                next={nextPreviewCard}
+                previous={previousCard}
+              />
+            </div>
           </div>
-
-          <TableResult card={reviewingFlip ? focusCard : null} />
         </motion.div>
       </PlayFelt>
 
@@ -159,14 +166,14 @@ function TableStatusLine({
     return <div className="h-8" />;
   }
   return (
-    <div className="table-status-line grid max-w-full gap-2 overflow-hidden">
-      <span className="min-w-0 truncate text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/65">
+    <div className="table-status-line grid max-w-full gap-[clamp(0.35rem,1.4vh,0.65rem)] overflow-hidden">
+      <span className="table-eyebrow min-w-0 truncate text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/65">
         {reviewing ? 'Revealed' : 'Next'} {Math.min(index + 1, total)}/{total}
       </span>
-      <span className="min-w-0 truncate text-[clamp(2.6rem,12vw,6rem)] font-black leading-[0.9] tracking-tight text-[#fff7e6] sm:text-[clamp(3rem,7vw,6.5rem)]">
+      <h2 className="deal-player-name table-row-title min-w-0 truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
         Row {card.row}
-      </span>
-      <span className="min-w-0 truncate text-[clamp(1.1rem,4vw,1.6rem)] font-black leading-tight text-[#fff7e6]/70">
+      </h2>
+      <span className="table-subtitle min-w-0 truncate text-[clamp(1.1rem,4vw,1.6rem)] font-black leading-tight text-[#fff7e6]/70">
         {reviewing ? cardName(card) : `Give ${card.value}`}
       </span>
     </div>
@@ -209,9 +216,9 @@ function CarouselSlot({
   tableCard: TableCard;
 }) {
   const placementMotion = {
-    previous: { left: '32%', x: '-50%', scale: 0.75, zIndex: 5 },
-    current: { left: '50%', x: '-50%', scale: 0.84, zIndex: 20 },
-    next: { left: '68%', x: '-50%', scale: 0.75, zIndex: 10 },
+    previous: { left: '29%', opacity: 0.58, x: '-50%', scale: 0.78, zIndex: 5 },
+    current: { left: '50%', opacity: 1, x: '-50%', scale: 0.96, zIndex: 20 },
+    next: { left: '71%', opacity: 0.66, x: '-50%', scale: 0.78, zIndex: 10 },
   }[placement];
 
   return (
@@ -222,6 +229,7 @@ function CarouselSlot({
         left: placementMotion.left,
         x: placementMotion.x,
         y: '-50%',
+        opacity: placementMotion.opacity,
         scale: placementMotion.scale,
         zIndex: placementMotion.zIndex,
       }}
@@ -250,38 +258,51 @@ function CarouselSlot({
 
 function TableResult({ card }: { card: TableCard | null }) {
   if (!card) {
-    return (
-      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/48 ring-1 ring-white/[0.06]">
-        Flip the center card to start table matches.
-      </div>
-    );
+    return null;
   }
 
   if (!card.matchedAssignments.length) {
     return (
-      <div className="table-result rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/58 ring-1 ring-white/[0.06]">
-        No matches on {cardName(card)}.
-      </div>
+      <motion.div
+        className="table-outcome inline-grid max-w-[22rem] gap-2 rounded-xl border border-white/[0.08] bg-black/18 px-3 py-2 text-[#fff7e6] shadow-[0_12px_40px_rgba(0,0,0,0.16)]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.16, ease: 'easeOut' }}
+      >
+        <span className="table-outcome-summary justify-self-start rounded-lg bg-[#fff7e6]/10 px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight text-[#fff7e6]/78">
+          No matches
+        </span>
+        <span className="table-outcome-detail min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight text-[#fff7e6]/58">
+          {cardName(card)} leaves hands unchanged.
+        </span>
+      </motion.div>
     );
   }
 
   const grouped = groupAssignments(card.matchedAssignments);
   return (
-    <div className="table-result rounded-2xl bg-[#f5d99b]/[0.09] px-4 py-3 ring-1 ring-[#f5d99b]/20">
-      <p className="table-result-label mb-2 text-[0.58rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
-        Match
-      </p>
+    <motion.div
+      className="table-outcome inline-grid max-w-[22rem] gap-2 rounded-xl border border-[#f5d99b]/30 bg-[#f5d99b]/[0.09] px-3 py-2 text-[#fff7e6] shadow-[0_12px_40px_rgba(245,217,155,0.12)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16, ease: 'easeOut' }}
+    >
+      <span className="table-outcome-summary justify-self-start rounded-lg bg-[#f5d99b] px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight text-[#142019]">
+        {card.matchedAssignments.length} Match{card.matchedAssignments.length === 1 ? '' : 'es'}
+      </span>
       <div className="grid gap-2">
         {grouped.map((summary) => (
-          <div key={summary.playerId} className="table-result-row flex items-center justify-between gap-3">
-            <span className="truncate text-sm font-black text-[#fff7e6]">{summary.name}</span>
-            <span className="shrink-0 rounded-lg bg-[#f5d99b] px-2.5 py-1 text-xs font-black text-[#142019]">
+          <div key={summary.playerId} className="table-outcome-row flex items-center justify-between gap-3">
+            <span className="truncate text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight text-[#fff7e6]">{summary.name}</span>
+            <span className="shrink-0 rounded-lg bg-[#fff7e6]/12 px-2.5 py-1 text-xs font-black text-[#f5d99b]">
               Give {summary.units}
             </span>
           </div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

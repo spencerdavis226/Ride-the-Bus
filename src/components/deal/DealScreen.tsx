@@ -28,7 +28,7 @@ export function DealScreen() {
   const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
-  const turnKey = `${player.id}-${state.deal.subphase}`;
+  const turnKey = player.id;
 
   return (
     <PlayScreen className="deal-layout">
@@ -53,15 +53,15 @@ export function DealScreen() {
         >
           <div className="deal-turn-main mx-auto mt-auto mb-auto flex w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
             <div className="deal-hero shrink-0">
-              <h2 className="deal-player-name max-w-full overflow-hidden pb-[0.08em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
+              <h2 className="deal-player-name max-w-full pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={turnKey}
                     className="block truncate"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.16, ease: 'easeOut' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.14, ease: 'easeOut' }}
                   >
                     {player.name}
                   </motion.span>
@@ -174,7 +174,7 @@ function DealOutcome({
 
   return (
     <motion.div
-      className={`deal-outcome mt-2 inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
+      className={`deal-outcome inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
