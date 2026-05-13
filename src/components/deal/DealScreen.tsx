@@ -51,7 +51,7 @@ export function DealScreen() {
           animate={{ y: 0, scale: 1 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}
         >
-          <div className="deal-turn-main mx-auto mt-auto mb-auto flex w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
+          <div className="deal-turn-main mx-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
             <div className="deal-hero shrink-0">
               <h2 className="deal-player-name max-w-full pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
                 <AnimatePresence mode="wait" initial={false}>
@@ -174,13 +174,13 @@ function DealOutcome({
 
   return (
     <motion.div
-      className={`deal-outcome inline-grid max-w-[22rem] gap-2 rounded-xl border px-3 py-2 ${shellClass}`}
+      className={`deal-outcome inline-flex max-w-[22rem] flex-col items-start gap-2 rounded-xl border px-3 py-2 text-left ${shellClass}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
-      <span className={`deal-outcome-summary justify-self-start rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
+      <span className={`deal-outcome-summary rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
         {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
       </span>
       <span className="deal-outcome-guess min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90">
@@ -234,6 +234,7 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
   const { state } = useGame();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
+  const [tightLandscape, setTightLandscape] = useState(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -263,8 +264,20 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
     };
   }, []);
 
-  const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, dims.h) : null;
+  useEffect(() => {
+    const query = window.matchMedia('(orientation: landscape) and (max-height: 500px) and (max-width: 950px)');
+    const sync = () => setTightLandscape(query.matches);
+
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, []);
+
+  const maxHighlightLift = tightLandscape ? 0 : 18;
+  const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, Math.max(1, dims.h - maxHighlightLift)) : null;
   const totalFanW = fan ? fan.cardW + fan.step * 3 : 0;
+  const highlightLift = fan ? Math.min(maxHighlightLift, fan.cardH * 0.06) : 0;
+  const highlightHeadroom = highlightLift + (highlightLift > 0 ? 3 : 0);
 
   return (
     <div
@@ -272,7 +285,7 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
       className="deal-hand-frame flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
     >
       {fan && (
-        <div className="relative flex-shrink-0" style={{ width: totalFanW, height: fan.cardH }}>
+        <div className="relative flex-shrink-0" style={{ width: totalFanW, height: fan.cardH + highlightHeadroom }}>
           {Array.from({ length: 4 }, (_, i) => {
             const card = cards[i];
             const highlighted = highlightedIndex === i;
@@ -280,9 +293,9 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
               <motion.div
                 key={i}
                 className="absolute top-0"
-                style={{ left: i * fan.step, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
+                style={{ left: i * fan.step, top: highlightHeadroom, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
                 initial={false}
-                animate={{ y: highlighted ? -Math.min(18, fan.cardH * 0.06) : 0, scale: 1, rotate: 0 }}
+                animate={{ y: highlighted ? -highlightLift : 0, scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', damping: 30, stiffness: 340 }}
               >
                 <HandSlot

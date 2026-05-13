@@ -73,9 +73,9 @@ select {
 }
 
 .deal-hero {
-  min-height: clamp(7.25rem, 20dvh, 12rem);
+  min-height: 0;
   display: grid;
-  align-content: end;
+  align-content: start;
   gap: clamp(0.35rem, 1.4vh, 0.65rem);
 }
 
@@ -411,6 +411,12 @@ select {
     align-self: center;
   }
 
+  .deal-layout .deal-hero {
+    align-content: start;
+    align-self: start;
+    padding-top: clamp(0.55rem, 2.2vh, 1rem);
+  }
+
   .deal-player-name {
     white-space: normal !important;
     font-size: clamp(1.9rem, 5.8vw, 3.2rem) !important;
@@ -509,6 +515,11 @@ select {
   .deal-stage {
     min-height: 0;
     height: 100%;
+  }
+
+  .deal-layout .deal-hand-frame {
+    align-items: flex-start !important;
+    padding-top: clamp(0.55rem, 2.2vh, 1rem) !important;
   }
 
   .deal-action-zone {
