@@ -41,7 +41,7 @@ export function Drawer({ open, title, children, onClose }: DrawerProps) {
             {/* Header */}
             <div className="flex items-center justify-between px-5 pb-3 pt-1">
               <h2 className="text-lg font-bold text-[#fff7e6]">{title}</h2>
-              <IconButton label="Close" onClick={onClose} className="h-9 w-9">
+              <IconButton label="Close" onClick={onClose}>
                 <X size={18} />
               </IconButton>
             </div>

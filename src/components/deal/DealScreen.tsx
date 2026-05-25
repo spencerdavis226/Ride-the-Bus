@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
-import { suitGlyphs, type Card } from '../../game/cards';
+import type { Card } from '../../game/cards';
 import type { CardBackId, DealResult, DrinkAssignment } from '../../game/state';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
@@ -79,7 +79,7 @@ export function DealScreen() {
               </div>
             </div>
 
-            <div className="deal-stage grid grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible">
+            <div className="deal-stage grid grid-cols-1 grid-rows-1 overflow-hidden">
               <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
             </div>
           </div>
@@ -163,38 +163,22 @@ function DealOutcome({
 }) {
   const reduceMotion = useReducedMotion();
   const correct = result.correct;
-  const guessed = formatOutcomeValue(result.guess);
   const action = assignment.direction === 'give' ? 'Give' : 'Take';
-  const shellClass = correct
-    ? 'border-[#7fd8a3]/45 bg-[#123a2a] text-[#dff8e8] shadow-[0_12px_40px_rgba(47,160,99,0.18)]'
-    : 'border-[#f0a0a8]/45 bg-[#481923] text-[#ffe5e8] shadow-[0_12px_40px_rgba(163,38,54,0.20)]';
-  const summaryClass = correct
-    ? 'bg-[#dff8e8] text-[#123a2a]'
-    : 'bg-[#ffe1a8] text-[#34210a]';
 
   return (
     <motion.div
-      className={`deal-outcome inline-flex max-w-[22rem] flex-col items-center gap-2 rounded-xl border px-3 py-2 text-center ${shellClass}`}
+      className="deal-outcome inline-flex max-w-[22rem] items-center text-left"
+      data-result={correct ? 'correct' : 'wrong'}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
-      <span className={`deal-outcome-summary rounded-lg px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight ${summaryClass}`}>
-        {correct ? 'Correct!' : 'Wrong!'} {action} {assignment.units}
-      </span>
-      <span className="deal-outcome-guess min-w-0 px-2.5 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight opacity-90">
-        Your guess: {guessed}
+      <span className="deal-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
+        {correct ? 'Correct' : 'Wrong'} · {action} {assignment.units}
       </span>
     </motion.div>
   );
-}
-
-function formatOutcomeValue(value: string): string {
-  if (value === 'spades' || value === 'hearts' || value === 'diamonds' || value === 'clubs') {
-    return suitGlyphs[value];
-  }
-  return `${value[0]?.toUpperCase() ?? ''}${value.slice(1)}`;
 }
 
 function computeFan(containerW: number, containerH: number) {

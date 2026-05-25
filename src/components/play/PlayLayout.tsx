@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, History, House } from 'lucide-react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
 import type { DealSubphase } from '../../game/phases';
 import type { BusGuess } from '../../game/rules';
@@ -54,6 +54,116 @@ export function PlayTopBar({
           </IconButton>
         )}
       </div>
+    </div>
+  );
+}
+
+export function ResponsivePlayFrame({
+  className = '',
+  hero,
+  result,
+  stage,
+}: {
+  className?: string;
+  hero: ReactNode;
+  result?: ReactNode;
+  stage: ReactNode;
+}) {
+  return (
+    <div className={`responsive-play-frame grid h-full min-h-0 min-w-0 gap-[clamp(0.65rem,2.4vh,1rem)] ${className}`}>
+      <div className="phase-hero-area min-h-0 min-w-0">{hero}</div>
+      <div className="phase-stage-area min-h-0 min-w-0">{stage}</div>
+      {result && <div className="phase-result-area min-h-0 min-w-0">{result}</div>}
+    </div>
+  );
+}
+
+export function PhaseHero({
+  children,
+  className = '',
+  eyebrow,
+  title,
+  titleClassName = '',
+}: {
+  children?: ReactNode;
+  className?: string;
+  eyebrow: ReactNode;
+  title: ReactNode;
+  titleClassName?: string;
+}) {
+  return (
+    <div className={`phase-hero deal-hero shrink-0 ${className}`}>
+      <p className="phase-eyebrow text-[0.62rem] font-black uppercase tracking-[0.24em] text-[#f5d99b]/65">
+        {eyebrow}
+      </p>
+      <h2
+        className={`phase-title deal-player-name max-w-full truncate pb-[0.02em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[1.05] tracking-normal text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)] ${titleClassName}`}
+      >
+        {title}
+      </h2>
+      {children}
+    </div>
+  );
+}
+
+export function CardStage({
+  children,
+  className = '',
+  count,
+  gapMax = 18,
+  gapMin = 8,
+  maxCardHeight = 420,
+}: {
+  children: (metrics: { cardHeight: number; cardWidth: number; gap: number }) => ReactNode;
+  className?: string;
+  count: number;
+  gapMax?: number;
+  gapMin?: number;
+  maxCardHeight?: number;
+}) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ height: 0, width: 0 });
+  const safeCount = Math.max(1, count);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const measure = () => {
+      const { height, width } = stage.getBoundingClientRect();
+      if (height > 0 && width > 0) {
+        setSize({ height, width });
+      }
+    };
+
+    measure();
+    const observer = new ResizeObserver(([entry]) => {
+      const { height, width } = entry.contentRect;
+      if (height > 0 && width > 0) {
+        setSize({ height, width });
+      }
+    });
+    observer.observe(stage);
+    const raf = requestAnimationFrame(measure);
+    window.addEventListener('resize', measure);
+    window.visualViewport?.addEventListener('resize', measure);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', measure);
+      window.visualViewport?.removeEventListener('resize', measure);
+      observer.disconnect();
+    };
+  }, []);
+
+  const gap = Math.max(gapMin, Math.min(gapMax, size.width * 0.024));
+  const availableWidth = Math.max(0, size.width - gap * (safeCount - 1));
+  const cardWidth = Math.max(0, Math.min(availableWidth / safeCount, Math.min(size.height, maxCardHeight) * (5 / 7)));
+  const cardHeight = cardWidth > 0 ? cardWidth / (5 / 7) : 0;
+
+  return (
+    <div ref={stageRef} className={`card-stage h-full min-h-0 min-w-0 ${className}`}>
+      {cardWidth > 0 && cardHeight > 0 ? children({ cardHeight, cardWidth, gap }) : null}
     </div>
   );
 }
@@ -138,6 +248,10 @@ export function PlayFelt({ children, className = '' }: { children: ReactNode; cl
 
 export function PlayActionZone({ children }: { children: ReactNode }) {
   return <div className="deal-action-zone shrink-0 px-2 pb-3 pt-2">{children}</div>;
+}
+
+export function PhaseActionBar({ children }: { children: ReactNode }) {
+  return <PlayActionZone>{children}</PlayActionZone>;
 }
 
 type GuessOption = {

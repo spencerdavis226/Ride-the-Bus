@@ -86,7 +86,7 @@ export function TableScreen() {
               </div>
             </div>
 
-            <div className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-x-hidden overflow-y-visible">
+            <div className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
               <TableCarousel
                 current={focusCard}
                 next={nextPreviewCard}
@@ -174,7 +174,7 @@ function TableStatusLine({
         Row {card.row}
       </h2>
       <span className="table-subtitle min-w-0 truncate text-[clamp(1.1rem,4vw,1.6rem)] font-black leading-tight text-[#fff7e6]/70">
-        {reviewing ? cardName(card) : `Give ${card.value}`}
+        Give {card.value}
       </span>
     </div>
   );
@@ -272,9 +272,6 @@ function TableResult({ card }: { card: TableCard | null }) {
       >
         <span className="table-outcome-summary justify-self-start rounded-lg bg-[#fff7e6]/10 px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight text-[#fff7e6]/78">
           No matches
-        </span>
-        <span className="table-outcome-detail min-w-0 text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight text-[#fff7e6]/58">
-          {cardName(card)} leaves hands unchanged.
         </span>
       </motion.div>
     );

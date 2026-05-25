@@ -24,10 +24,10 @@ export function GameOverScreen() {
   const drinksEach = bus?.drinksEach ?? 0;
 
   return (
-    <section className="relative flex flex-1 flex-col gap-4">
+    <section className="game-over-screen relative flex min-h-full flex-1 flex-col gap-4">
       {!exhausted && <ConfettiBurst />}
 
-      <div className="glass-panel mt-6 rounded-2xl p-6 text-center">
+      <div className="game-over-panel glass-panel mt-6 rounded-2xl p-6 text-center">
         <p className="text-[0.62rem] font-black uppercase tracking-[0.26em] text-[#f5d99b]/65">
           Game Over
         </p>

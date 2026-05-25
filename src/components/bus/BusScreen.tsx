@@ -1,6 +1,7 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
+import type { Card } from '../../game/cards';
 import type { DealSubphase } from '../../game/phases';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
@@ -8,15 +9,15 @@ import { Drawer } from '../common/Drawer';
 import { LogDrawer } from '../log/LogDrawer';
 import {
   HandPreviewOverlay,
+  PhaseActionBar,
+  PhaseHero,
   PlayerTurnRail,
-  PlayActionZone,
   PlayFelt,
   PlayGuessPicker,
   PlayScreen,
   PlayTopBar,
+  ResponsivePlayFrame,
 } from '../play/PlayLayout';
-
-const phaseLabels = ['Red or Black', 'Higher or Lower', 'Inside or Outside', 'Suit'];
 
 export function BusScreen() {
   const { state, dispatch } = useGame();
@@ -51,42 +52,40 @@ export function BusScreen() {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={`bus-${progressIndex}-${bus.drinksEach}`}
-            className="deal-turn-content flex h-full min-h-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] p-[clamp(0.9rem,3vw,1.5rem)]"
+            className="bus-turn-content h-full min-h-0 p-[clamp(0.9rem,3vw,1.5rem)]"
             initial={{ y: 18, scale: 0.985 }}
             animate={{ y: 0, scale: 1 }}
             exit={{ y: -14, scale: 0.985 }}
             transition={{ type: 'spring', damping: 26, stiffness: 260 }}
           >
-            <div className="deal-hero shrink-0">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.24em] text-[#f5d99b]/65">
-                {phaseLabels[progressIndex]} {progressIndex + 1} of 4
-              </p>
-              <h2 className="deal-player-name max-w-full truncate pb-[0.08em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[0.95] tracking-tight text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)]">
-                The Bus
-              </h2>
-              <BusStatus
-                drinksEach={bus.drinksEach}
-                mode={state.settings.busMode === 'endless' ? 'Endless' : 'Single deck'}
-                riderNames={riderNames}
-                reshuffles={bus.reshuffleCount}
-              />
-            </div>
-
-            <div className="deal-stage min-h-0 flex-1">
-              <BusCardsStage progressIndex={progressIndex} visibleCards={bus.visibleCards} />
-            </div>
-
-            <BusResult label={bus.lastAssignment?.label ?? null} />
+            <ResponsivePlayFrame
+              className="bus-play-frame"
+              hero={(
+                <PhaseHero eyebrow={`${progressIndex + 1}/4`} title="The Bus">
+                  <BusStatus
+                    drinksEach={bus.drinksEach}
+                    mode={state.settings.busMode === 'endless' ? 'Endless' : 'Single deck'}
+                    riderNames={riderNames}
+                    reshuffles={bus.reshuffleCount}
+                  />
+                </PhaseHero>
+              )}
+              stage={(
+                <BusCardsStage progressIndex={progressIndex} visibleCards={bus.visibleCards} />
+              )}
+              result={bus.lastAssignment ? <BusResult label={bus.lastAssignment.label} /> : undefined}
+            />
           </motion.div>
         </AnimatePresence>
       </PlayFelt>
 
-      <PlayActionZone>
+      <PhaseActionBar>
         <PlayGuessPicker
+          className="bus-guess-picker"
           subphase={activeSubphase}
           onGuess={(guess) => dispatch({ type: 'BUS_GUESS', guess })}
         />
-      </PlayActionZone>
+      </PhaseActionBar>
 
       <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <AnimatePresence>
@@ -139,18 +138,22 @@ function BusStatus({
   riderNames: string;
   reshuffles: number;
 }) {
+  const showMode = mode !== 'Single deck' || reshuffles > 0;
+
   return (
-    <div className="mt-2 flex max-w-full flex-wrap items-center gap-2">
-      <span className="max-w-full truncate rounded-xl bg-black/20 px-3 py-2 text-[clamp(0.9rem,3vw,1.05rem)] font-black text-[#fff7e6]/88 ring-1 ring-white/[0.06]">
+    <div className="bus-status mt-2 flex max-w-full flex-wrap items-center gap-2">
+      <span className="bus-status-riders max-w-full truncate rounded-xl bg-black/20 px-3 py-2 text-[clamp(0.9rem,3vw,1.05rem)] font-black text-[#fff7e6]/88 ring-1 ring-white/[0.06]">
         {riderNames}
       </span>
-      <span className="rounded-xl bg-[#f5d99b] px-3 py-2 text-[clamp(0.85rem,2.7vw,1rem)] font-black text-[#142019]">
+      <span className="bus-status-total rounded-xl bg-[#f5d99b] px-3 py-2 text-[clamp(0.85rem,2.7vw,1rem)] font-black text-[#142019]">
         {drinksEach} each
       </span>
-      <span className="rounded-xl bg-white/[0.07] px-3 py-2 text-[clamp(0.78rem,2.5vw,0.92rem)] font-black text-[#fff7e6]/58 ring-1 ring-white/[0.07]">
-        {mode}
-        {reshuffles > 0 ? ` · ${reshuffles} reshuffle${reshuffles === 1 ? '' : 's'}` : ''}
-      </span>
+      {showMode && (
+        <span className="bus-status-mode rounded-xl bg-white/[0.07] px-3 py-2 text-[clamp(0.78rem,2.5vw,0.92rem)] font-black text-[#fff7e6]/58 ring-1 ring-white/[0.07]">
+          {mode}
+          {reshuffles > 0 ? ` · ${reshuffles} reshuffle${reshuffles === 1 ? '' : 's'}` : ''}
+        </span>
+      )}
     </div>
   );
 }
@@ -160,18 +163,20 @@ function BusCardsStage({
   visibleCards,
 }: {
   progressIndex: number;
-  visibleCards: Parameters<typeof PlayingCard>[0]['card'][];
+  visibleCards: Array<Card | null>;
 }) {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <div className="bus-cards-stage flex h-full min-h-0 items-center justify-center overflow-hidden">
-      <div className="grid h-full max-h-[min(100%,25rem)] w-full max-w-[58rem] grid-cols-4 items-center gap-[clamp(0.45rem,2.2vw,1rem)]">
+    <div className="bus-cards-stage grid h-full min-h-0 place-items-center">
+      <div className="bus-card-runway grid h-full w-full max-w-[58rem] grid-cols-4 items-center justify-items-center gap-[clamp(0.45rem,2.2vw,1rem)]">
         {visibleCards.map((card, index) => (
           <motion.div
             key={card?.id ?? `empty-${index}`}
-            className="grid aspect-[5/7] min-h-0 place-items-center"
-            initial={{ y: 12, opacity: 0, scale: 0.94 }}
+            className="bus-card-slot grid shrink-0 place-items-center"
+            initial={reduceMotion ? false : { y: 12, opacity: 0, scale: 0.94 }}
             animate={{ y: 0, opacity: 1, scale: index === progressIndex ? 1 : 0.92 }}
-            transition={{ type: 'spring', damping: 24, stiffness: 270, delay: index * 0.03 }}
+            transition={reduceMotion ? { duration: 0.01 } : { type: 'spring', damping: 24, stiffness: 270, delay: index * 0.03 }}
           >
             <PlayingCard
               card={card}
@@ -188,23 +193,16 @@ function BusCardsStage({
 
 function BusResult({ label }: { label: string | null }) {
   if (!label) {
-    return (
-      <div className="rounded-2xl bg-black/18 px-4 py-3 text-sm font-bold text-[#fff7e6]/48 ring-1 ring-white/[0.06]">
-        Guess the highlighted card to keep moving.
-      </div>
-    );
+    return null;
   }
 
   return (
     <motion.div
-      className="rounded-2xl bg-[#f5d99b]/[0.10] px-4 py-3 ring-1 ring-[#f5d99b]/20"
+      className="bus-result-card rounded-2xl bg-[#f5d99b]/[0.10] px-4 py-3 ring-1 ring-[#f5d99b]/20"
       initial={{ y: 8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.18 }}
     >
-      <p className="mb-1 text-[0.58rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
-        Last miss
-      </p>
       <p className="text-sm font-black text-[#fff7e6]">{label}</p>
     </motion.div>
   );

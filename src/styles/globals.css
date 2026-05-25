@@ -84,6 +84,18 @@ select {
   min-height: 0;
 }
 
+.deal-outcome-summary {
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.22);
+}
+
+.deal-outcome[data-result="correct"] .deal-outcome-summary {
+  color: #bdf5cd;
+}
+
+.deal-outcome[data-result="wrong"] .deal-outcome-summary {
+  color: #ffc0ca;
+}
+
 .table-outcome-slot:empty {
   height: clamp(1rem, 5dvh, 2.5rem);
 }
@@ -112,6 +124,46 @@ select {
   min-height: clamp(11rem, 40dvh, 32rem);
   height: clamp(11rem, 42dvh, 32rem);
   max-height: min(34rem, 52dvh);
+}
+
+.responsive-play-frame {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.phase-stage-area,
+.card-stage {
+  min-height: 0;
+}
+
+.bus-turn-content,
+.bus-intro-content {
+  min-width: 0;
+}
+
+.bus-cards-stage {
+  container-type: size;
+  overflow: visible;
+}
+
+.bus-card-runway {
+  container-type: size;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.bus-card-slot {
+  aspect-ratio: 5 / 7;
+  max-height: 100cqh;
+  width: min(100%, calc(100cqh * 5 / 7));
+  transform-origin: center;
+}
+
+.bus-result-card {
+  max-width: 100%;
+}
+
+.deal-action-zone {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 .table-carousel-stage {
@@ -163,11 +215,6 @@ select {
 
   .setup-player-count {
     font-size: clamp(4.6rem, 4.8vw, 7rem) !important;
-  }
-
-  .setup-player-count-label {
-    font-size: 1.15rem !important;
-    padding-bottom: 0.45rem !important;
   }
 
   .setup-reset {
@@ -227,20 +274,6 @@ select {
     font-size: 1.05rem !important;
   }
 
-  .setup-summary {
-    width: min(100%, 92rem);
-    margin: 0 auto;
-    padding: 1.1rem 1.35rem !important;
-  }
-
-  .setup-summary-title {
-    font-size: 1.05rem !important;
-  }
-
-  .setup-summary-copy {
-    font-size: 0.95rem !important;
-  }
-
   .setup-footer {
     width: min(100%, 92rem);
     margin: 0 auto;
@@ -270,17 +303,16 @@ select {
   }
 
   .table-carousel-card {
-    height: min(100%, 12.8rem);
-    min-height: 8.5rem;
-    max-width: 9.5rem;
+    height: min(100%, 11.5rem);
+    min-height: 7.75rem;
+    max-width: 8.4rem;
   }
 
   .setup-screen {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(15rem, 28vw);
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 24vw);
+    grid-template-rows: minmax(0, 1fr);
     grid-template-areas:
-      "players info"
       "players actions";
     gap: 0.6rem !important;
     overflow: hidden;
@@ -292,29 +324,37 @@ select {
   }
 
   .setup-table-header {
+    display: grid;
+    grid-template-columns: minmax(11rem, 0.6fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.65rem;
     padding: 0.75rem 0.85rem !important;
   }
 
-  .setup-player-count {
-    font-size: clamp(2.25rem, 7vw, 3.25rem) !important;
+  .setup-table-header > .flex {
+    min-width: 0;
   }
 
-  .setup-player-count-label {
-    font-size: 0.78rem !important;
-    padding-bottom: 0.2rem !important;
+  .setup-player-count {
+    font-size: clamp(2rem, 5vw, 2.65rem) !important;
   }
 
   .bus-mode-selector {
-    margin-top: 0.5rem !important;
+    margin-top: 0 !important;
+    min-width: 0;
   }
 
   .bus-mode-selector legend {
-    margin-bottom: 0.35rem !important;
+    margin-bottom: 0.3rem !important;
   }
 
   .deck-mode-button {
-    min-height: 3.2rem !important;
+    min-height: 3rem !important;
     border-radius: 0.85rem !important;
+  }
+
+  .deck-mode-label {
+    font-size: 0.85rem !important;
   }
 
   .deck-mode-button > span {
@@ -325,26 +365,14 @@ select {
     padding: 0.65rem !important;
   }
 
-  .setup-summary {
-    grid-area: info;
-    align-self: start;
-    padding: 0.85rem !important;
-    border-radius: 1rem !important;
-  }
-
-  .setup-summary p {
-    font-size: 0.82rem !important;
-    line-height: 1.35 !important;
-  }
-
   .setup-footer {
     grid-area: actions;
     align-self: end;
-    padding-bottom: 0 !important;
+    padding-bottom: max(0.25rem, env(safe-area-inset-bottom)) !important;
   }
 
   .setup-footer button {
-    min-height: 2.9rem !important;
+    min-height: 3.1rem !important;
     border-radius: 1rem !important;
     box-shadow: none !important;
   }
@@ -426,25 +454,29 @@ select {
   .deal-outcome {
     justify-self: start;
     max-width: min(100%, 18rem) !important;
-    gap: 0.45rem !important;
-    padding: 0.65rem 0.75rem !important;
+    padding: 0 !important;
   }
 
   .deal-outcome-summary {
     font-size: clamp(0.9rem, 2.35vw, 1.05rem) !important;
-    padding: 0.4rem 0.65rem !important;
-  }
-
-  .deal-outcome-guess {
-    font-size: clamp(0.82rem, 2.1vw, 0.98rem) !important;
   }
 
   .table-status-line {
     gap: 0.35rem !important;
   }
 
+  .table-turn-content {
+    grid-template-columns: minmax(11rem, 30vw) minmax(0, 1fr) !important;
+    overflow: hidden !important;
+  }
+
+  .table-turn-main {
+    min-height: 0;
+  }
+
   .table-hero {
     min-height: 0;
+    align-self: center;
   }
 
   .table-eyebrow {
@@ -454,12 +486,12 @@ select {
 
   .table-row-title {
     white-space: normal !important;
-    font-size: clamp(1.75rem, 5.2vw, 2.85rem) !important;
+    font-size: clamp(1.55rem, 4.2vw, 2.35rem) !important;
     line-height: 1 !important;
   }
 
   .table-subtitle {
-    font-size: clamp(0.95rem, 2.5vw, 1.15rem) !important;
+    font-size: clamp(0.82rem, 2vw, 1rem) !important;
   }
 
   .table-outcome-slot:empty {
@@ -474,36 +506,38 @@ select {
     row-gap: 0.4rem !important;
     justify-self: start;
     max-width: min(100%, 18rem) !important;
-    padding: 0.65rem 0.75rem !important;
+    padding: 0.5rem 0.65rem !important;
   }
 
   .table-outcome-slot {
     height: auto;
+    max-height: none;
+    overflow: hidden;
   }
 
   .table-outcome-summary {
-    font-size: clamp(0.9rem, 2.35vw, 1.05rem) !important;
-    padding: 0.4rem 0.65rem !important;
+    font-size: clamp(0.8rem, 2vw, 0.95rem) !important;
+    padding: 0.32rem 0.55rem !important;
   }
 
-  .table-outcome-detail,
   .table-outcome-row span:first-child {
-    font-size: clamp(0.82rem, 2.1vw, 0.98rem) !important;
-  }
-
-  .table-outcome-detail {
-    display: none;
+    font-size: clamp(0.74rem, 1.8vw, 0.9rem) !important;
   }
 
   .table-outcome > .grid {
     display: flex;
     min-width: 0;
     flex-wrap: wrap;
-    gap: 0.5rem !important;
+    gap: 0.38rem !important;
   }
 
   .table-outcome-row {
-    gap: 0.5rem !important;
+    gap: 0.38rem !important;
+  }
+
+  .table-stage {
+    align-self: stretch;
+    overflow: hidden !important;
   }
 
   .deal-layout .deal-stage {
@@ -523,7 +557,7 @@ select {
   }
 
   .deal-action-zone {
-    padding: 0.65rem 1rem 0.75rem !important;
+    padding: 0.65rem 1rem max(0.75rem, env(safe-area-inset-bottom)) !important;
   }
 
   .deal-guess-picker {
@@ -540,6 +574,138 @@ select {
   .deal-action-zone button {
     min-height: 3.25rem !important;
     border-radius: 1rem !important;
+  }
+
+  .bus-screen .turn-rail,
+  .bus-intro-screen .turn-rail {
+    display: none !important;
+  }
+
+  .bus-turn-content,
+  .bus-intro-content {
+    padding: 0.65rem 0.8rem !important;
+  }
+
+  .bus-play-frame,
+  .bus-intro-frame {
+    grid-template-columns: minmax(11.5rem, 30vw) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "hero stage"
+      "result stage";
+    align-items: stretch;
+    column-gap: clamp(0.75rem, 2vw, 1.1rem);
+    row-gap: 0.55rem;
+  }
+
+  .bus-play-frame .phase-hero-area,
+  .bus-intro-frame .phase-hero-area {
+    grid-area: hero;
+    align-self: start;
+  }
+
+  .bus-play-frame .phase-stage-area,
+  .bus-intro-frame .phase-stage-area {
+    grid-area: stage;
+    align-self: stretch;
+  }
+
+  .bus-play-frame .phase-result-area,
+  .bus-intro-frame .phase-result-area {
+    grid-area: result;
+    align-self: end;
+  }
+
+  .bus-screen .phase-hero,
+  .bus-intro-screen .phase-hero {
+    gap: 0.3rem;
+  }
+
+  .bus-screen .phase-eyebrow,
+  .bus-intro-screen .phase-eyebrow {
+    font-size: 0.52rem !important;
+    letter-spacing: 0.18em !important;
+  }
+
+  .bus-screen .phase-title,
+  .bus-intro-screen .phase-title {
+    white-space: normal !important;
+    font-size: clamp(2.15rem, 6vw, 3.45rem) !important;
+    line-height: 0.92 !important;
+  }
+
+  .bus-status {
+    gap: 0.42rem !important;
+    margin-top: 0.2rem !important;
+  }
+
+  .bus-status span {
+    border-radius: 0.85rem !important;
+    padding: 0.48rem 0.62rem !important;
+    font-size: clamp(0.74rem, 1.8vw, 0.9rem) !important;
+  }
+
+  .bus-status-mode {
+    max-width: 100%;
+  }
+
+  .bus-result-card {
+    border-radius: 0.95rem !important;
+    padding: 0.62rem 0.75rem !important;
+    font-size: clamp(0.78rem, 1.9vw, 0.92rem) !important;
+    line-height: 1.22 !important;
+  }
+
+  .bus-result-card p {
+    font-size: clamp(0.78rem, 1.9vw, 0.92rem) !important;
+    line-height: 1.22 !important;
+  }
+
+  .bus-cards-stage {
+    height: 100%;
+    overflow: visible !important;
+  }
+
+  .bus-card-runway {
+    justify-content: center !important;
+  }
+
+  .bus-rider-stage {
+    align-content: center !important;
+    overflow-y: auto;
+  }
+
+  .bus-rider-stage button {
+    min-height: 3.2rem !important;
+    border-radius: 1rem !important;
+    padding-inline: 0.85rem !important;
+  }
+
+  .game-over-screen {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 28vw);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0.75rem;
+    overflow: hidden;
+  }
+
+  .game-over-panel {
+    align-self: stretch;
+    margin-top: 0 !important;
+    overflow: hidden;
+    padding: 1rem !important;
+  }
+
+  .game-over-panel h2 {
+    font-size: clamp(1.8rem, 5vw, 3rem) !important;
+  }
+
+  .game-over-screen .bottom-action-bar {
+    align-self: end;
+    margin: 0 !important;
+    padding: 0 0 max(0.25rem, env(safe-area-inset-bottom)) !important;
+    background: transparent !important;
   }
 }
 

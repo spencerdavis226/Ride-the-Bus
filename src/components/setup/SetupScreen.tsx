@@ -1,7 +1,6 @@
-import { Infinity, RotateCcw, Sparkles } from 'lucide-react';
+import { Infinity, RotateCcw } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useGame } from '../../app/GameProvider';
-import { calculatePhaseOneTwoDecks } from '../../game/deck';
 import type { BusMode } from '../../game/state';
 import { Button } from '../common/Button';
 import { PlayerEditor } from './PlayerEditor';
@@ -11,7 +10,6 @@ const DEFAULT_NAMES = ['', ''];
 export function SetupScreen() {
   const { state, dispatch, hasSavedGame, savedGame } = useGame();
   const names = state.settings.playerNames;
-  const deckCount = calculatePhaseOneTwoDecks(names.length);
 
   return (
     <section className="setup-screen flex h-full min-w-0 flex-col gap-3 overflow-hidden">
@@ -25,9 +23,6 @@ export function SetupScreen() {
               <div className="mt-1 flex items-end gap-3">
                 <p className="setup-player-count text-[clamp(2.7rem,12vw,4.7rem)] font-black leading-[0.85] text-[#fff7e6]">
                   {names.length}
-                </p>
-                <p className="setup-player-count-label pb-1 text-sm font-bold leading-tight text-[#fff7e6]/54">
-                  riders at the table
                 </p>
               </div>
             </div>
@@ -50,20 +45,6 @@ export function SetupScreen() {
             names={names}
             onChange={(nextNames) => dispatch({ type: 'SETUP_SET_PLAYERS', names: nextNames })}
           />
-        </div>
-      </div>
-
-      <div className="setup-summary grid shrink-0 grid-cols-[auto_1fr] items-center gap-3 rounded-2xl border border-[#f5d99b]/15 bg-black/[0.22] px-4 py-3 text-sm">
-        <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#f5d99b]/12 text-[#f5d99b] ring-1 ring-[#f5d99b]/18">
-          <Sparkles size={18} />
-        </div>
-        <div className="min-w-0">
-          <p className="setup-summary-title font-black text-[#fff7e6]/90">
-            Using {deckCount} deck{deckCount === 1 ? '' : 's'} for this game.
-          </p>
-          <p className="setup-summary-copy mt-0.5 text-[#fff7e6]/55">
-            Deal and The Table share this shoe. The Bus starts fresh.
-          </p>
         </div>
       </div>
 

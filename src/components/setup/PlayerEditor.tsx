@@ -59,7 +59,7 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
           />
           <button
             aria-label={`Remove ${name || `Player ${index + 1}`}`}
-            className="player-remove grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white/45 transition-[transform,color] duration-100 active:scale-90 active:text-white/80 disabled:opacity-25"
+            className="player-remove grid h-11 w-11 shrink-0 place-items-center rounded-lg text-white/45 transition-[transform,color] duration-100 active:scale-90 active:text-white/80 disabled:opacity-25"
             disabled={names.length <= 2}
             onClick={() => removePlayer(index)}
             type="button"
