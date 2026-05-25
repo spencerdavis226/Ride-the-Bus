@@ -6,7 +6,7 @@ import type { DealSubphase } from '../../game/phases';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
-import { LogDrawer } from '../log/LogDrawer';
+import { HistoryDrawer } from '../log/HistoryDrawer';
 import {
   HandPreviewOverlay,
   PhaseActionBar,
@@ -87,7 +87,7 @@ export function BusScreen() {
         />
       </PhaseActionBar>
 
-      <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
+      <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <AnimatePresence>
         {previewPlayer && (
           <HandPreviewOverlay player={previewPlayer} onClose={() => setPreviewPlayerId(null)} />

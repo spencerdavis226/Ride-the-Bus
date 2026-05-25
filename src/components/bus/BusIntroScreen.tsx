@@ -4,7 +4,7 @@ import { useGame } from '../../app/GameProvider';
 import { determineBusRiders } from '../../game/engine';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
-import { LogDrawer } from '../log/LogDrawer';
+import { HistoryDrawer } from '../log/HistoryDrawer';
 import {
   HandPreviewOverlay,
   PhaseActionBar,
@@ -86,7 +86,7 @@ export function BusIntroScreen() {
         </Button>
       </PhaseActionBar>
 
-      <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
+      <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <AnimatePresence>
         {previewPlayer && (
           <HandPreviewOverlay player={previewPlayer} onClose={() => setPreviewPlayerId(null)} />

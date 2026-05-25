@@ -9,6 +9,7 @@ import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { IconButton } from '../common/IconButton';
+import { HistoryDrawer } from '../log/HistoryDrawer';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
@@ -21,6 +22,7 @@ import {
 export function TableScreen() {
   const { state, dispatch } = useGame();
   const [overviewOpen, setOverviewOpen] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
   const [previewPlayerId, setPreviewPlayerId] = useState<string | null>(null);
@@ -46,13 +48,13 @@ export function TableScreen() {
     <PlayScreen className="table-screen">
       <PlayTopBar
         onHome={() => setQuitOpen(true)}
+        onLog={() => setLogOpen(true)}
         onRules={() => setRulesOpen(true)}
         rightActions={(
           <IconButton ghost label="Table view" onClick={() => setOverviewOpen(true)}>
             <LayoutGrid size={21} strokeWidth={2.25} />
           </IconButton>
         )}
-        showLog={false}
       />
 
       <PlayerTurnRail
@@ -119,6 +121,7 @@ export function TableScreen() {
       >
         <TableMap cards={state.table.cards} activeIndex={focusIndex} cardBackId={state.cardBackId} />
       </Drawer>
+      <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <AnimatePresence>
         {previewPlayer && (
           <HandPreviewOverlay player={previewPlayer} onClose={() => setPreviewPlayerId(null)} />

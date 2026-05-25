@@ -5,7 +5,7 @@ import { getThemeClass } from '../../styles/themes';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { IconButton } from '../common/IconButton';
-import { LogDrawer } from '../log/LogDrawer';
+import { HistoryDrawer } from '../log/HistoryDrawer';
 import { SafeArea } from './SafeArea';
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [quitOpen, setQuitOpen] = useState(false);
   const isSetup = state.phase === 'setup';
   const showHome = state.phase !== 'setup';
-  const showLog = state.phase !== 'setup' && state.phase !== 'table';
+  const showLog = state.phase !== 'setup';
   const hideChrome = state.phase === 'deal' || state.phase === 'table' || state.phase === 'busIntro' || state.phase === 'bus';
 
   function quitToSetup() {
@@ -63,7 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <BookOpen size={20} />
                 </IconButton>
                 {showLog && (
-                  <IconButton ghost label="Game log" onClick={() => setLogOpen(true)}>
+                  <IconButton ghost label="History" onClick={() => setLogOpen(true)}>
                     <History size={20} />
                   </IconButton>
                 )}
@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </SafeArea>
 
-      <LogDrawer open={logOpen} onClose={() => setLogOpen(false)} />
+      <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
           <p className="text-sm leading-6 text-[#fff7e6]/72">

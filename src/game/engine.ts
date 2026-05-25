@@ -117,7 +117,13 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
     table: emptyTable(),
     bus: null,
     gameOverReason: null,
-    log: [makeLog(`Using ${phaseOneTwoDecks} deck${phaseOneTwoDecks === 1 ? '' : 's'} for this game.`, 'system')],
+    log: [
+      makeLog(`Using ${phaseOneTwoDecks} deck${phaseOneTwoDecks === 1 ? '' : 's'} for this game.`, 'system', {
+        title: 'Game started',
+        detail: `${phaseOneTwoDecks} deck${phaseOneTwoDecks === 1 ? '' : 's'}`,
+        result: 'neutral'
+      })
+    ],
     undo: null,
     theme: chooseTheme(settings.themePreference, rng),
     cardBackId: chooseCardBack(rng),
@@ -146,7 +152,16 @@ export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
       lastResult: { guess, actual: score.actual, correct: score.correct },
       awaitingContinue: true
     },
-    log: [...state.log, makeLog(logText, 'deal')]
+    log: [
+      ...state.log,
+      makeLog(logText, 'deal', {
+        title: `${player.name} ${assignment.direction === 'take' ? 'owes' : 'gives'} ${assignment.units}`,
+        detail: `${formatGuess(guess)} was ${score.correct ? 'right' : 'wrong'}: ${formatCard(card)}`,
+        assignments: [assignment],
+        cardLabel: formatCard(card),
+        result: score.correct ? 'correct' : 'wrong'
+      })
+    ]
   });
 }
 
@@ -173,7 +188,7 @@ export function continueDeal(state: GameState): GameState {
     shoe: tableBuild.shoe,
     table: tableBuild.table,
     deal: { ...state.deal, lastResult: null, awaitingContinue: false },
-    log: [...state.log, makeLog('The Table is ready.', 'table')]
+    log: [...state.log, makeLog('The Table is ready.', 'table', { title: 'Table ready', result: 'neutral' })]
   });
 }
 
@@ -196,7 +211,16 @@ export function flipNextTableCard(state: GameState): GameState {
     ...state,
     players: matchResult.players,
     table: { cards, activeIndex: nextIndex, completed },
-    log: [...state.log, makeLog(`Table ${active.card.rank} on Row ${active.row}: ${summary}`, 'table')]
+    log: [
+      ...state.log,
+      makeLog(`Table ${active.card.rank} on Row ${active.row}: ${summary}`, 'table', {
+        title: matchResult.assignments.length ? tableLogTitle(matchResult.assignments) : 'No drinks',
+        detail: `Row ${active.row}: ${formatCard(active.card)}`,
+        assignments: matchResult.assignments,
+        cardLabel: formatCard(active.card),
+        result: 'neutral'
+      })
+    ]
   });
   return completed ? advanceAfterTable(nextState) : nextState;
 }
@@ -215,7 +239,7 @@ export function startBus(state: GameState, rng: () => number = Math.random): Gam
       phase: 'gameOver',
       gameOverReason: 'emptyBus',
       bus: null,
-      log: [...state.log, makeLog('No one rides. The bus left empty.', 'bus')]
+      log: [...state.log, makeLog('No one rides. The bus left empty.', 'bus', { title: 'No one rides', result: 'neutral' })]
     });
   }
   const busDeck = shuffleFisherYates(createStandardDeck(1), rng);
@@ -234,7 +258,14 @@ export function startBus(state: GameState, rng: () => number = Math.random): Gam
       reshuffleCount: 0,
       lastAssignment: null
     },
-    log: [...state.log, makeLog(`${riders.map((rider) => rider.name).join(', ')} ride${riders.length === 1 ? 's' : ''} the bus.`, 'bus')]
+    log: [
+      ...state.log,
+      makeLog(`${riders.map((rider) => rider.name).join(', ')} ride${riders.length === 1 ? 's' : ''} the bus.`, 'bus', {
+        title: `${riders.length === 1 ? riders[0].name : `${riders.length} riders`} on the bus`,
+        detail: riders.map((rider) => rider.name).join(', '),
+        result: 'neutral'
+      })
+    ]
   });
 }
 
@@ -255,7 +286,16 @@ export function applyBusGuess(state: GameState, guess: BusGuess, rng: () => numb
         progressIndex: nextProgress,
         escaped
       },
-      log: [...state.log, makeLog(`Bus card ${positionIndex + 1}: correct.`, 'bus'), ...(escaped ? [makeLog('The riders escaped the bus.', 'bus')] : [])]
+      log: [
+        ...state.log,
+        makeLog(`Bus card ${positionIndex + 1}: correct.`, 'bus', {
+          title: `Card ${positionIndex + 1} right`,
+          detail: formatCard(state.bus.visibleCards[positionIndex]!),
+          cardLabel: formatCard(state.bus.visibleCards[positionIndex]!),
+          result: 'correct'
+        }),
+        ...(escaped ? [makeLog('The riders escaped the bus.', 'bus', { title: 'Escaped the bus', result: 'neutral' })] : [])
+      ]
     });
   }
 
@@ -287,8 +327,13 @@ export function applyBusGuess(state: GameState, guess: BusGuess, rng: () => numb
     },
     log: [
       ...state.log,
-      makeLog(`Bus failed on card ${positionIndex + 1}: riders Take ${units} each.`, 'bus'),
-      makeLog(`Bus total is ${drinksEach} drinks each.`, 'bus')
+      makeLog(`Bus failed on card ${positionIndex + 1}: riders Take ${units} each. Bus total is ${drinksEach} drinks each.`, 'bus', {
+        title: `Riders owe ${units} each`,
+        detail: `Bus total: ${drinksEach} each`,
+        assignments: [assignment],
+        cardLabel: formatCard(state.bus.visibleCards[positionIndex]!),
+        result: 'wrong'
+      })
     ]
   });
 }
@@ -412,13 +457,20 @@ function advanceAfterTable(state: GameState): GameState {
       ...state,
       phase: 'gameOver',
       gameOverReason: 'emptyBus',
-      log: [...state.log, makeLog('No one rides. The bus left empty.', 'bus')]
+      log: [...state.log, makeLog('No one rides. The bus left empty.', 'bus', { title: 'No one rides', result: 'neutral' })]
     });
   }
   return stamp({
     ...state,
     phase: 'busIntro',
-    log: [...state.log, makeLog(`${riders.map((rider) => rider.name).join(', ')} will ride the bus.`, 'bus')]
+    log: [
+      ...state.log,
+      makeLog(`${riders.map((rider) => rider.name).join(', ')} will ride the bus.`, 'bus', {
+        title: `${riders.length === 1 ? riders[0].name : `${riders.length} riders`} will ride`,
+        detail: riders.map((rider) => rider.name).join(', '),
+        result: 'neutral'
+      })
+    ]
   });
 }
 
@@ -443,4 +495,22 @@ function formatGuess(guess: BusGuess): string {
     return suitGlyphs[guess];
   }
   return `${guess[0].toUpperCase()}${guess.slice(1)}`;
+}
+
+function formatCard(card: Card): string {
+  return `${card.rank} ${suitGlyphs[card.suit]}`;
+}
+
+function tableLogTitle(assignments: DrinkAssignment[]): string {
+  const grouped = assignments.reduce<Record<string, { name: string; units: number }>>((acc, assignment) => {
+    acc[assignment.playerId] = acc[assignment.playerId] ?? { name: assignment.playerName, units: 0 };
+    acc[assignment.playerId].units += assignment.units;
+    return acc;
+  }, {});
+  const summaries = Object.values(grouped);
+  if (summaries.length === 1) {
+    return `${summaries[0].name} gives ${summaries[0].units}`;
+  }
+  const total = summaries.reduce((sum, summary) => sum + summary.units, 0);
+  return `${summaries.length} players give ${total}`;
 }

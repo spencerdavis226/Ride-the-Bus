@@ -49,7 +49,7 @@ export function PlayTopBar({
           <BookOpen size={21} strokeWidth={2.25} />
         </IconButton>
         {showLog && onLog && (
-          <IconButton ghost label="Game log" onClick={onLog}>
+          <IconButton ghost label="History" onClick={onLog}>
             <History size={21} strokeWidth={2.25} />
           </IconButton>
         )}

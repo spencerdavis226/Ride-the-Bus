@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { applyDealGuess, continueDeal, startGame } from '../game/engine';
+import type { Card } from '../game/cards';
+import { applyBusGuess, applyDealGuess, continueDeal, flipNextTableCard, startGame } from '../game/engine';
+import type { GameState, Player, TableCard } from '../game/state';
+
+const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue: number, suit: Card['suit'] = 'spades'): Card => ({
+  id,
+  deckIndex: 1,
+  suit,
+  color,
+  rank,
+  numericValue
+});
 
 describe('engine start', () => {
   it('starts deal with a calculated phase one/two shoe', () => {
@@ -28,5 +39,109 @@ describe('engine start', () => {
     const afterContinue = continueDeal(afterGuess);
     expect(afterContinue.deal.playerIndex).toBe(1);
     expect(afterContinue.deal.awaitingContinue).toBe(false);
+  });
+
+  it('adds a structured deal history entry with assignments and fallback text', () => {
+    const state = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+
+    const afterGuess = applyDealGuess({ ...state, shoe: [card('deal-card', 'black', '2', 2)] }, 'red');
+    const entry = afterGuess.log[afterGuess.log.length - 1];
+
+    expect(entry?.kind).toBe('deal');
+    expect(entry?.text).toContain('Alex guessed Red');
+    expect(entry?.assignments).toEqual([
+      expect.objectContaining({
+        playerId: 'player-1',
+        playerName: 'Alex',
+        direction: 'take',
+        units: 1
+      })
+    ]);
+    expect(entry?.title).toBe('Alex owes 1');
+    expect(entry?.result).toBe('wrong');
+  });
+
+  it('adds a structured table history entry with all matched assignments', () => {
+    const base = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const players: Player[] = [
+      { id: 'player-1', name: 'Alex', hand: [card('a', 'black', '9', 9), card('b', 'red', '9', 9, 'hearts')] },
+      { id: 'player-2', name: 'Sam', hand: [card('c', 'black', '9', 9)] }
+    ];
+    const tableCard: TableCard = {
+      id: 'table-9',
+      row: 3,
+      value: 3,
+      card: card('table-card', 'black', '9', 9),
+      faceUp: false,
+      matchedAssignments: []
+    };
+    const state: GameState = {
+      ...base,
+      phase: 'table',
+      players,
+      table: { cards: [tableCard], activeIndex: 0, completed: false },
+      log: []
+    };
+
+    const afterFlip = flipNextTableCard(state);
+    const entry = afterFlip.log[0];
+
+    expect(entry.kind).toBe('table');
+    expect(entry.text).toContain('Table 9 on Row 3');
+    expect(entry.assignments).toHaveLength(3);
+    expect(entry.assignments?.map((assignment) => assignment.label)).toEqual([
+      'Alex: Give 3',
+      'Alex: Give 3',
+      'Sam: Give 3'
+    ]);
+    expect(entry.title).toBe('2 players give 9');
+  });
+
+  it('adds a structured bus history entry with rider debt', () => {
+    const base = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const state: GameState = {
+      ...base,
+      phase: 'bus',
+      bus: {
+        riders: base.players,
+        deck: [card('next-1', 'red', '3', 3), card('next-2', 'black', '4', 4)],
+        visibleCards: [card('bus-1', 'black', '2', 2), card('bus-2', 'red', '3', 3), card('bus-3', 'black', '4', 4), card('bus-4', 'red', '5', 5)],
+        progressIndex: 0,
+        drinksEach: 0,
+        exhausted: false,
+        escaped: false,
+        reshuffleCount: 0,
+        lastAssignment: null
+      },
+      log: []
+    };
+
+    const afterGuess = applyBusGuess(state, 'red');
+    const entry = afterGuess.log[afterGuess.log.length - 1];
+
+    expect(entry?.kind).toBe('bus');
+    expect(entry?.text).toContain('Bus failed on card 1');
+    expect(entry?.assignments).toEqual([
+      expect.objectContaining({
+        playerId: 'bus-riders',
+        playerName: 'Riders',
+        direction: 'take',
+        units: 1
+      })
+    ]);
+    expect(entry?.title).toBe('Riders owe 1 each');
+    expect(entry?.result).toBe('wrong');
   });
 });
