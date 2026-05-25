@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeLog, summarizeDrinkTotals, type GameLogEntry } from '../game/log';
+import { getDefaultHistoryFilter, makeLog, summarizeDrinkTotals, type GameLogEntry } from '../game/log';
 import type { DrinkAssignment } from '../game/state';
 
 const assignment = (
@@ -48,5 +48,52 @@ describe('history log helpers', () => {
       { playerId: 'p1', playerName: 'Alex', give: 6, take: 1 },
       { playerId: 'p2', playerName: 'Sam', give: 3, take: 0 }
     ]);
+  });
+
+  it('keeps deal summaries scoped away from table and bus entries', () => {
+    const entries: GameLogEntry[] = [
+      makeLog('Deal miss', 'deal', {
+        assignments: [assignment('p1', 'Alex', 'take', 2)]
+      }),
+      makeLog('Table pair', 'table', {
+        assignments: [assignment('p1', 'Alex', 'give', 4, 'table')]
+      }),
+      makeLog('Bus fail', 'bus', {
+        assignments: [assignment('bus-riders', 'Riders', 'take', 3, 'bus')]
+      })
+    ];
+
+    expect(summarizeDrinkTotals(entries.filter((entry) => entry.kind === 'deal'))).toEqual([
+      { playerId: 'p1', playerName: 'Alex', give: 0, take: 2 }
+    ]);
+  });
+
+  it('keeps bus summaries fresh from deal and table entries', () => {
+    const entries: GameLogEntry[] = [
+      makeLog('Deal miss', 'deal', {
+        assignments: [assignment('p1', 'Alex', 'take', 2)]
+      }),
+      makeLog('Table pair', 'table', {
+        assignments: [assignment('p1', 'Alex', 'give', 4, 'table')]
+      }),
+      makeLog('Bus fail', 'bus', {
+        assignments: [assignment('bus-riders', 'Riders', 'take', 3, 'bus')]
+      })
+    ];
+
+    expect(summarizeDrinkTotals(entries.filter((entry) => entry.kind === 'bus'))).toEqual([
+      { playerId: 'bus-riders', playerName: 'Riders', give: 0, take: 3 }
+    ]);
+  });
+
+  it('chooses the default history tab from the active phase', () => {
+    expect(getDefaultHistoryFilter('deal', null)).toBe('deal');
+    expect(getDefaultHistoryFilter('table', null)).toBe('table');
+    expect(getDefaultHistoryFilter('busIntro', null)).toBe('bus');
+    expect(getDefaultHistoryFilter('bus', null)).toBe('bus');
+    expect(getDefaultHistoryFilter('gameOver', 'escaped')).toBe('bus');
+    expect(getDefaultHistoryFilter('gameOver', 'deckExhausted')).toBe('bus');
+    expect(getDefaultHistoryFilter('gameOver', 'emptyBus')).toBe('all');
+    expect(getDefaultHistoryFilter('setup', null)).toBe('all');
   });
 });

@@ -1,11 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
-import type { GameLogEntry, GameLogPhase } from '../../game/log';
-import { summarizeDrinkTotals, type DrinkTotal } from '../../game/log';
+import type { GameLogEntry, HistoryFilter } from '../../game/log';
+import { getDefaultHistoryFilter, summarizeDrinkTotals, type DrinkTotal } from '../../game/log';
 import type { DrinkAssignment } from '../../game/state';
 import { Drawer } from '../common/Drawer';
-
-type HistoryFilter = 'all' | GameLogPhase;
 
 const filters: Array<{ id: HistoryFilter; label: string }> = [
   { id: 'all', label: 'All' },
@@ -16,8 +14,13 @@ const filters: Array<{ id: HistoryFilter; label: string }> = [
 
 export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { state } = useGame();
-  const [filter, setFilter] = useState<HistoryFilter>('all');
-  const totals = useMemo(() => summarizeDrinkTotals(state.log), [state.log]);
+  const defaultFilter = getDefaultHistoryFilter(state.phase, state.gameOverReason);
+  const [filter, setFilter] = useState<HistoryFilter>(defaultFilter);
+  const summaryEntries = useMemo(
+    () => state.log.filter((entry) => entry.kind === filter),
+    [filter, state.log]
+  );
+  const totals = useMemo(() => summarizeDrinkTotals(summaryEntries), [summaryEntries]);
   const entries = useMemo(
     () => state.log
       .filter((entry) => filter === 'all' || entry.kind === filter)
@@ -25,6 +28,13 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
       .reverse(),
     [filter, state.log]
   );
+  const showSummary = filter === 'deal' || filter === 'bus';
+
+  useEffect(() => {
+    if (open) {
+      setFilter(defaultFilter);
+    }
+  }, [defaultFilter, open]);
 
   return (
     <Drawer
@@ -34,18 +44,18 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
       contentMaxHeight="min(78dvh, 46rem)"
       onClose={onClose}
     >
-      <DrinkSummary totals={totals} />
+      {showSummary && <DrinkSummary title={filter === 'deal' ? 'Deal drinks' : 'Bus total'} totals={totals} />}
       <PhaseFilters active={filter} onChange={setFilter} />
       <Timeline entries={entries} />
     </Drawer>
   );
 }
 
-function DrinkSummary({ totals }: { totals: DrinkTotal[] }) {
+function DrinkSummary({ title, totals }: { title: string; totals: DrinkTotal[] }) {
   return (
     <section className="rounded-2xl bg-[#f5d99b]/[0.10] p-3 ring-1 ring-[#f5d99b]/20">
       <p className="px-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/70">
-        Drinks first
+        {title}
       </p>
       {totals.length === 0 ? (
         <p className="mt-2 rounded-xl bg-black/20 px-4 py-4 text-center text-xl font-black text-[#fff7e6]">

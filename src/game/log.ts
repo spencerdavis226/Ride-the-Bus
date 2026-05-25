@@ -1,7 +1,9 @@
 import type { DrinkAssignment } from './state';
+import type { GameOverReason, GamePhase } from './state';
 
 export type GameLogKind = 'deal' | 'table' | 'bus' | 'system';
 export type GameLogPhase = Exclude<GameLogKind, 'system'>;
+export type HistoryFilter = 'all' | GameLogPhase;
 export type GameLogResult = 'correct' | 'wrong' | 'neutral';
 
 export type GameLogEntry = {
@@ -59,4 +61,12 @@ export function summarizeDrinkTotals(entries: GameLogEntry[]): DrinkTotal[] {
     if (giveDelta !== 0) return giveDelta;
     return a.playerName.localeCompare(b.playerName);
   });
+}
+
+export function getDefaultHistoryFilter(phase: GamePhase, gameOverReason: GameOverReason | null): HistoryFilter {
+  if (phase === 'deal') return 'deal';
+  if (phase === 'table') return 'table';
+  if (phase === 'busIntro' || phase === 'bus') return 'bus';
+  if (phase === 'gameOver' && gameOverReason !== 'emptyBus') return 'bus';
+  return 'all';
 }
