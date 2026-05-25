@@ -47,7 +47,7 @@ export function Drawer({ open, title, children, onClose }: DrawerProps) {
             </div>
             {/* Content */}
             <div
-              className="overflow-y-auto px-5"
+              className="drawer-content overflow-y-auto px-5"
               style={{ maxHeight: '62dvh', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
             >
               {children}

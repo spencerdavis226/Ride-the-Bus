@@ -3,7 +3,8 @@ import { LayoutGrid } from 'lucide-react';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs } from '../../game/cards';
-import type { DrinkAssignment, TableCard } from '../../game/state';
+import type { CardBackId, DrinkAssignment, TableCard } from '../../game/state';
+import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
@@ -28,9 +29,8 @@ export function TableScreen() {
   const total = state.table.cards.length;
   const focusIndex = reviewIndex ?? state.table.activeIndex;
   const focusCard = state.table.cards[focusIndex] ?? null;
-  const previousCard = focusIndex > 0 ? state.table.cards[focusIndex - 1] : null;
-  const nextPreviewCard = focusIndex < total - 1 ? state.table.cards[focusIndex + 1] : null;
   const reviewingFlip = reviewIndex !== null;
+  const buttonProgress = `${Math.min(focusIndex + 1, total)}/${total}`;
 
   function flipCurrentCard() {
     if (!focusCard || reviewingFlip) return;
@@ -64,34 +64,27 @@ export function TableScreen() {
       <PlayFelt className="table-felt">
         <motion.div
           key="table-stage"
-          className="table-turn-content deal-turn-content flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
+          className="table-turn-content deal-turn-content relative flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}
         >
           <div className="deal-turn-main table-turn-main mx-auto mb-auto mt-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
             <div className="deal-hero table-hero shrink-0">
-              <TableStatusLine
-                card={focusCard}
-                index={focusIndex}
-                reviewing={reviewingFlip}
-                total={total}
-              />
+              <TableHero card={focusCard} />
               <div className="deal-outcome-slot table-outcome-slot">
-                <AnimatePresence initial={false}>
-                  {reviewingFlip && focusCard && (
-                    <TableResult key={focusCard.id} card={focusCard} />
-                  )}
-                </AnimatePresence>
+                {focusCard && (
+                  <TableResult
+                    key={`${focusCard.id}-${reviewingFlip ? 'review' : 'ready'}`}
+                    card={focusCard}
+                    revealed={reviewingFlip}
+                  />
+                )}
               </div>
             </div>
 
-            <div className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
-              <TableCarousel
-                current={focusCard}
-                next={nextPreviewCard}
-                previous={previousCard}
-              />
+            <div className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
+              <TableCardFocus card={focusCard} />
             </div>
           </div>
         </motion.div>
@@ -112,13 +105,13 @@ export function TableScreen() {
             onClick={flipCurrentCard}
             disabled={!focusCard}
           >
-            Flip Card
+            Flip Card {buttonProgress}
           </Button>
         )}
       </PlayActionZone>
 
       <Drawer open={overviewOpen} title="Table View" onClose={() => setOverviewOpen(false)}>
-        <TableOverview cards={state.table.cards} activeIndex={state.table.activeIndex} reviewIndex={reviewIndex} />
+        <TableMap cards={state.table.cards} activeIndex={focusIndex} cardBackId={state.cardBackId} />
       </Drawer>
       <AnimatePresence>
         {previewPlayer && (
@@ -151,206 +144,130 @@ export function TableScreen() {
   );
 }
 
-function TableStatusLine({
-  card,
-  index,
-  reviewing,
-  total,
-}: {
-  card: TableCard | null;
-  index: number;
-  reviewing: boolean;
-  total: number;
-}) {
-  if (!card) {
-    return <div className="h-8" />;
-  }
+function TableMap({ activeIndex, cardBackId, cards }: { activeIndex: number; cardBackId: CardBackId; cards: TableCard[] }) {
+  const rows = [5, 4, 3, 2, 1] as const;
   return (
-    <div className="table-status-line grid max-w-full gap-[clamp(0.35rem,1.4vh,0.65rem)] overflow-hidden">
-      <span className="table-eyebrow min-w-0 truncate text-[0.62rem] font-black uppercase tracking-[0.2em] text-[#f5d99b]/65">
-        {reviewing ? 'Revealed' : 'Next'} {Math.min(index + 1, total)}/{total}
-      </span>
-      <h2 className="deal-player-name table-row-title min-w-0 truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
-        Row {card.row}
-      </h2>
-      <span className="table-subtitle min-w-0 truncate text-[clamp(1.1rem,4vw,1.6rem)] font-black leading-tight text-[#fff7e6]/70">
+    <div className="table-map mx-auto grid w-full max-w-[34rem] gap-3 pb-1 pt-2">
+      {rows.map((row) => (
+        <div key={row} className="table-map-row flex items-start justify-center gap-[clamp(0.45rem,2vw,0.75rem)]">
+          {cards
+            .map((card, index) => ({ card, index }))
+            .filter(({ card }) => card.row === row)
+            .map(({ card, index }) => (
+              <TableMapTile
+                key={card.id}
+                active={index === activeIndex}
+                card={card}
+                cardBackId={cardBackId}
+              />
+            ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TableMapTile({ active, card, cardBackId }: { active: boolean; card: TableCard; cardBackId: CardBackId }) {
+  const revealed = card.faceUp;
+  const red = card.card.color === 'red';
+  return (
+    <div className="table-map-card grid justify-items-center gap-1">
+      <div
+        className={`table-map-tile grid place-items-center overflow-hidden rounded-[0.65rem] border text-center shadow-sm ${
+          active
+            ? 'border-[#f5d99b] bg-[#f5d99b]/10 text-[#f5d99b] shadow-[0_0_0_1px_rgba(245,217,155,0.26),0_0_22px_rgba(245,217,155,0.18)] ring-2 ring-[#f5d99b]/70'
+            : revealed
+              ? `border-black/20 bg-[#fbf2d9] ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`
+              : 'border-white/[0.08] bg-transparent text-[#f5d99b]/42'
+        }`}
+        title={revealed ? `${card.card.rank} ${card.card.suit}, Give ${card.value}` : `Hidden table card, Give ${card.value}`}
+      >
+        {revealed ? (
+          <span className="table-map-face grid leading-none">
+            <span className="table-map-rank text-[clamp(0.9rem,4vw,1.15rem)] font-black">{card.card.rank}</span>
+            <span className="table-map-suit text-[clamp(0.95rem,4vw,1.2rem)] font-black">{suitGlyphs[card.card.suit]}</span>
+            <span className="table-map-inline-value hidden text-[0.5rem] font-black leading-none">Give {card.value}</span>
+          </span>
+        ) : (
+          <span className="table-map-back relative block h-full w-full rounded-[inherit]">
+            <CardBack id={cardBackId} size="fluid" />
+            <span className="table-map-inline-value hidden text-[0.5rem] font-black leading-none">Give {card.value}</span>
+          </span>
+        )}
+      </div>
+      <span className={`table-map-value rounded-full px-2 py-0.5 text-[0.62rem] font-black leading-none ${active ? 'bg-[#f5d99b] text-[#142019]' : 'bg-white/[0.08] text-[#f5d99b]/72'}`}>
         Give {card.value}
       </span>
     </div>
   );
 }
 
-function TableCarousel({
-  current,
-  next,
-  previous,
-}: {
-  current: TableCard | null;
-  next: TableCard | null;
-  previous: TableCard | null;
-}) {
-  const slots = [
-    previous ? { card: previous, placement: 'previous' as const } : null,
-    next ? { card: next, placement: 'next' as const } : null,
-    current ? { card: current, placement: 'current' as const } : null,
-  ].filter(Boolean) as Array<{ card: TableCard; placement: 'previous' | 'current' | 'next' }>;
-
+function TableHero({ card }: { card: TableCard | null }) {
+  if (!card) {
+    return <div className="h-8" />;
+  }
   return (
-    <div className="table-carousel-stage relative h-full min-h-0 overflow-hidden">
-      {slots.map(({ card, placement }) => (
-        <CarouselSlot
-          key={card.id}
-          tableCard={card}
-          placement={placement}
-        />
-      ))}
+    <div className="table-status-line grid max-w-full gap-[clamp(0.35rem,1.4vh,0.65rem)] overflow-hidden">
+      <h2 className="deal-player-name table-row-title min-w-0 truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
+        Row {card.row}
+      </h2>
     </div>
   );
 }
 
-function CarouselSlot({
-  placement,
-  tableCard,
-}: {
-  placement: 'previous' | 'current' | 'next';
-  tableCard: TableCard;
-}) {
-  const placementMotion = {
-    previous: { left: '29%', opacity: 0.58, x: '-50%', scale: 0.78, zIndex: 5 },
-    current: { left: '50%', opacity: 1, x: '-50%', scale: 0.96, zIndex: 20 },
-    next: { left: '71%', opacity: 0.66, x: '-50%', scale: 0.78, zIndex: 10 },
-  }[placement];
+function TableCardFocus({ card }: { card: TableCard | null }) {
+  if (!card) {
+    return null;
+  }
 
   return (
-    <motion.div
-      className="table-carousel-card absolute top-1/2"
-      initial={false}
-      animate={{
-        left: placementMotion.left,
-        x: placementMotion.x,
-        y: '-50%',
-        opacity: placementMotion.opacity,
-        scale: placementMotion.scale,
-        zIndex: placementMotion.zIndex,
-      }}
-      transition={{ type: 'spring', damping: 30, stiffness: 260 }}
-    >
+    <div className="table-card-focus flex h-full min-h-0 w-full min-w-0 items-center justify-center px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
       <motion.div
-        key={`${tableCard.id}-${tableCard.faceUp ? 'up' : 'down'}`}
-        className="h-full w-full"
-        initial={tableCard.faceUp ? { rotateY: 90 } : { rotateY: 0 }}
+        key={`${card.id}-${card.faceUp ? 'up' : 'down'}`}
+        className="table-focus-card"
+        initial={card.faceUp ? { rotateY: 90 } : { rotateY: 0 }}
         animate={{ rotateY: 0 }}
         transition={{ duration: 0.24 }}
         style={{ transformStyle: 'preserve-3d' }}
       >
         <PlayingCard
           animateEntry={false}
-          card={tableCard.card}
-          faceUp={tableCard.faceUp}
-          highlighted={placement === 'current' && tableCard.faceUp}
+          card={card.card}
+          faceUp={card.faceUp}
+          highlighted={card.faceUp}
           motionLayout={false}
           size="fluid"
         />
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
 
-function TableResult({ card }: { card: TableCard | null }) {
+function TableResult({ card, revealed }: { card: TableCard; revealed: boolean }) {
   if (!card) {
     return null;
   }
 
-  if (!card.matchedAssignments.length) {
-    return (
-      <motion.div
-        className="table-outcome inline-grid max-w-[22rem] gap-2 rounded-xl border border-white/[0.08] bg-black/18 px-3 py-2 text-[#fff7e6] shadow-[0_12px_40px_rgba(0,0,0,0.16)]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.16, ease: 'easeOut' }}
-      >
-        <span className="table-outcome-summary justify-self-start rounded-lg bg-[#fff7e6]/10 px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight text-[#fff7e6]/78">
-          No matches
-        </span>
-      </motion.div>
-    );
-  }
-
-  const grouped = groupAssignments(card.matchedAssignments);
+  const summary = revealed ? tableResultSummary(card.matchedAssignments) : `Give ${card.value}`;
   return (
     <motion.div
-      className="table-outcome inline-grid max-w-[22rem] gap-2 rounded-xl border border-[#f5d99b]/30 bg-[#f5d99b]/[0.09] px-3 py-2 text-[#fff7e6] shadow-[0_12px_40px_rgba(245,217,155,0.12)]"
+      className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.16, ease: 'easeOut' }}
     >
-      <span className="table-outcome-summary justify-self-start rounded-lg bg-[#f5d99b] px-2.5 py-1 text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight text-[#142019]">
-        {card.matchedAssignments.length} Match{card.matchedAssignments.length === 1 ? '' : 'es'}
+      <span className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
+        {summary}
       </span>
-      <div className="grid gap-2">
-        {grouped.map((summary) => (
-          <div key={summary.playerId} className="table-outcome-row flex items-center justify-between gap-3">
-            <span className="truncate text-[clamp(0.9rem,3vw,1.05rem)] font-black leading-tight text-[#fff7e6]">{summary.name}</span>
-            <span className="shrink-0 rounded-lg bg-[#fff7e6]/12 px-2.5 py-1 text-xs font-black text-[#f5d99b]">
-              Give {summary.units}
-            </span>
-          </div>
-        ))}
-      </div>
     </motion.div>
   );
 }
 
-function TableOverview({ activeIndex, cards, reviewIndex }: { activeIndex: number; cards: TableCard[]; reviewIndex: number | null }) {
-  const rows = [1, 2, 3, 4, 5] as const;
-  const focusIndex = reviewIndex ?? activeIndex;
-  return (
-    <div className="space-y-3">
-      {rows.map((row) => {
-        const rowCards = cards.filter((card) => card.row === row);
-        return (
-          <div key={row} className="rounded-2xl bg-white/[0.05] p-3 ring-1 ring-white/[0.06]">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-[#f5d99b]/68">Row {row}</span>
-              <span className="text-xs font-bold text-[#fff7e6]/45">{rowCards.length} card{rowCards.length === 1 ? '' : 's'}</span>
-            </div>
-            <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${rowCards.length}, minmax(0, 1fr))` }}>
-              {rowCards.map((tableCard) => {
-                const index = cards.findIndex((card) => card.id === tableCard.id);
-                const active = index === focusIndex;
-                return (
-                  <div
-                    key={tableCard.id}
-                    className={`rounded-xl px-2 py-2 text-center ring-1 ${
-                      active
-                        ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b]'
-                        : tableCard.faceUp
-                          ? 'bg-[#fbf2d9] text-[#142019] ring-black/10'
-                          : 'bg-black/24 text-[#fff7e6]/62 ring-white/[0.08]'
-                    }`}
-                  >
-                    <div className="text-xs font-black">{tableCard.faceUp ? cardName(tableCard) : `Card ${index + 1}`}</div>
-                    <div className="mt-1 text-[0.65rem] font-black uppercase tracking-[0.12em] opacity-70">
-                      Give {tableCard.value}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function cardName(tableCard: TableCard): string {
-  return `${tableCard.card.rank}${suitGlyphs[tableCard.card.suit]}`;
-}
-
-function groupAssignments(assignments: DrinkAssignment[]) {
+function tableResultSummary(assignments: DrinkAssignment[]) {
+  if (!assignments.length) {
+    return 'No matches';
+  }
   const grouped = assignments.reduce<Record<string, { cards: number; playerId: string; name: string; units: number }>>((acc, assignment) => {
     acc[assignment.playerId] = acc[assignment.playerId] ?? {
       cards: 0,
@@ -362,5 +279,11 @@ function groupAssignments(assignments: DrinkAssignment[]) {
     acc[assignment.playerId].units += assignment.units;
     return acc;
   }, {});
-  return Object.values(grouped);
+  const summaries = Object.values(grouped);
+  if (summaries.length === 1) {
+    const [summary] = summaries;
+    return `${summary.name}: Give ${summary.units}`;
+  }
+  const totalUnits = summaries.reduce((sum, summary) => sum + summary.units, 0);
+  return `${summaries.length} players give ${totalUnits}`;
 }

@@ -166,12 +166,11 @@ select {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
-.table-carousel-stage {
-  height: 100%;
+.table-card-focus {
   perspective: 900px;
 }
 
-.table-carousel-card {
+.table-focus-card {
   aspect-ratio: 5 / 7;
   height: min(88%, 24rem);
   width: auto;
@@ -179,11 +178,44 @@ select {
   max-width: min(70vw, 17.5rem);
 }
 
+.table-map-tile {
+  aspect-ratio: 5 / 7;
+  height: clamp(3.15rem, 13vw, 4.6rem);
+  min-width: 2.25rem;
+}
+
+.table-map-back > div {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 5px rgba(255, 255, 255, 0.12),
+    0 10px 22px rgba(0, 0, 0, 0.2);
+}
+
 @media (min-width: 760px) and (min-height: 760px) {
-  .table-carousel-card {
+  .table-focus-card {
     height: min(90%, 28rem);
     min-height: 14rem;
     max-width: min(34vw, 20rem);
+  }
+
+  .table-map-tile {
+    height: clamp(3.9rem, 8vw, 5.25rem);
+  }
+}
+
+@media (orientation: portrait) and (max-height: 720px) {
+  .table-map {
+    gap: 0.55rem !important;
+  }
+
+  .table-map-row {
+    gap: 0.35rem !important;
+  }
+
+  .table-map-tile {
+    height: clamp(2.85rem, 12vw, 3.75rem);
   }
 }
 
@@ -302,10 +334,69 @@ select {
     font-size: clamp(2rem, 5.5vw, 3rem) !important;
   }
 
-  .table-carousel-card {
+  .table-focus-card {
     height: min(100%, 11.5rem);
     min-height: 7.75rem;
     max-width: 8.4rem;
+  }
+
+  .table-map {
+    align-items: center;
+    display: flex !important;
+    flex-direction: row-reverse;
+    gap: 0.58rem !important;
+    justify-content: center;
+    max-width: 100% !important;
+    padding-bottom: 0 !important;
+    padding-top: 0.2rem !important;
+  }
+
+  .table-map-row {
+    align-items: center;
+    flex-direction: column-reverse;
+    gap: 0.28rem !important;
+  }
+
+  .table-map-tile {
+    aspect-ratio: 7 / 5;
+    height: clamp(2.05rem, 8.2vh, 2.55rem);
+    min-width: clamp(4.1rem, 9vw, 5.35rem);
+    border-radius: 0.56rem !important;
+  }
+
+  .table-map-face,
+  .table-map-back {
+    align-items: center;
+    display: flex !important;
+    flex-direction: row;
+    gap: 0.2rem;
+    justify-content: center;
+    padding: 0 0.28rem;
+  }
+
+  .table-map-rank,
+  .table-map-suit {
+    font-size: clamp(0.82rem, 3.4vh, 1rem) !important;
+  }
+
+  .table-map-back > div {
+    aspect-ratio: 5 / 7;
+    height: 78%;
+    width: auto;
+  }
+
+  .table-map-inline-value {
+    display: inline-flex !important;
+    font-size: clamp(0.5rem, 2vh, 0.62rem) !important;
+    white-space: nowrap;
+  }
+
+  .table-map-value {
+    display: none !important;
+  }
+
+  .drawer-content {
+    padding-bottom: max(0.7rem, env(safe-area-inset-bottom)) !important;
   }
 
   .setup-screen {
@@ -479,19 +570,10 @@ select {
     align-self: center;
   }
 
-  .table-eyebrow {
-    font-size: 0.54rem !important;
-    letter-spacing: 0.18em !important;
-  }
-
   .table-row-title {
     white-space: normal !important;
     font-size: clamp(1.55rem, 4.2vw, 2.35rem) !important;
     line-height: 1 !important;
-  }
-
-  .table-subtitle {
-    font-size: clamp(0.82rem, 2vw, 1rem) !important;
   }
 
   .table-outcome-slot:empty {
@@ -499,14 +581,8 @@ select {
   }
 
   .table-outcome {
-    display: flex !important;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 0.65rem !important;
-    row-gap: 0.4rem !important;
     justify-self: start;
     max-width: min(100%, 18rem) !important;
-    padding: 0.5rem 0.65rem !important;
   }
 
   .table-outcome-slot {
@@ -517,27 +593,11 @@ select {
 
   .table-outcome-summary {
     font-size: clamp(0.8rem, 2vw, 0.95rem) !important;
-    padding: 0.32rem 0.55rem !important;
-  }
-
-  .table-outcome-row span:first-child {
-    font-size: clamp(0.74rem, 1.8vw, 0.9rem) !important;
-  }
-
-  .table-outcome > .grid {
-    display: flex;
-    min-width: 0;
-    flex-wrap: wrap;
-    gap: 0.38rem !important;
-  }
-
-  .table-outcome-row {
-    gap: 0.38rem !important;
   }
 
   .table-stage {
     align-self: stretch;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .deal-layout .deal-stage {
