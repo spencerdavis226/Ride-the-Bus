@@ -25,7 +25,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <main className={`${getThemeClass(state.theme)} h-dvh overflow-hidden text-[#fff7e6]`}>
-      <div className="landscape-blocker fixed inset-0 z-50 flex-col items-center justify-center gap-4 bg-[#071812] text-[#fff7e6]">
+      <div
+        className="landscape-blocker fixed inset-0 z-[70] flex-col items-center justify-center gap-4 bg-[#071812] text-center text-[#fff7e6]"
+        role="status"
+      >
         <RotateCcw size={36} className="text-[#f5d99b]/60" />
         <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fff7e6]/60">Rotate to play</p>
       </div>
