@@ -110,7 +110,13 @@ export function TableScreen() {
         )}
       </PlayActionZone>
 
-      <Drawer open={overviewOpen} title="Table View" onClose={() => setOverviewOpen(false)}>
+      <Drawer
+        open={overviewOpen}
+        title="Table View"
+        contentClassName="table-drawer-content"
+        contentMaxHeight="min(76dvh, 44rem)"
+        onClose={() => setOverviewOpen(false)}
+      >
         <TableMap cards={state.table.cards} activeIndex={focusIndex} cardBackId={state.cardBackId} />
       </Drawer>
       <AnimatePresence>
@@ -147,57 +153,57 @@ export function TableScreen() {
 function TableMap({ activeIndex, cardBackId, cards }: { activeIndex: number; cardBackId: CardBackId; cards: TableCard[] }) {
   const rows = [5, 4, 3, 2, 1] as const;
   return (
-    <div className="table-map mx-auto grid w-full max-w-[34rem] gap-3 pb-1 pt-2">
-      {rows.map((row) => (
-        <div key={row} className="table-map-row flex items-start justify-center gap-[clamp(0.45rem,2vw,0.75rem)]">
-          {cards
-            .map((card, index) => ({ card, index }))
-            .filter(({ card }) => card.row === row)
-            .map(({ card, index }) => (
-              <TableMapTile
-                key={card.id}
-                active={index === activeIndex}
-                card={card}
-                cardBackId={cardBackId}
-              />
-            ))}
-        </div>
-      ))}
+    <div className="table-map mx-auto w-full max-w-[38rem] pb-1 pt-1">
+      <div className="table-map-felt" aria-label="Table card layout">
+        {rows.map((row) => (
+          <div key={row} className="table-map-row">
+            <span className="table-row-marker">Give {row}</span>
+            <div className="table-row-cards">
+              {cards
+                .map((card, index) => ({ card, index }))
+                .filter(({ card }) => card.row === row)
+                .map(({ card, index }) => (
+                  <TableMapTile
+                    key={card.id}
+                    active={index === activeIndex}
+                    card={card}
+                    cardBackId={cardBackId}
+                  />
+                ))}
+            </div>
+            <span className="table-row-spacer" aria-hidden="true" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function TableMapTile({ active, card, cardBackId }: { active: boolean; card: TableCard; cardBackId: CardBackId }) {
   const revealed = card.faceUp;
-  const red = card.card.color === 'red';
   return (
-    <div className="table-map-card grid justify-items-center gap-1">
-      <div
-        className={`table-map-tile grid place-items-center overflow-hidden rounded-[0.65rem] border text-center shadow-sm ${
-          active
-            ? 'border-[#f5d99b] bg-[#f5d99b]/10 text-[#f5d99b] shadow-[0_0_0_1px_rgba(245,217,155,0.26),0_0_22px_rgba(245,217,155,0.18)] ring-2 ring-[#f5d99b]/70'
-            : revealed
-              ? `border-black/20 bg-[#fbf2d9] ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`
-              : 'border-white/[0.08] bg-transparent text-[#f5d99b]/42'
-        }`}
-        title={revealed ? `${card.card.rank} ${card.card.suit}, Give ${card.value}` : `Hidden table card, Give ${card.value}`}
-      >
+    <div
+      className={`table-map-tile ${active ? 'is-active' : ''}`}
+      title={revealed ? `${card.card.rank} ${card.card.suit}, Give ${card.value}` : `Hidden table card, Give ${card.value}`}
+      aria-current={active ? 'true' : undefined}
+    >
+      <div className="table-map-card-surface">
         {revealed ? (
-          <span className="table-map-face grid leading-none">
-            <span className="table-map-rank text-[clamp(0.9rem,4vw,1.15rem)] font-black">{card.card.rank}</span>
-            <span className="table-map-suit text-[clamp(0.95rem,4vw,1.2rem)] font-black">{suitGlyphs[card.card.suit]}</span>
-            <span className="table-map-inline-value hidden text-[0.5rem] font-black leading-none">Give {card.value}</span>
-          </span>
+          <SimplifiedTableCard card={card} />
         ) : (
-          <span className="table-map-back relative block h-full w-full rounded-[inherit]">
-            <CardBack id={cardBackId} size="fluid" />
-            <span className="table-map-inline-value hidden text-[0.5rem] font-black leading-none">Give {card.value}</span>
-          </span>
+          <CardBack id={cardBackId} size="fluid" />
         )}
       </div>
-      <span className={`table-map-value rounded-full px-2 py-0.5 text-[0.62rem] font-black leading-none ${active ? 'bg-[#f5d99b] text-[#142019]' : 'bg-white/[0.08] text-[#f5d99b]/72'}`}>
-        Give {card.value}
-      </span>
+    </div>
+  );
+}
+
+function SimplifiedTableCard({ card }: { card: TableCard }) {
+  const red = card.card.color === 'red';
+  return (
+    <div className={`table-simple-card ${red ? 'is-red' : 'is-black'}`} aria-label={`${card.card.rank} ${card.card.suit}`}>
+      <span className="table-simple-rank">{card.card.rank}</span>
+      <span className="table-simple-suit">{suitGlyphs[card.card.suit]}</span>
     </div>
   );
 }

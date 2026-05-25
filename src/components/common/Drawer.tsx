@@ -7,10 +7,12 @@ type DrawerProps = {
   open: boolean;
   title: string;
   children: ReactNode;
+  contentClassName?: string;
+  contentMaxHeight?: string;
   onClose: () => void;
 };
 
-export function Drawer({ open, title, children, onClose }: DrawerProps) {
+export function Drawer({ open, title, children, contentClassName = '', contentMaxHeight = '62dvh', onClose }: DrawerProps) {
   return (
     <AnimatePresence>
       {open && (
@@ -47,8 +49,8 @@ export function Drawer({ open, title, children, onClose }: DrawerProps) {
             </div>
             {/* Content */}
             <div
-              className="drawer-content overflow-y-auto px-5"
-              style={{ maxHeight: '62dvh', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+              className={`drawer-content overflow-y-auto px-5 ${contentClassName}`}
+              style={{ maxHeight: contentMaxHeight, paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
             >
               {children}
             </div>
