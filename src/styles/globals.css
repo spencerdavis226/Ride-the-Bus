@@ -89,8 +89,9 @@ select {
 }
 
 .deal-outcome-slot {
-  height: clamp(4.75rem, 10dvh, 5.75rem);
-  min-height: 0;
+  min-height: clamp(2.35rem, 5.8dvh, 3.5rem);
+  display: flex;
+  align-items: center;
 }
 
 .deal-outcome-summary {
@@ -127,12 +128,8 @@ select {
   transform: rotateY(180deg);
 }
 
-/* Deal-only: bounded hand strip scales with viewport; Table/Bus reuse .deal-stage with flex-1 instead */
 .deal-layout .deal-stage {
-  flex-shrink: 0;
-  min-height: clamp(11rem, 40dvh, 32rem);
-  height: clamp(11rem, 42dvh, 32rem);
-  max-height: min(34rem, 52dvh);
+  min-height: 0;
 }
 
 .responsive-play-frame {
@@ -350,10 +347,223 @@ select {
   }
 }
 
+@media (orientation: portrait) and (max-height: 700px) {
+  .deal-nav {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .deal-nav button {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .deal-nav p {
+    font-size: 0.76rem !important;
+  }
+
+  .turn-rail {
+    gap: 0.45rem !important;
+    padding: 0.1rem 0.75rem 0.45rem !important;
+  }
+
+  .turn-tile {
+    min-width: clamp(5.85rem, 29vw, 7.4rem) !important;
+    border-radius: 0.8rem !important;
+    padding: 0.45rem 0.65rem !important;
+  }
+
+  .turn-tile-name {
+    font-size: 0.78rem !important;
+  }
+
+  .mini-hand,
+  .mini-hand-empty {
+    margin-top: 0.35rem !important;
+  }
+
+  .mini-hand {
+    gap: 0.2rem !important;
+  }
+
+  .mini-hand-empty {
+    height: 1.45rem !important;
+  }
+
+  .mini-card {
+    width: 0.98rem !important;
+    height: 1.45rem !important;
+    border-radius: 3px !important;
+    font-size: 0.5rem !important;
+  }
+
+  .mini-card-suit {
+    font-size: 0.56rem !important;
+  }
+
+  .deal-table {
+    margin-top: 0.2rem !important;
+  }
+
+  .deal-turn-content,
+  .bus-turn-content,
+  .bus-intro-content {
+    padding: 0.75rem !important;
+  }
+
+  .deal-turn-main,
+  .responsive-play-frame {
+    gap: 0.45rem !important;
+  }
+
+  .deal-hero {
+    gap: 0.25rem !important;
+  }
+
+  .deal-player-name {
+    font-size: clamp(2.55rem, 11vw, 4.9rem) !important;
+  }
+
+  .phase-title {
+    font-size: clamp(2.75rem, 12vw, 5.2rem) !important;
+  }
+
+  .deal-outcome-slot {
+    min-height: 2.25rem;
+  }
+
+  .deal-hand-frame,
+  .table-card-focus {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  .table-focus-card {
+    height: min(86%, 19rem);
+    min-height: 0;
+  }
+
+  .deal-action-zone {
+    padding: 0.4rem 0.5rem max(0.55rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  .deal-guess-picker {
+    gap: 0.5rem !important;
+  }
+
+  .deal-guess-picker button,
+  .deal-action-zone .tap-target {
+    min-height: 52px !important;
+    border-radius: 1rem !important;
+  }
+
+  .bus-status {
+    gap: 0.4rem !important;
+    margin-top: 0.4rem !important;
+  }
+
+  .bus-status-riders,
+  .bus-status-total,
+  .bus-status-mode {
+    border-radius: 0.8rem !important;
+    padding: 0.45rem 0.65rem !important;
+  }
+}
+
+@media (orientation: portrait) and (max-height: 620px) {
+  .deal-nav button {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+
+  .deal-nav p {
+    font-size: 0.7rem !important;
+  }
+
+  .turn-rail {
+    gap: 0.35rem !important;
+    padding: 0 0.55rem 0.35rem !important;
+  }
+
+  .turn-tile {
+    min-width: clamp(5.25rem, 28vw, 6.7rem) !important;
+    padding: 0.32rem 0.5rem !important;
+  }
+
+  .turn-tile-name {
+    font-size: 0.72rem !important;
+  }
+
+  .mini-hand-empty {
+    height: 1.15rem !important;
+  }
+
+  .mini-card {
+    width: 0.86rem !important;
+    height: 1.24rem !important;
+    font-size: 0.45rem !important;
+  }
+
+  .mini-card-suit {
+    font-size: 0.5rem !important;
+  }
+
+  .deal-turn-content,
+  .bus-turn-content,
+  .bus-intro-content {
+    padding: 0.55rem !important;
+  }
+
+  .deal-turn-main,
+  .responsive-play-frame {
+    gap: 0.35rem !important;
+  }
+
+  .deal-player-name {
+    font-size: clamp(2.2rem, 10vw, 4rem) !important;
+  }
+
+  .phase-title {
+    font-size: clamp(2.35rem, 10.5vw, 4.3rem) !important;
+  }
+
+  .deal-outcome-slot {
+    min-height: 2rem;
+  }
+
+  .deal-outcome-summary,
+  .table-outcome-summary {
+    font-size: 0.9rem !important;
+  }
+
+  .deal-hand-frame,
+  .table-card-focus {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
+  }
+
+  .table-focus-card {
+    height: min(84%, 15.5rem);
+  }
+
+  .deal-action-zone {
+    padding: 0.3rem 0.45rem max(0.4rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  .deal-guess-picker {
+    gap: 0.4rem !important;
+  }
+
+  .deal-guess-picker button,
+  .deal-action-zone .tap-target {
+    min-height: 48px !important;
+    border-radius: 0.9rem !important;
+  }
+}
+
 @media (max-width: 640px) {
   .deal-hand-frame {
     align-items: flex-start !important;
-    padding-top: clamp(0.6rem, 2vh, 1.1rem) !important;
   }
 }
 

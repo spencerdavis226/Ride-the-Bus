@@ -66,7 +66,7 @@ export function TableScreen() {
       <PlayFelt className="table-felt">
         <motion.div
           key="table-stage"
-          className="table-turn-content deal-turn-content relative flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
+          className="table-turn-content deal-turn-content relative flex h-full min-h-0 flex-col overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}

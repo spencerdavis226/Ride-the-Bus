@@ -46,7 +46,7 @@ export function DealScreen() {
 
       <PlayFelt>
         <motion.div
-          className="deal-turn-content flex h-full min-h-0 flex-col overflow-x-hidden overflow-y-visible p-[clamp(0.9rem,3vw,1.5rem)]"
+          className="deal-turn-content flex h-full min-h-0 flex-col overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}
@@ -67,19 +67,19 @@ export function DealScreen() {
                   </motion.span>
                 </AnimatePresence>
               </h2>
-              <div className="deal-outcome-slot">
-                <AnimatePresence initial={false}>
-                  {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
+              <AnimatePresence initial={false}>
+                {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
+                  <div className="deal-outcome-slot">
                     <DealOutcome
                       assignment={state.deal.lastAssignment}
                       result={state.deal.lastResult}
                     />
-                  )}
-                </AnimatePresence>
-              </div>
+                  </div>
+                )}
+              </AnimatePresence>
             </div>
 
-            <div className="deal-stage grid grid-cols-1 grid-rows-1 overflow-hidden">
+            <div className="deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
               <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
             </div>
           </div>

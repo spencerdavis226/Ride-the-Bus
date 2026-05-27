@@ -211,7 +211,7 @@ export function PlayerTurnRail({
   return (
     <div
       ref={railRef}
-      className="turn-rail flex shrink-0 gap-2 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="turn-rail flex shrink-0 gap-2 overflow-x-auto overflow-y-hidden px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {players.map((candidate) => {
         const active = candidate.id === activePlayerId;
@@ -376,11 +376,11 @@ export function HandPreviewOverlay({ onClose, player }: { onClose: () => void; p
 
 function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
   if (cards.length === 0) {
-    return <div className="mt-1.5 h-[2rem]" />;
+    return <div className="mini-hand-empty mt-1.5 h-[2rem]" />;
   }
 
   return (
-    <div className="mt-1.5 flex justify-center gap-1">
+    <div className="mini-hand mt-1.5 flex justify-center gap-1">
       {cards.slice(0, 4).map((card) => (
         <MiniCard key={card.id} active={active} card={card} />
       ))}

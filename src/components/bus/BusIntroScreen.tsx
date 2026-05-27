@@ -41,7 +41,7 @@ export function BusIntroScreen() {
 
       <PlayFelt className="bus-felt">
         <motion.div
-          className="bus-intro-content h-full min-h-0 p-[clamp(0.9rem,3vw,1.5rem)]"
+          className="bus-intro-content h-full min-h-0 overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}

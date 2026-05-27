@@ -52,7 +52,7 @@ export function BusScreen() {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={`bus-${progressIndex}-${bus.drinksEach}`}
-            className="bus-turn-content h-full min-h-0 p-[clamp(0.9rem,3vw,1.5rem)]"
+            className="bus-turn-content h-full min-h-0 overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
             initial={{ y: 18, scale: 0.985 }}
             animate={{ y: 0, scale: 1 }}
             exit={{ y: -14, scale: 0.985 }}
