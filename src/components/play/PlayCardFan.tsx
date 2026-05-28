@@ -4,19 +4,20 @@ import { useGame } from '../../app/GameProvider';
 import type { Card } from '../../game/cards';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
-import { playFadeTransition, playLayoutTransition } from './PlayLayout';
+import { playFadeTransition, playLayoutTransition, PlayCardStage } from './PlayLayout';
 
 export type PlayCardFanSlot = {
   ariaLabel?: string;
   card?: Card | null;
-  dimmed?: boolean;
   faceUp: boolean;
   flipOnReveal?: boolean;
   highlighted?: boolean;
 };
 
+const SLOT_COUNT = 4;
+
 export function computeFan(containerW: number, containerH: number) {
-  const N = 4;
+  const N = SLOT_COUNT;
   const ASPECT = 5 / 7; // card width / height
   const GAP = Math.max(8, Math.min(18, containerW * 0.02));
   const MAX_CARD_W = 340;
@@ -46,6 +47,78 @@ export function computeFan(containerW: number, containerH: number) {
   // Overlap too aggressive - shrink cards so MIN_VISIBLE fills the container
   cardW = containerW / (1 + MIN_VISIBLE * (N - 1));
   return { cardW, cardH: cardW / ASPECT, step: cardW * MIN_VISIBLE };
+}
+
+export function buildDealFanSlots(
+  hand: Card[],
+  options: {
+    highlightedIndex?: number;
+    slotLabel?: (index: number, card?: Card) => string;
+  } = {}
+): PlayCardFanSlot[] {
+  const slotLabel =
+    options.slotLabel ??
+    ((index, card) =>
+      card ? `Card ${index + 1}, revealed` : `Card ${index + 1}, hidden`);
+
+  return Array.from({ length: SLOT_COUNT }, (_, index) => {
+    const card = hand[index];
+    return {
+      ariaLabel: slotLabel(index, card),
+      card,
+      faceUp: Boolean(card),
+      flipOnReveal: Boolean(card),
+      highlighted: options.highlightedIndex === index,
+    };
+  });
+}
+
+export function buildBusFanSlots(
+  visibleCards: Array<Card | null>,
+  progressIndex: number,
+  options: {
+    slotLabel?: (index: number, progressIndex: number, card: Card | null) => string;
+  } = {}
+): PlayCardFanSlot[] {
+  const slotLabel =
+    options.slotLabel ??
+    ((index, activeProgressIndex, card) => {
+      const label = `Bus card ${index + 1}`;
+      if (index < activeProgressIndex && card) return `${label}, revealed`;
+      if (index === activeProgressIndex) return `${label}, current card`;
+      return `${label}, hidden`;
+    });
+
+  return visibleCards.slice(0, SLOT_COUNT).map((card, index) => {
+    const revealed = index < progressIndex;
+    return {
+      ariaLabel: slotLabel(index, progressIndex, card),
+      card,
+      faceUp: revealed,
+      flipOnReveal: revealed && index === progressIndex - 1,
+      highlighted: index === progressIndex,
+    };
+  });
+}
+
+export function PlayCardFanArea({
+  fanClassName = '',
+  shake = false,
+  shakeKey,
+  slots,
+  stageClassName = 'overflow-hidden',
+}: {
+  fanClassName?: string;
+  shake?: boolean;
+  shakeKey?: string;
+  slots: PlayCardFanSlot[];
+  stageClassName?: string;
+}) {
+  return (
+    <PlayCardStage className={stageClassName}>
+      <PlayCardFan className={fanClassName} shake={shake} shakeKey={shakeKey} slots={slots} />
+    </PlayCardStage>
+  );
 }
 
 export function PlayCardFan({
@@ -124,7 +197,7 @@ export function PlayCardFan({
           }}
           transition={shake && !reduceMotion ? { duration: 0.34, ease: 'easeOut' } : playLayoutTransition}
         >
-          {Array.from({ length: 4 }, (_, i) => {
+          {Array.from({ length: SLOT_COUNT }, (_, i) => {
             const slot = slots[i] ?? { faceUp: false };
             const highlighted = Boolean(slot.highlighted);
             return (
@@ -157,21 +230,37 @@ export function PlayCardFan({
 function PlayCardSlot({ slot }: { slot: PlayCardFanSlot }) {
   const { state } = useGame();
   const reduceMotion = useReducedMotion();
-  const wrapperClassName = `h-full w-full rounded-xl ${slot.highlighted ? 'ring-2 ring-[#f5d99b]' : ''} ${
-    slot.dimmed ? 'opacity-60 saturate-[0.82]' : ''
-  }`;
 
   if (!slot.card || !slot.faceUp) {
     return (
-      <div className={wrapperClassName}>
-        <CardBack id={state.cardBackId} size="fluid" />
-      </div>
+      <CardBack highlighted={slot.highlighted} id={state.cardBackId} size="fluid" />
     );
   }
 
   if (!slot.flipOnReveal) {
     return (
-      <div className={wrapperClassName}>
+      <PlayingCard
+        animateEntry={false}
+        card={slot.card}
+        highlighted={slot.highlighted}
+        motionLayout={false}
+        size="fluid"
+      />
+    );
+  }
+
+  return (
+    <motion.div
+      key={`${slot.card.id}-flip`}
+      className="deal-card-flip h-full w-full"
+      initial={{ rotateY: reduceMotion ? 180 : 0 }}
+      animate={{ rotateY: 180 }}
+      transition={reduceMotion ? { duration: 0.01 } : { ...playFadeTransition, duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }}
+    >
+      <div className="deal-card-face">
+        <CardBack id={state.cardBackId} size="fluid" />
+      </div>
+      <div className="deal-card-face deal-card-front">
         <PlayingCard
           animateEntry={false}
           card={slot.card}
@@ -180,31 +269,6 @@ function PlayCardSlot({ slot }: { slot: PlayCardFanSlot }) {
           size="fluid"
         />
       </div>
-    );
-  }
-
-  return (
-    <div className={wrapperClassName}>
-      <motion.div
-        key={`${slot.card.id}-flip`}
-        className="deal-card-flip"
-        initial={{ rotateY: reduceMotion ? 180 : 0 }}
-        animate={{ rotateY: 180 }}
-        transition={reduceMotion ? { duration: 0.01 } : { ...playFadeTransition, duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }}
-      >
-        <div className="deal-card-face">
-          <CardBack id={state.cardBackId} size="fluid" />
-        </div>
-        <div className="deal-card-face deal-card-front">
-          <PlayingCard
-            animateEntry={false}
-            card={slot.card}
-            highlighted={slot.highlighted}
-            motionLayout={false}
-            size="fluid"
-          />
-        </div>
-      </motion.div>
-    </div>
+    </motion.div>
   );
 }

@@ -5,13 +5,12 @@ import type { DealResult, DrinkAssignment } from '../../game/state';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
-import { PlayCardFan, type PlayCardFanSlot } from '../play/PlayCardFan';
+import { buildDealFanSlots, PlayCardFanArea } from '../play/PlayCardFan';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
   PlayActionSwap,
   PlayActionZone,
-  PlayCardStage,
   PlayFelt,
   PlayGuessPicker,
   PlayHero,
@@ -34,15 +33,10 @@ export function DealScreen() {
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
   const turnKey = player.id;
-  const slots: PlayCardFanSlot[] = Array.from({ length: 4 }, (_, i) => {
-    const card = player.hand[i];
-    return {
-      ariaLabel: card ? `${player.name} card ${i + 1}, revealed` : `${player.name} card ${i + 1}, hidden`,
-      card,
-      faceUp: Boolean(card),
-      flipOnReveal: Boolean(card),
-      highlighted: highlightedCardIndex === i,
-    };
+  const slots = buildDealFanSlots(player.hand, {
+    highlightedIndex: highlightedCardIndex,
+    slotLabel: (index, card) =>
+      card ? `${player.name} card ${index + 1}, revealed` : `${player.name} card ${index + 1}, hidden`,
   });
 
   return (
@@ -90,9 +84,7 @@ export function DealScreen() {
               </PlayOutcomeSlot>
             </PlayHero>
 
-            <PlayCardStage className="overflow-hidden">
-              <PlayCardFan slots={slots} />
-            </PlayCardStage>
+            <PlayCardFanArea slots={slots} />
           </PlayTurnMain>
         </PlayTurnFrame>
       </PlayFelt>

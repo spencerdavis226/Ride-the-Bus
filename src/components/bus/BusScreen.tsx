@@ -6,13 +6,12 @@ import { cansForDrinks } from '../../game/rules';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
-import { PlayCardFan, type PlayCardFanSlot } from '../play/PlayCardFan';
+import { buildBusFanSlots, PlayCardFanArea } from '../play/PlayCardFan';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
   PlayActionSwap,
   PlayActionZone,
-  PlayCardStage,
   PlayFelt,
   PlayGuessPicker,
   PlayHero,
@@ -39,18 +38,7 @@ export function BusScreen() {
   const activeRiderId = bus.riders.length === 1 ? bus.riders[0]?.id : null;
   const justFailed = Boolean(bus.lastAssignment && progressIndex === 0);
   const modeLabel = getBusModeLabel(state.settings.busMode === 'endless', bus.reshuffleCount);
-  const slots: PlayCardFanSlot[] = bus.visibleCards.map((card, index) => {
-    const revealed = index < progressIndex;
-    const current = index === progressIndex;
-    return {
-      ariaLabel: getBusSlotLabel(index, progressIndex, card),
-      card,
-      dimmed: index > progressIndex,
-      faceUp: revealed,
-      flipOnReveal: revealed && index === progressIndex - 1,
-      highlighted: current,
-    };
-  });
+  const slots = buildBusFanSlots(bus.visibleCards, progressIndex);
 
   return (
     <PlayScreen className="bus-screen">
@@ -80,13 +68,12 @@ export function BusScreen() {
               </PlayOutcomeSlot>
             </PlayHero>
 
-            <PlayCardStage className="bus-stage overflow-visible">
-              <PlayCardFan
-                shake={justFailed}
-                shakeKey={justFailed ? 'bus-failed' : 'bus-steady'}
-                slots={slots}
-              />
-            </PlayCardStage>
+            <PlayCardFanArea
+              shake={justFailed}
+              shakeKey={justFailed ? 'bus-failed' : 'bus-steady'}
+              slots={slots}
+              stageClassName="bus-stage overflow-visible"
+            />
           </PlayTurnMain>
         </PlayTurnFrame>
       </PlayFelt>
@@ -209,9 +196,3 @@ function BusOutcome({ label }: { label: string | null }) {
   );
 }
 
-function getBusSlotLabel(index: number, progressIndex: number, card: unknown) {
-  const slot = `Bus card ${index + 1}`;
-  if (index < progressIndex && card) return `${slot}, revealed`;
-  if (index === progressIndex) return `${slot}, current card`;
-  return `${slot}, hidden`;
-}

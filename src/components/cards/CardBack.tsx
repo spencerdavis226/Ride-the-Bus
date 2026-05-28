@@ -44,7 +44,17 @@ const sizeClasses: Record<CardSize, string> = {
   fluid: 'w-full h-full'
 };
 
-export function CardBack({ id, compact = false, size }: { id: CardBackId; compact?: boolean; size?: CardSize }) {
+export function CardBack({
+  highlighted = false,
+  id,
+  compact = false,
+  size,
+}: {
+  highlighted?: boolean;
+  id: CardBackId;
+  compact?: boolean;
+  size?: CardSize;
+}) {
   const resolvedSize = size ?? (compact ? 'compact' : 'normal');
   const markClass =
     resolvedSize === 'hero' ? 'h-16 w-16'
@@ -52,7 +62,11 @@ export function CardBack({ id, compact = false, size }: { id: CardBackId; compac
     : resolvedSize === 'deal' || resolvedSize === 'hand' ? 'h-12 w-12'
     : 'h-9 w-9';
   return (
-    <div className={`relative grid place-items-center overflow-hidden rounded-lg border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card shadow-[inset_0_0_0_8px_rgba(255,255,255,0.12)]`}>
+    <div
+      className={`relative grid place-items-center overflow-hidden rounded-xl border bg-gradient-to-br ${backClasses[id]} ${sizeClasses[resolvedSize]} shadow-card shadow-[inset_0_0_0_8px_rgba(255,255,255,0.12)] ${
+        highlighted ? 'ring-2 ring-[#f5d99b]' : ''
+      }`}
+    >
       <div className="absolute top-[10%] h-[5%] w-[30%] rounded-full bg-current/25" />
       <div className={`${markClass} rounded-full border border-current/30 bg-black/15`} />
     </div>
