@@ -41,7 +41,7 @@ requiredCards = players.length * 4 + 11
 phaseOneTwoDecks = Math.ceil(requiredCards / 52)
 ```
 
-The Bus always starts with a fresh shuffled single 52-card deck. In single-deck mode, the bus stops if cards run out before the riders escape. In endless mode, only The Bus may refresh into another fresh single deck.
+The Bus always starts with a fresh shuffled single 52-card deck. Riders escape after four correct bus guesses in a row, or immediately after a correct Same on card 2 or 3. In single-deck mode, the bus stops if cards run out before the riders escape. In endless mode, only The Bus may refresh into another fresh single deck.
 
 Drink values are stored as units so a future points or non-drinking mode can reuse the same engine.
 

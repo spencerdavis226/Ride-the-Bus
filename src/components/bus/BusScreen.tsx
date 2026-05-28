@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
+import { busEscapesOnCorrectContinue } from '../../game/engine';
 import type { DealSubphase } from '../../game/phases';
 import type { DealResult, DrinkAssignment } from '../../game/state';
 import { Button } from '../common/Button';
@@ -38,6 +39,10 @@ export function BusScreen() {
   const previewPlayer = previewPlayerId ? bus.riders.find((rider) => rider.id === previewPlayerId) : null;
   const activeRiderId = bus.riders.length === 1 ? bus.riders[0]?.id : null;
   const awaitingContinue = bus.awaitingContinue;
+  const pendingSameEscape =
+    awaitingContinue &&
+    bus.lastResult?.correct === true &&
+    busEscapesOnCorrectContinue(progressIndex, bus.lastResult);
   const modeLabel = getBusModeLabel(state.settings.busMode === 'endless', bus.reshuffleCount);
   const slots = buildBusFanSlots(bus.visibleCards, progressIndex, { awaitingContinue });
 
@@ -70,6 +75,7 @@ export function BusScreen() {
                     <BusOutcome
                       key={`${bus.lastResult.actual}-${bus.lastResult.correct}`}
                       assignment={bus.lastAssignment}
+                      pendingSameEscape={pendingSameEscape}
                       result={bus.lastResult}
                     />
                   )}
@@ -90,7 +96,7 @@ export function BusScreen() {
               style={{ minHeight: '58px' }}
               onClick={() => dispatch({ type: 'BUS_CONTINUE' })}
             >
-              Next
+              {pendingSameEscape ? 'Off the bus' : 'Next'}
             </Button>
           ) : (
             <PlayGuessPicker
@@ -125,7 +131,7 @@ export function BusScreen() {
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
         <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>Guess all four bus cards in order to escape.</p>
+          <p>Guess four bus cards in a row to escape, or call Same correctly on card 2 or 3 to get off immediately.</p>
           <p>A wrong guess sends riders back to the start and adds drinks to each rider.</p>
           <p>The Bus uses its own fresh deck. Endless mode reshuffles when needed.</p>
           <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
@@ -170,9 +176,11 @@ function BusHeader({
 
 function BusOutcome({
   assignment,
+  pendingSameEscape,
   result,
 }: {
   assignment: DrinkAssignment | null;
+  pendingSameEscape: boolean;
   result: DealResult;
 }) {
   const reduceMotion = useReducedMotion();
@@ -190,7 +198,7 @@ function BusOutcome({
         transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
       >
         <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
-          Correct
+          {pendingSameEscape ? 'Off the bus!' : 'Correct'}
         </span>
       </motion.div>
     );

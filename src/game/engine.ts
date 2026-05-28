@@ -23,6 +23,7 @@ import type {
   BusMode,
   BusPositionGuess,
   CardBackId,
+  DealResult,
   DealState,
   DrinkAssignment,
   GameState,
@@ -255,6 +256,7 @@ export function startBus(state: GameState, rng: () => number = Math.random): Gam
       drinksEach: 0,
       exhausted: false,
       escaped: false,
+      escapedViaSame: false,
       reshuffleCount: 0,
       lastAssignment: null,
       lastResult: null,
@@ -269,6 +271,12 @@ export function startBus(state: GameState, rng: () => number = Math.random): Gam
       })
     ]
   });
+}
+
+export function busEscapesOnCorrectContinue(positionIndex: number, lastResult: DealResult): boolean {
+  const viaSame = lastResult.guess === 'same' && (positionIndex === 1 || positionIndex === 2);
+  const viaFullRun = positionIndex + 1 === 4;
+  return viaSame || viaFullRun;
 }
 
 export function applyBusGuess(state: GameState, guess: BusGuess): GameState {
@@ -341,8 +349,10 @@ export function continueBus(state: GameState, rng: () => number = Math.random): 
   const { correct } = state.bus.lastResult;
 
   if (correct) {
-    const nextProgress = (positionIndex + 1) as 0 | 1 | 2 | 3 | 4;
-    const escaped = nextProgress === 4;
+    const lastResult = state.bus.lastResult;
+    const escaped = busEscapesOnCorrectContinue(positionIndex, lastResult);
+    const escapedViaSame = escaped && lastResult.guess === 'same';
+    const nextProgress = (escaped ? 4 : (positionIndex + 1)) as 0 | 1 | 2 | 3 | 4;
     return stamp({
       ...state,
       phase: escaped ? 'gameOver' : 'bus',
@@ -351,13 +361,27 @@ export function continueBus(state: GameState, rng: () => number = Math.random): 
         ...state.bus,
         progressIndex: nextProgress,
         escaped,
+        escapedViaSame,
         lastAssignment: null,
         lastResult: null,
         awaitingContinue: false
       },
       log: [
         ...state.log,
-        ...(escaped ? [makeLog('The riders escaped the bus.', 'bus', { title: 'Escaped the bus', result: 'neutral' })] : [])
+        ...(escaped
+          ? [
+              makeLog(
+                escapedViaSame
+                  ? 'Called Same correctly — riders are off the bus.'
+                  : 'The riders escaped the bus.',
+                'bus',
+                {
+                  title: escapedViaSame ? 'Off the bus' : 'Escaped the bus',
+                  result: 'neutral'
+                }
+              )
+            ]
+          : [])
       ]
     });
   }

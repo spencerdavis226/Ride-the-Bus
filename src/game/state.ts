@@ -107,6 +107,7 @@ export type BusState = {
   drinksEach: number;
   exhausted: boolean;
   escaped: boolean;
+  escapedViaSame: boolean;
   reshuffleCount: number;
   lastAssignment: DrinkAssignment | null;
   lastResult: DealResult | null;

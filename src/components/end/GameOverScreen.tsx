@@ -16,6 +16,7 @@ export function GameOverScreen() {
   const bus = state.bus;
   const emptyBus = state.gameOverReason === 'emptyBus';
   const exhausted = state.gameOverReason === 'deckExhausted';
+  const escapedViaSame = state.gameOverReason === 'escaped' && Boolean(bus?.escapedViaSame);
   const showConfetti = !exhausted && !emptyBus;
 
   const title = emptyBus
@@ -27,7 +28,9 @@ export function GameOverScreen() {
     ? 'The bus left empty.'
     : exhausted
       ? 'Single-deck bus mode ended the ride early.'
-      : 'Four correct guesses in a row.';
+      : escapedViaSame
+        ? 'Same was called correctly — riders are off the bus.'
+        : 'Four correct guesses in a row.';
 
   const drinksEach = bus?.drinksEach ?? 0;
 
@@ -90,7 +93,7 @@ export function GameOverScreen() {
       </Drawer>
       <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
         <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>Guess all four bus cards in order to escape.</p>
+          <p>Escape after four correct bus guesses in a row, or call Same correctly on card 2 or 3.</p>
           <p>A wrong guess sends riders back to the start and adds drinks to each rider.</p>
           <p>The Bus uses its own fresh deck. Endless mode reshuffles when needed.</p>
           <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>

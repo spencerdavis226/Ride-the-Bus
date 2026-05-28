@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Card } from '../game/cards';
-import { applyBusGuess, applyDealGuess, continueBus, continueDeal, flipNextTableCard, startGame } from '../game/engine';
+import {
+  applyBusGuess,
+  applyDealGuess,
+  busEscapesOnCorrectContinue,
+  continueBus,
+  continueDeal,
+  flipNextTableCard,
+  startGame
+} from '../game/engine';
 import type { GameState, Player, TableCard } from '../game/state';
 
 const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue: number, suit: Card['suit'] = 'spades'): Card => ({
@@ -170,7 +178,93 @@ describe('engine start', () => {
     expect(afterContinue.bus?.progressIndex).toBe(1);
     expect(afterContinue.phase).toBe('bus');
   });
+
+  it('escapes when Same is guessed correctly on card 2', () => {
+    const state = busStateAt(1, [
+      card('bus-1', 'black', '9', 9),
+      card('bus-2', 'red', '9', 9, 'hearts'),
+      card('bus-3', 'black', '4', 4),
+      card('bus-4', 'red', '5', 5)
+    ]);
+    const afterContinue = continueBus(applyBusGuess(state, 'same'));
+
+    expect(afterContinue.phase).toBe('gameOver');
+    expect(afterContinue.gameOverReason).toBe('escaped');
+    expect(afterContinue.bus?.escaped).toBe(true);
+    expect(afterContinue.bus?.escapedViaSame).toBe(true);
+    expect(afterContinue.bus?.progressIndex).toBe(4);
+  });
+
+  it('escapes when Same is guessed correctly on card 3', () => {
+    const state = busStateAt(2, [
+      card('bus-1', 'black', '5', 5),
+      card('bus-2', 'red', '9', 9, 'hearts'),
+      card('bus-3', 'black', '5', 5),
+      card('bus-4', 'red', '7', 7)
+    ]);
+    const afterContinue = continueBus(applyBusGuess(state, 'same'));
+
+    expect(afterContinue.phase).toBe('gameOver');
+    expect(afterContinue.bus?.escapedViaSame).toBe(true);
+  });
+
+  it('does not escape on a wrong Same guess', () => {
+    const state = busStateAt(1, [
+      card('bus-1', 'black', '2', 2),
+      card('bus-2', 'red', '3', 3, 'hearts'),
+      card('bus-3', 'black', '4', 4),
+      card('bus-4', 'red', '5', 5)
+    ]);
+    const afterContinue = continueBus(applyBusGuess(state, 'same'));
+
+    expect(afterContinue.phase).toBe('bus');
+    expect(afterContinue.bus?.escaped).toBe(false);
+    expect(afterContinue.bus?.progressIndex).toBe(0);
+  });
+
+  it('advances without escaping on a correct non-Same guess', () => {
+    const state = busStateAt(1, [
+      card('bus-1', 'black', '2', 2),
+      card('bus-2', 'red', '5', 5, 'hearts'),
+      card('bus-3', 'black', '4', 4),
+      card('bus-4', 'red', '7', 7)
+    ]);
+    const afterContinue = continueBus(applyBusGuess(state, 'higher'));
+
+    expect(afterContinue.phase).toBe('bus');
+    expect(afterContinue.bus?.escaped).toBe(false);
+    expect(afterContinue.bus?.progressIndex).toBe(2);
+  });
+
+  it('escapes after four correct guesses without Same shortcut', () => {
+    let state = busState();
+    state = continueBus(applyBusGuess(state, 'black'));
+    state = continueBus(applyBusGuess(state, 'higher'));
+    state = continueBus(applyBusGuess(state, 'outside'));
+    const afterEscape = continueBus(applyBusGuess(state, 'spades'));
+
+    expect(afterEscape.phase).toBe('gameOver');
+    expect(afterEscape.gameOverReason).toBe('escaped');
+    expect(afterEscape.bus?.escapedViaSame).toBe(false);
+  });
+
+  it('detects bus escape paths from last result', () => {
+    expect(busEscapesOnCorrectContinue(1, { guess: 'same', actual: 'same', correct: true })).toBe(true);
+    expect(busEscapesOnCorrectContinue(1, { guess: 'higher', actual: 'higher', correct: true })).toBe(false);
+    expect(busEscapesOnCorrectContinue(3, { guess: 'spades', actual: 'spades', correct: true })).toBe(true);
+  });
 });
+
+function busStateAt(progressIndex: 0 | 1 | 2 | 3, visibleCards: Array<Card | null>): GameState {
+  return {
+    ...busState(),
+    bus: {
+      ...busState().bus!,
+      progressIndex,
+      visibleCards
+    }
+  };
+}
 
 function busState(): GameState {
   const base = startGame({
@@ -194,6 +288,7 @@ function busState(): GameState {
       drinksEach: 0,
       exhausted: false,
       escaped: false,
+      escapedViaSame: false,
       reshuffleCount: 0,
       lastAssignment: null,
       lastResult: null,

@@ -19,7 +19,8 @@ export function loadSavedGame(): GameState | null {
         ? {
             ...state.bus,
             lastResult: state.bus.lastResult ?? null,
-            awaitingContinue: Boolean(state.bus.awaitingContinue)
+            awaitingContinue: Boolean(state.bus.awaitingContinue),
+            escapedViaSame: Boolean(state.bus.escapedViaSame)
           }
         : null
     };
