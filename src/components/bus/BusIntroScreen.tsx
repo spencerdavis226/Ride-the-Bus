@@ -13,7 +13,6 @@ import {
   PlayActionZone,
   PlayFelt,
   PlayHero,
-  PlayOutcomeSlot,
   PlayScreen,
   PlayTitle,
   PlayTopBar,
@@ -29,8 +28,9 @@ export function BusIntroScreen() {
   const [quitOpen, setQuitOpen] = useState(false);
   const [previewPlayerId, setPreviewPlayerId] = useState<string | null>(null);
   const riders = determineBusRiders(state.players);
-  const previewPlayer = previewPlayerId ? riders.find((rider) => rider.id === previewPlayerId) : null;
-  const riderTitle = formatIntroTitle(riders);
+  const previewPlayer = previewPlayerId ? state.players.find((player) => player.id === previewPlayerId) : null;
+  const riderTitle = formatIntroTitle(riders.length);
+  const riderIds = riders.map((rider) => rider.id);
 
   return (
     <PlayScreen className="bus-intro-screen">
@@ -41,20 +41,20 @@ export function BusIntroScreen() {
       />
 
       <PlayerTurnRail
-        players={riders}
-        activePlayerId={riders.length === 1 ? riders[0]?.id : null}
+        activePlayerIds={riderIds}
+        players={state.players}
         onPreviewPlayer={(playerId) => setPreviewPlayerId(playerId)}
       />
 
       <PlayFelt className="bus-felt">
         <PlayTurnFrame className="bus-intro-content">
           <PlayTurnMain className="bus-intro-main">
-            <PlayHero className="bus-intro-hero">
-              <PlayTitle>
+            <PlayHero className="bus-intro-hero shrink-0">
+              <PlayTitle className="bus-intro-title">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={riderTitle}
-                    className="block truncate"
+                    className="block"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -64,12 +64,6 @@ export function BusIntroScreen() {
                   </motion.span>
                 </AnimatePresence>
               </PlayTitle>
-              <p className="bus-intro-command">Most cards left · Ride together</p>
-              <PlayOutcomeSlot className="bus-intro-outcome-slot">
-                <span className="bus-intro-note">
-                  Guess four cards in a row. A miss adds drinks and sends riders back to Card 1.
-                </span>
-              </PlayOutcomeSlot>
             </PlayHero>
 
             <motion.div layout className="deal-stage bus-rider-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
@@ -129,10 +123,8 @@ export function BusIntroScreen() {
   );
 }
 
-function formatIntroTitle(riders: Player[]): string {
-  if (riders.length === 1) return riders[0]?.name ?? 'Rider';
-  if (riders.length === 2) return riders.map((rider) => rider.name).join(' + ');
-  return `${riders.length} riders`;
+function formatIntroTitle(count: number): string {
+  return `${count} Bus Rider${count === 1 ? '' : 's'}`;
 }
 
 function BusRiderRow({

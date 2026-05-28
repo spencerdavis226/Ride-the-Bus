@@ -294,20 +294,24 @@ export function CardStage({
 
 export function PlayerTurnRail({
   activePlayerId,
+  activePlayerIds,
   onPreviewPlayer,
   players,
 }: {
   activePlayerId?: string | null;
+  activePlayerIds?: string[];
   onPreviewPlayer: (playerId: string) => void;
   players: Player[];
 }) {
   const railRef = useRef<HTMLDivElement>(null);
   const playerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const highlightedIds = activePlayerIds ?? (activePlayerId ? [activePlayerId] : []);
+  const scrollTargetId = highlightedIds[0];
 
   useEffect(() => {
-    if (!activePlayerId) return;
+    if (!scrollTargetId) return;
     const rail = railRef.current;
-    const activeTile = playerRefs.current[activePlayerId];
+    const activeTile = playerRefs.current[scrollTargetId];
     if (!rail || !activeTile) return;
 
     const gutter = 16;
@@ -330,7 +334,7 @@ export function PlayerTurnRail({
       left: Math.max(0, nextScrollLeft),
       behavior: 'smooth',
     });
-  }, [activePlayerId]);
+  }, [scrollTargetId]);
 
   return (
     <div
@@ -338,7 +342,7 @@ export function PlayerTurnRail({
       className="turn-rail flex shrink-0 gap-2 overflow-x-auto overflow-y-hidden px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {players.map((candidate) => {
-        const active = candidate.id === activePlayerId;
+        const active = highlightedIds.includes(candidate.id);
         return (
           <motion.button
             layout

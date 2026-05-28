@@ -172,11 +172,16 @@ select {
   gap: clamp(0.08rem, 0.45vh, 0.18rem);
 }
 
-.bus-mode-line,
-.bus-intro-command {
+.bus-mode-line {
   margin: 0;
   font-weight: 950;
   line-height: 1.05;
+}
+
+.bus-intro-title {
+  font-size: clamp(2.35rem, 10vw, 4.25rem) !important;
+  line-height: 1.02;
+  white-space: normal;
 }
 
 .bus-card-title {
@@ -260,20 +265,6 @@ select {
 
 .bus-outcome-summary {
   color: #ffc0ca;
-}
-
-.bus-intro-command {
-  max-width: 100%;
-  color: rgba(245, 217, 155, 0.76);
-  font-size: clamp(0.9rem, 3.2vw, 1.1rem);
-}
-
-.bus-intro-note {
-  max-width: min(100%, 34rem);
-  color: rgba(255, 247, 230, 0.66);
-  font-size: clamp(0.9rem, 3vw, 1.02rem);
-  font-weight: 800;
-  line-height: 1.3;
 }
 
 .bus-rider-list {
@@ -617,11 +608,6 @@ select {
     min-height: 1.9rem !important;
   }
 
-  .bus-intro-note {
-    font-size: 0.88rem !important;
-    line-height: 1.22 !important;
-  }
-
   .bus-rider-row {
     min-height: 3.9rem !important;
     border-radius: 1rem !important;
@@ -761,10 +747,6 @@ select {
 
   .bus-outcome-slot {
     min-height: 1.95rem !important;
-  }
-
-  .bus-intro-note {
-    font-size: 0.78rem !important;
   }
 
   .bus-rider-list {
