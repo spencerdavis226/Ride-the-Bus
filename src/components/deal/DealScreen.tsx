@@ -1,24 +1,26 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
-import type { Card } from '../../game/cards';
-import type { CardBackId, DealResult, DrinkAssignment } from '../../game/state';
-import { CardBack } from '../cards/CardBack';
-import { PlayingCard } from '../cards/PlayingCard';
+import type { DealResult, DrinkAssignment } from '../../game/state';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { PlayCardFan, type PlayCardFanSlot } from '../play/PlayCardFan';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
   PlayActionSwap,
   PlayActionZone,
+  PlayCardStage,
   PlayFelt,
   PlayGuessPicker,
+  PlayHero,
+  PlayOutcomeSlot,
   PlayScreen,
+  PlayTitle,
   PlayTopBar,
-  playFadeTransition,
-  playLayoutTransition,
+  PlayTurnFrame,
+  PlayTurnMain,
 } from '../play/PlayLayout';
 
 export function DealScreen() {
@@ -32,6 +34,16 @@ export function DealScreen() {
   const awaitingContinue = state.deal.awaitingContinue;
   const highlightedCardIndex = awaitingContinue ? player.hand.length - 1 : undefined;
   const turnKey = player.id;
+  const slots: PlayCardFanSlot[] = Array.from({ length: 4 }, (_, i) => {
+    const card = player.hand[i];
+    return {
+      ariaLabel: card ? `${player.name} card ${i + 1}, revealed` : `${player.name} card ${i + 1}, hidden`,
+      card,
+      faceUp: Boolean(card),
+      flipOnReveal: Boolean(card),
+      highlighted: highlightedCardIndex === i,
+    };
+  });
 
   return (
     <PlayScreen className="deal-layout">
@@ -48,16 +60,10 @@ export function DealScreen() {
       />
 
       <PlayFelt>
-        <motion.div
-          layout
-          className="deal-turn-content flex h-full min-h-0 flex-col overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
-          initial={{ y: 18, scale: 0.985 }}
-          animate={{ y: 0, scale: 1 }}
-          transition={playLayoutTransition}
-        >
-          <motion.div layout className="deal-turn-main mx-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
-            <motion.div layout className="deal-hero shrink-0">
-              <h2 className="deal-player-name max-w-full pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
+        <PlayTurnFrame>
+          <PlayTurnMain>
+            <PlayHero>
+              <PlayTitle>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
                     key={turnKey}
@@ -70,8 +76,8 @@ export function DealScreen() {
                     {player.name}
                   </motion.span>
                 </AnimatePresence>
-              </h2>
-              <motion.div layout className="deal-outcome-slot">
+              </PlayTitle>
+              <PlayOutcomeSlot>
                 <AnimatePresence initial={false} mode="sync">
                   {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
                     <DealOutcome
@@ -81,14 +87,14 @@ export function DealScreen() {
                     />
                   )}
                 </AnimatePresence>
-              </motion.div>
-            </motion.div>
+              </PlayOutcomeSlot>
+            </PlayHero>
 
-            <motion.div layout className="deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
-              <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
-            </motion.div>
-          </motion.div>
-        </motion.div>
+            <PlayCardStage className="overflow-hidden">
+              <PlayCardFan slots={slots} />
+            </PlayCardStage>
+          </PlayTurnMain>
+        </PlayTurnFrame>
       </PlayFelt>
 
       <PlayActionZone>
@@ -167,172 +173,6 @@ function DealOutcome({
       <span className="deal-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
         {correct ? 'Correct' : 'Wrong'} · {action} {assignment.units}
       </span>
-    </motion.div>
-  );
-}
-
-function computeFan(containerW: number, containerH: number) {
-  const N = 4;
-  const ASPECT = 5 / 7; // card width / height
-  const GAP = Math.max(8, Math.min(18, containerW * 0.02));
-  const MAX_CARD_W = 340;
-  const MIN_VISIBLE = 0.42; // min fraction visible on non-last cards when overlapping
-  const TINY_OVERLAP = 0.88; // if step would be > this fraction of cardW, skip overlap
-
-  let cardW = Math.min(containerH * ASPECT, MAX_CARD_W);
-
-  // No overlap needed?
-  if (N * cardW + (N - 1) * GAP <= containerW) {
-    return { cardW, cardH: cardW / ASPECT, step: cardW + GAP };
-  }
-
-  const idealStep = (containerW - cardW) / (N - 1);
-
-  // Overlap is tiny - shrink cards to fit cleanly without overlap instead
-  if (idealStep >= cardW * TINY_OVERLAP) {
-    cardW = (containerW - (N - 1) * GAP) / N;
-    return { cardW, cardH: cardW / ASPECT, step: cardW + GAP };
-  }
-
-  // Real overlap - clamp to MIN_VISIBLE
-  if (idealStep >= cardW * MIN_VISIBLE) {
-    return { cardW, cardH: cardW / ASPECT, step: idealStep };
-  }
-
-  // Overlap too aggressive - shrink cards so MIN_VISIBLE fills the container
-  cardW = containerW / (1 + MIN_VISIBLE * (N - 1));
-  return { cardW, cardH: cardW / ASPECT, step: cardW * MIN_VISIBLE };
-}
-
-function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedIndex?: number }) {
-  const { state } = useGame();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
-  const [tightLandscape, setTightLandscape] = useState(false);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const measure = () => {
-      const { width, height } = el.getBoundingClientRect();
-      if (width > 0 && height > 0) {
-        setDims({ w: width, h: height });
-      }
-    };
-    measure();
-    const obs = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      if (width > 0 && height > 0) {
-        setDims({ w: width, h: height });
-      }
-    });
-    obs.observe(el);
-    let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(measure);
-    });
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      obs.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const query = window.matchMedia('(orientation: landscape) and (max-height: 500px) and (max-width: 950px)');
-    const sync = () => setTightLandscape(query.matches);
-
-    sync();
-    query.addEventListener('change', sync);
-    return () => query.removeEventListener('change', sync);
-  }, []);
-
-  const maxHighlightLift = tightLandscape ? 0 : 18;
-  const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, Math.max(1, dims.h - maxHighlightLift)) : null;
-  const totalFanW = fan ? fan.cardW + fan.step * 3 : 0;
-  const highlightLift = fan ? Math.min(maxHighlightLift, fan.cardH * 0.06) : 0;
-  const highlightHeadroom = highlightLift + (highlightLift > 0 ? 3 : 0);
-
-  return (
-    <div
-      ref={containerRef}
-      className="deal-hand-frame flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
-    >
-      {fan && (
-        <motion.div
-          className="relative flex-shrink-0"
-          initial={false}
-          animate={{ width: totalFanW, height: fan.cardH + highlightHeadroom }}
-          transition={playLayoutTransition}
-        >
-          {Array.from({ length: 4 }, (_, i) => {
-            const card = cards[i];
-            const highlighted = highlightedIndex === i;
-            return (
-              <motion.div
-                key={i}
-                className="absolute top-0"
-                style={{ zIndex: i + (highlighted ? 10 : 0) }}
-                initial={false}
-                animate={{
-                  left: i * fan.step,
-                  top: highlightHeadroom + (highlighted ? -highlightLift : 0),
-                  width: fan.cardW,
-                  height: fan.cardH,
-                  scale: highlighted ? 1.018 : 1,
-                  rotate: 0,
-                }}
-                transition={playLayoutTransition}
-              >
-                <HandSlot
-                  key={card?.id ?? `empty-${i}`}
-                  backId={state.cardBackId}
-                  card={card}
-                  highlighted={highlighted}
-                />
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
-function HandSlot({
-  backId,
-  card,
-  highlighted,
-}: {
-  backId: CardBackId;
-  card?: Card;
-  highlighted: boolean;
-}) {
-  const reduceMotion = useReducedMotion();
-
-  if (!card) {
-    return <CardBack id={backId} size="fluid" />;
-  }
-
-  return (
-    <motion.div
-      className="deal-card-flip"
-      initial={{ rotateY: reduceMotion ? 180 : 0 }}
-      animate={{ rotateY: 180 }}
-      transition={reduceMotion ? { duration: 0.01 } : { ...playFadeTransition, duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }}
-    >
-      <div className="deal-card-face">
-        <CardBack id={backId} size="fluid" />
-      </div>
-      <div className="deal-card-face deal-card-front">
-        <PlayingCard
-          animateEntry={false}
-          card={card}
-          highlighted={highlighted}
-          motionLayout={false}
-          size="fluid"
-        />
-      </div>
     </motion.div>
   );
 }

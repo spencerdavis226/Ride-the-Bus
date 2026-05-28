@@ -1,18 +1,18 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
-import type { Card } from '../../game/cards';
 import type { DealSubphase } from '../../game/phases';
 import { cansForDrinks } from '../../game/rules';
-import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { PlayCardFan, type PlayCardFanSlot } from '../play/PlayCardFan';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
   PlayActionSwap,
   PlayActionZone,
+  PlayCardStage,
   PlayFelt,
   PlayGuessPicker,
   PlayHero,
@@ -22,7 +22,6 @@ import {
   PlayTurnFrame,
   PlayTurnMain,
   playFadeTransition,
-  playLayoutTransition,
 } from '../play/PlayLayout';
 
 export function BusScreen() {
@@ -40,6 +39,18 @@ export function BusScreen() {
   const activeRiderId = bus.riders.length === 1 ? bus.riders[0]?.id : null;
   const justFailed = Boolean(bus.lastAssignment && progressIndex === 0);
   const modeLabel = getBusModeLabel(state.settings.busMode === 'endless', bus.reshuffleCount);
+  const slots: PlayCardFanSlot[] = bus.visibleCards.map((card, index) => {
+    const revealed = index < progressIndex;
+    const current = index === progressIndex;
+    return {
+      ariaLabel: getBusSlotLabel(index, progressIndex, card),
+      card,
+      dimmed: index > progressIndex,
+      faceUp: revealed,
+      flipOnReveal: revealed && index === progressIndex - 1,
+      highlighted: current,
+    };
+  });
 
   return (
     <PlayScreen className="bus-screen">
@@ -65,24 +76,17 @@ export function BusScreen() {
                 progressIndex={progressIndex}
               />
               <PlayOutcomeSlot className="bus-outcome-slot">
-                <AnimatePresence initial={false} mode="sync">
-                  {justFailed && bus.lastAssignment && (
-                    <BusOutcome
-                      key={`${bus.lastAssignment.units}-${bus.drinksEach}`}
-                      label={bus.lastAssignment.label}
-                    />
-                  )}
-                </AnimatePresence>
+                {justFailed && bus.lastAssignment && <BusOutcome label={bus.lastAssignment.label} />}
               </PlayOutcomeSlot>
             </PlayHero>
 
-            <motion.div layout className="deal-stage bus-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
-              <BusCardsStage
-                failed={justFailed}
-                progressIndex={progressIndex}
-                visibleCards={bus.visibleCards}
+            <PlayCardStage className="bus-stage overflow-visible">
+              <PlayCardFan
+                shake={justFailed}
+                shakeKey={justFailed ? 'bus-failed' : 'bus-steady'}
+                slots={slots}
               />
-            </motion.div>
+            </PlayCardStage>
           </PlayTurnMain>
         </PlayTurnFrame>
       </PlayFelt>
@@ -191,92 +195,21 @@ function BusOutcome({ label }: { label: string | null }) {
   }
 
   return (
-    <motion.div
-      layout
-      className="deal-outcome bus-outcome inline-flex max-w-full items-center text-left"
-      data-result="wrong"
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -6, scale: 0.98 }}
-      transition={playFadeTransition}
-    >
-      <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
-        Wrong · {label.replace('Riders: ', '')}
-      </span>
-    </motion.div>
-  );
-}
-
-function BusCardsStage({
-  failed,
-  progressIndex,
-  visibleCards,
-}: {
-  failed: boolean;
-  progressIndex: number;
-  visibleCards: Array<Card | null>;
-}) {
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <div className="bus-cards-stage grid h-full min-h-0 place-items-center">
-      <motion.div
-        key={failed ? 'bus-failed' : 'bus-steady'}
-        layout
-        className="bus-card-runway grid h-full w-full max-w-[58rem] grid-cols-4 items-center justify-items-center gap-[clamp(0.45rem,2.2vw,1rem)]"
-        initial={failed && !reduceMotion ? { x: 0 } : false}
-        animate={failed && !reduceMotion ? { x: [0, -7, 7, -4, 4, 0] } : { x: 0 }}
-        transition={failed && !reduceMotion ? { duration: 0.34, ease: 'easeOut' } : playLayoutTransition}
+    <div className="deal-outcome bus-outcome inline-flex max-w-full items-center text-left" data-result="wrong">
+      <motion.span
+        key={label}
+        className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ ...playFadeTransition, duration: 0.12 }}
       >
-        {visibleCards.map((card, index) => (
-          <BusCardSlot
-            key={card?.id ?? `empty-${index}`}
-            card={card}
-            index={index}
-            progressIndex={progressIndex}
-            reduceMotion={Boolean(reduceMotion)}
-          />
-        ))}
-      </motion.div>
+        Wrong · {label.replace('Riders: ', '')}
+      </motion.span>
     </div>
   );
 }
 
-function BusCardSlot({
-  card,
-  index,
-  progressIndex,
-  reduceMotion,
-}: {
-  card: Card | null;
-  index: number;
-  progressIndex: number;
-  reduceMotion: boolean;
-}) {
-  const revealed = index < progressIndex;
-  const current = index === progressIndex;
-  const stateClass = revealed ? 'is-revealed' : current ? 'is-current' : 'is-future';
-
-  return (
-    <motion.div
-      layout
-      aria-label={getBusSlotLabel(index, progressIndex, card)}
-      className={`bus-card-slot ${stateClass} grid shrink-0 place-items-center`}
-      initial={reduceMotion ? false : { y: 12, opacity: 0, scale: 0.94 }}
-      animate={{ y: 0, opacity: index > progressIndex ? 0.58 : 1, scale: current ? 1 : 0.92 }}
-      transition={reduceMotion ? { duration: 0.01 } : { type: 'spring', damping: 24, stiffness: 270, delay: index * 0.03 }}
-    >
-      <PlayingCard
-        card={card}
-        faceUp={revealed}
-        highlighted={current}
-        size="fluid"
-      />
-    </motion.div>
-  );
-}
-
-function getBusSlotLabel(index: number, progressIndex: number, card: Card | null) {
+function getBusSlotLabel(index: number, progressIndex: number, card: unknown) {
   const slot = `Bus card ${index + 1}`;
   if (index < progressIndex && card) return `${slot}, revealed`;
   if (index === progressIndex) return `${slot}, current card`;

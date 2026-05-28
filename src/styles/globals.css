@@ -146,41 +146,6 @@ select {
   min-width: 0;
 }
 
-.bus-cards-stage {
-  container-type: size;
-  overflow: visible;
-}
-
-.bus-card-runway {
-  container-type: size;
-  max-height: 100%;
-  max-width: 100%;
-}
-
-.bus-card-slot {
-  aspect-ratio: 5 / 7;
-  position: relative;
-  max-height: 100cqh;
-  width: min(100%, calc(100cqh * 5 / 7));
-  transform-origin: center;
-}
-
-.bus-card-slot.is-current::before {
-  content: "";
-  position: absolute;
-  inset: -0.42rem;
-  z-index: -1;
-  border-radius: 1.25rem;
-  background: rgba(245, 217, 155, 0.11);
-  box-shadow:
-    0 0 0 2px rgba(245, 217, 155, 0.72),
-    0 0 24px rgba(245, 217, 155, 0.16);
-}
-
-.bus-card-slot.is-future {
-  filter: saturate(0.82);
-}
-
 .bus-result-card {
   max-width: 100%;
 }

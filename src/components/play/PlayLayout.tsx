@@ -216,6 +216,20 @@ export function PlayOutcomeSlot({
   );
 }
 
+export function PlayCardStage({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div layout className={`deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 ${className}`}>
+      {children}
+    </motion.div>
+  );
+}
+
 export function CardStage({
   children,
   className = '',
