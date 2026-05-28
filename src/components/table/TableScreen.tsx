@@ -273,10 +273,10 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
     <motion.div
       layout
       className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left"
-      initial={{ opacity: 0, y: 6, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -5, scale: 0.98 }}
-      transition={playFadeTransition}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ ...playFadeTransition, duration: 0.12 }}
     >
       <span className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
         {summary}
