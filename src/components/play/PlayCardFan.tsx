@@ -77,26 +77,31 @@ export function buildBusFanSlots(
   visibleCards: Array<Card | null>,
   progressIndex: number,
   options: {
+    awaitingContinue?: boolean;
     slotLabel?: (index: number, progressIndex: number, card: Card | null) => string;
   } = {}
 ): PlayCardFanSlot[] {
+  const awaitingContinue = options.awaitingContinue ?? false;
   const slotLabel =
     options.slotLabel ??
     ((index, activeProgressIndex, card) => {
       const label = `Bus card ${index + 1}`;
       if (index < activeProgressIndex && card) return `${label}, revealed`;
+      if (awaitingContinue && index === activeProgressIndex && card) return `${label}, revealed`;
       if (index === activeProgressIndex) return `${label}, current card`;
       return `${label}, hidden`;
     });
 
   return visibleCards.slice(0, SLOT_COUNT).map((card, index) => {
-    const revealed = index < progressIndex;
+    const cleared = index < progressIndex;
+    const justRevealed = awaitingContinue && index === progressIndex;
+    const faceUp = cleared || justRevealed;
     return {
       ariaLabel: slotLabel(index, progressIndex, card),
       card,
-      faceUp: revealed,
-      flipOnReveal: revealed && index === progressIndex - 1,
-      highlighted: index === progressIndex,
+      faceUp,
+      flipOnReveal: justRevealed,
+      highlighted: justRevealed,
     };
   });
 }

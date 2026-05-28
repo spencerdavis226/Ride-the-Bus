@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Card } from '../game/cards';
-import { applyBusGuess, applyDealGuess, continueDeal, flipNextTableCard, startGame } from '../game/engine';
+import { applyBusGuess, applyDealGuess, continueBus, continueDeal, flipNextTableCard, startGame } from '../game/engine';
 import type { GameState, Player, TableCard } from '../game/state';
 
 const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue: number, suit: Card['suit'] = 'spades'): Card => ({
@@ -106,28 +106,7 @@ describe('engine start', () => {
   });
 
   it('adds a structured bus history entry with rider debt', () => {
-    const base = startGame({
-      playerNames: ['Alex', 'Sam'],
-      busMode: 'singleDeck',
-      themePreference: 'poker'
-    });
-    const state: GameState = {
-      ...base,
-      phase: 'bus',
-      bus: {
-        riders: base.players,
-        deck: [card('next-1', 'red', '3', 3), card('next-2', 'black', '4', 4)],
-        visibleCards: [card('bus-1', 'black', '2', 2), card('bus-2', 'red', '3', 3), card('bus-3', 'black', '4', 4), card('bus-4', 'red', '5', 5)],
-        progressIndex: 0,
-        drinksEach: 0,
-        exhausted: false,
-        escaped: false,
-        reshuffleCount: 0,
-        lastAssignment: null
-      },
-      log: []
-    };
-
+    const state = busState();
     const afterGuess = applyBusGuess(state, 'red');
     const entry = afterGuess.log[afterGuess.log.length - 1];
 
@@ -144,4 +123,82 @@ describe('engine start', () => {
     expect(entry?.title).toBe('Riders owe 1 each');
     expect(entry?.result).toBe('wrong');
   });
+
+  it('defers bus reset until continue after a wrong guess', () => {
+    const state = busState();
+    const afterGuess = applyBusGuess(state, 'red');
+
+    expect(afterGuess.bus?.awaitingContinue).toBe(true);
+    expect(afterGuess.bus?.progressIndex).toBe(0);
+    expect(afterGuess.bus?.drinksEach).toBe(0);
+    expect(afterGuess.bus?.visibleCards.map((next) => next?.id)).toEqual([
+      'bus-1',
+      'bus-2',
+      'bus-3',
+      'bus-4'
+    ]);
+    expect(afterGuess.bus?.lastResult?.correct).toBe(false);
+
+    const afterContinue = continueBus(afterGuess);
+    expect(afterContinue.bus?.awaitingContinue).toBe(false);
+    expect(afterContinue.bus?.progressIndex).toBe(0);
+    expect(afterContinue.bus?.drinksEach).toBe(1);
+    expect(afterContinue.bus?.visibleCards.map((next) => next?.id)).toEqual([
+      'next-1',
+      'bus-2',
+      'bus-3',
+      'bus-4'
+    ]);
+  });
+
+  it('ignores bus guesses while awaiting continue', () => {
+    const afterGuess = applyBusGuess(busState(), 'red');
+    const blocked = applyBusGuess(afterGuess, 'black');
+    expect(blocked).toBe(afterGuess);
+  });
+
+  it('advances bus progress only after continue on a correct guess', () => {
+    const state = busState();
+    const afterGuess = applyBusGuess(state, 'black');
+
+    expect(afterGuess.bus?.awaitingContinue).toBe(true);
+    expect(afterGuess.bus?.progressIndex).toBe(0);
+    expect(afterGuess.bus?.lastResult?.correct).toBe(true);
+
+    const afterContinue = continueBus(afterGuess);
+    expect(afterContinue.bus?.awaitingContinue).toBe(false);
+    expect(afterContinue.bus?.progressIndex).toBe(1);
+    expect(afterContinue.phase).toBe('bus');
+  });
 });
+
+function busState(): GameState {
+  const base = startGame({
+    playerNames: ['Alex', 'Sam'],
+    busMode: 'singleDeck',
+    themePreference: 'poker'
+  });
+  return {
+    ...base,
+    phase: 'bus',
+    bus: {
+      riders: base.players,
+      deck: [card('next-1', 'red', '3', 3), card('next-2', 'black', '4', 4)],
+      visibleCards: [
+        card('bus-1', 'black', '2', 2),
+        card('bus-2', 'red', '3', 3),
+        card('bus-3', 'black', '4', 4),
+        card('bus-4', 'red', '5', 5)
+      ],
+      progressIndex: 0,
+      drinksEach: 0,
+      exhausted: false,
+      escaped: false,
+      reshuffleCount: 0,
+      lastAssignment: null,
+      lastResult: null,
+      awaitingContinue: false
+    },
+    log: []
+  };
+}

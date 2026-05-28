@@ -1,7 +1,8 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { DealSubphase } from '../../game/phases';
+import type { DealResult, DrinkAssignment } from '../../game/state';
 import { cansForDrinks } from '../../game/rules';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
@@ -36,9 +37,9 @@ export function BusScreen() {
   const activeSubphase = getBusSubphase(progressIndex);
   const previewPlayer = previewPlayerId ? bus.riders.find((rider) => rider.id === previewPlayerId) : null;
   const activeRiderId = bus.riders.length === 1 ? bus.riders[0]?.id : null;
-  const justFailed = Boolean(bus.lastAssignment && progressIndex === 0);
+  const awaitingContinue = bus.awaitingContinue;
   const modeLabel = getBusModeLabel(state.settings.busMode === 'endless', bus.reshuffleCount);
-  const slots = buildBusFanSlots(bus.visibleCards, progressIndex);
+  const slots = buildBusFanSlots(bus.visibleCards, progressIndex, { awaitingContinue });
 
   return (
     <PlayScreen className="bus-screen">
@@ -64,27 +65,40 @@ export function BusScreen() {
                 progressIndex={progressIndex}
               />
               <PlayOutcomeSlot className="bus-outcome-slot">
-                {justFailed && bus.lastAssignment && <BusOutcome label={bus.lastAssignment.label} />}
+                <AnimatePresence initial={false} mode="sync">
+                  {awaitingContinue && bus.lastResult && (
+                    <BusOutcome
+                      key={`${bus.lastResult.actual}-${bus.lastResult.correct}`}
+                      assignment={bus.lastAssignment}
+                      result={bus.lastResult}
+                    />
+                  )}
+                </AnimatePresence>
               </PlayOutcomeSlot>
             </PlayHero>
 
-            <PlayCardFanArea
-              shake={justFailed}
-              shakeKey={justFailed ? 'bus-failed' : 'bus-steady'}
-              slots={slots}
-              stageClassName="bus-stage overflow-visible"
-            />
+            <PlayCardFanArea slots={slots} stageClassName="bus-stage overflow-visible" />
           </PlayTurnMain>
         </PlayTurnFrame>
       </PlayFelt>
 
       <PlayActionZone>
-        <PlayActionSwap actionKey={`bus-guess-${activeSubphase}`}>
-          <PlayGuessPicker
-            className="bus-guess-picker"
-            subphase={activeSubphase}
-            onGuess={(guess) => dispatch({ type: 'BUS_GUESS', guess })}
-          />
+        <PlayActionSwap actionKey={awaitingContinue ? 'continue' : `bus-guess-${activeSubphase}`}>
+          {awaitingContinue ? (
+            <Button
+              className="w-full text-base"
+              style={{ minHeight: '58px' }}
+              onClick={() => dispatch({ type: 'BUS_CONTINUE' })}
+            >
+              Next
+            </Button>
+          ) : (
+            <PlayGuessPicker
+              className="bus-guess-picker"
+              subphase={activeSubphase}
+              onGuess={(guess) => dispatch({ type: 'BUS_GUESS', guess })}
+            />
+          )}
         </PlayActionSwap>
       </PlayActionZone>
 
@@ -176,23 +190,49 @@ function BusTotal({ drinksEach }: { drinksEach: number }) {
   );
 }
 
-function BusOutcome({ label }: { label: string | null }) {
-  if (!label) {
-    return null;
+function BusOutcome({
+  assignment,
+  result,
+}: {
+  assignment: DrinkAssignment | null;
+  result: DealResult;
+}) {
+  const reduceMotion = useReducedMotion();
+  const correct = result.correct;
+
+  if (correct) {
+    return (
+      <motion.div
+        layout
+        className="deal-outcome bus-outcome inline-flex max-w-[22rem] items-center text-left"
+        data-result="correct"
+        initial={{ opacity: 0, y: 8, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -6, scale: 0.98 }}
+        transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
+      >
+        <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
+          Correct
+        </span>
+      </motion.div>
+    );
   }
 
+  const penalty = assignment?.label.replace('Riders: ', '') ?? 'Take drinks';
+
   return (
-    <div className="deal-outcome bus-outcome inline-flex max-w-full items-center text-left" data-result="wrong">
-      <motion.span
-        key={label}
-        className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ ...playFadeTransition, duration: 0.12 }}
-      >
-        Wrong · {label.replace('Riders: ', '')}
-      </motion.span>
-    </div>
+    <motion.div
+      layout
+      className="deal-outcome bus-outcome inline-flex max-w-[22rem] items-center text-left"
+      data-result="wrong"
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+      transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
+    >
+      <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
+        Wrong · {penalty}
+      </span>
+    </motion.div>
   );
 }
-

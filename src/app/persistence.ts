@@ -14,7 +14,14 @@ export function loadSavedGame(): GameState | null {
         ...state.deal,
         lastResult: state.deal.lastResult ?? null,
         awaitingContinue: Boolean(state.deal.awaitingContinue)
-      }
+      },
+      bus: state.bus
+        ? {
+            ...state.bus,
+            lastResult: state.bus.lastResult ?? null,
+            awaitingContinue: Boolean(state.bus.awaitingContinue)
+          }
+        : null
     };
   } catch {
     return null;

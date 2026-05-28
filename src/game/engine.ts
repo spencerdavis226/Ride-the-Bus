@@ -256,7 +256,9 @@ export function startBus(state: GameState, rng: () => number = Math.random): Gam
       exhausted: false,
       escaped: false,
       reshuffleCount: 0,
-      lastAssignment: null
+      lastAssignment: null,
+      lastResult: null,
+      awaitingContinue: false
     },
     log: [
       ...state.log,
@@ -269,12 +271,76 @@ export function startBus(state: GameState, rng: () => number = Math.random): Gam
   });
 }
 
-export function applyBusGuess(state: GameState, guess: BusGuess, rng: () => number = Math.random): GameState {
-  if (!state.bus || state.bus.exhausted || state.bus.escaped) return state;
+export function applyBusGuess(state: GameState, guess: BusGuess): GameState {
+  if (!state.bus || state.bus.exhausted || state.bus.escaped || state.bus.awaitingContinue) return state;
   const positionIndex = state.bus.progressIndex;
   const activeGuess = { positionIndex, guess } as BusPositionGuess;
-  const result = scoreBusGuess(state.bus.visibleCards, activeGuess);
-  if (result.correct) {
+  const score = scoreBusGuess(state.bus.visibleCards, activeGuess);
+  const card = state.bus.visibleCards[positionIndex]!;
+
+  if (score.correct) {
+    return stamp({
+      ...state,
+      bus: {
+        ...state.bus,
+        lastAssignment: null,
+        lastResult: { guess, actual: score.actual, correct: true },
+        awaitingContinue: true
+      },
+      log: [
+        ...state.log,
+        makeLog(`Bus card ${positionIndex + 1}: correct.`, 'bus', {
+          title: `Card ${positionIndex + 1} right`,
+          detail: formatCard(card),
+          cardLabel: formatCard(card),
+          result: 'correct'
+        })
+      ]
+    });
+  }
+
+  const units = busFailureUnits(positionIndex, score.actual, guess === 'same');
+  const assignment: DrinkAssignment = {
+    playerId: 'bus-riders',
+    playerName: 'Riders',
+    direction: 'take',
+    units,
+    source: 'bus',
+    label: `Riders: Take ${units} each`
+  };
+  const projectedTotal = state.bus.drinksEach + units;
+  return stamp({
+    ...state,
+    bus: {
+      ...state.bus,
+      lastAssignment: assignment,
+      lastResult: { guess, actual: score.actual, correct: false },
+      awaitingContinue: true
+    },
+    log: [
+      ...state.log,
+      makeLog(
+        `Bus failed on card ${positionIndex + 1}: riders Take ${units} each. Bus total will be ${projectedTotal} drinks each.`,
+        'bus',
+        {
+          title: `Riders owe ${units} each`,
+          detail: `Bus total: ${projectedTotal} each`,
+          assignments: [assignment],
+          cardLabel: formatCard(card),
+          result: 'wrong'
+        }
+      )
+    ]
+  });
+}
+
+export function continueBus(state: GameState, rng: () => number = Math.random): GameState {
+  if (!state.bus || !state.bus.awaitingContinue || !state.bus.lastResult) return state;
+
+  const positionIndex = state.bus.progressIndex;
+  const { correct } = state.bus.lastResult;
+
+  if (correct) {
     const nextProgress = (positionIndex + 1) as 0 | 1 | 2 | 3 | 4;
     const escaped = nextProgress === 4;
     return stamp({
@@ -284,31 +350,28 @@ export function applyBusGuess(state: GameState, guess: BusGuess, rng: () => numb
       bus: {
         ...state.bus,
         progressIndex: nextProgress,
-        escaped
+        escaped,
+        lastAssignment: null,
+        lastResult: null,
+        awaitingContinue: false
       },
       log: [
         ...state.log,
-        makeLog(`Bus card ${positionIndex + 1}: correct.`, 'bus', {
-          title: `Card ${positionIndex + 1} right`,
-          detail: formatCard(state.bus.visibleCards[positionIndex]!),
-          cardLabel: formatCard(state.bus.visibleCards[positionIndex]!),
-          result: 'correct'
-        }),
         ...(escaped ? [makeLog('The riders escaped the bus.', 'bus', { title: 'Escaped the bus', result: 'neutral' })] : [])
       ]
     });
   }
 
-  const units = busFailureUnits(positionIndex, result.actual, guess === 'same');
-  const assignment: DrinkAssignment = {
-    playerId: 'bus-riders',
-    playerName: 'Riders',
-    direction: 'take',
-    units,
-    source: 'bus',
-    label: `Riders: Take ${units} each`
-  };
-  const replacement = replaceBusCards(state.bus.visibleCards, state.bus.deck, positionIndex + 1, state.settings.busMode, rng);
+  const assignment = state.bus.lastAssignment;
+  if (!assignment) return state;
+  const units = assignment.units;
+  const replacement = replaceBusCards(
+    state.bus.visibleCards,
+    state.bus.deck,
+    positionIndex + 1,
+    state.settings.busMode,
+    rng
+  );
   const drinksEach = state.bus.drinksEach + units;
   const exhausted = replacement.exhausted;
   return stamp({
@@ -323,18 +386,10 @@ export function applyBusGuess(state: GameState, guess: BusGuess, rng: () => numb
       drinksEach,
       exhausted,
       reshuffleCount: state.bus.reshuffleCount + replacement.reshuffles,
-      lastAssignment: assignment
-    },
-    log: [
-      ...state.log,
-      makeLog(`Bus failed on card ${positionIndex + 1}: riders Take ${units} each. Bus total is ${drinksEach} drinks each.`, 'bus', {
-        title: `Riders owe ${units} each`,
-        detail: `Bus total: ${drinksEach} each`,
-        assignments: [assignment],
-        cardLabel: formatCard(state.bus.visibleCards[positionIndex]!),
-        result: 'wrong'
-      })
-    ]
+      lastAssignment: null,
+      lastResult: null,
+      awaitingContinue: false
+    }
   });
 }
 

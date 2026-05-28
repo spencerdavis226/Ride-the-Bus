@@ -109,6 +109,8 @@ export type BusState = {
   escaped: boolean;
   reshuffleCount: number;
   lastAssignment: DrinkAssignment | null;
+  lastResult: DealResult | null;
+  awaitingContinue: boolean;
 };
 
 export type GameOverReason = 'escaped' | 'emptyBus' | 'deckExhausted';
