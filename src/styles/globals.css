@@ -81,6 +81,26 @@ select {
   container-type: inline-size;
 }
 
+@keyframes card-back-shimmer {
+  0%,
+  100% {
+    transform: translateX(-120%);
+  }
+  50% {
+    transform: translateX(120%);
+  }
+}
+
+.card-back-shimmer {
+  animation: card-back-shimmer 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-back-shimmer {
+    animation: none;
+  }
+}
+
 .deal-hero {
   min-height: 0;
   display: grid;
