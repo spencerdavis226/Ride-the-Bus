@@ -56,6 +56,12 @@ The app includes:
 - SVG source icon at `public/icon.svg`
 - PNG icon generation through `npm run generate:icons`
 
+## Save and resume
+
+In-progress games auto-resume on refresh or reopening the PWA. Quit to setup clears the active save. Settings persist separately in `localStorage`.
+
+Before sharing a beta build, run the device checklist in [docs/BETA_QA_CHECKLIST.md](docs/BETA_QA_CHECKLIST.md).
+
 ## Deployment
 
 GitHub Actions deploys the Vite build to GitHub Pages on pushes to `main` or `master`.

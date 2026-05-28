@@ -34,18 +34,32 @@ export function getRankValue(rank: Rank, date = new Date()): number {
   return rankValuesHighAce[rank];
 }
 
-export function compareHigherLowerSame(previous: Card, next: Card): HigherLowerSameGuess {
-  if (next.numericValue === previous.numericValue) return 'same';
-  return next.numericValue > previous.numericValue ? 'higher' : 'lower';
+export function cardNumericValue(card: Card, date = new Date()): number {
+  return getRankValue(card.rank, date);
 }
 
-export function compareInsideOutsideSame(first: Card, second: Card, next: Card): InsideOutsideSameGuess {
-  const low = Math.min(first.numericValue, second.numericValue);
-  const high = Math.max(first.numericValue, second.numericValue);
-  if (next.numericValue === first.numericValue || next.numericValue === second.numericValue) {
+export function compareHigherLowerSame(previous: Card, next: Card, date = new Date()): HigherLowerSameGuess {
+  const previousValue = cardNumericValue(previous, date);
+  const nextValue = cardNumericValue(next, date);
+  if (nextValue === previousValue) return 'same';
+  return nextValue > previousValue ? 'higher' : 'lower';
+}
+
+export function compareInsideOutsideSame(
+  first: Card,
+  second: Card,
+  next: Card,
+  date = new Date()
+): InsideOutsideSameGuess {
+  const firstValue = cardNumericValue(first, date);
+  const secondValue = cardNumericValue(second, date);
+  const nextValue = cardNumericValue(next, date);
+  const low = Math.min(firstValue, secondValue);
+  const high = Math.max(firstValue, secondValue);
+  if (nextValue === firstValue || nextValue === secondValue) {
     return 'same';
   }
-  return next.numericValue > low && next.numericValue < high ? 'inside' : 'outside';
+  return nextValue > low && nextValue < high ? 'inside' : 'outside';
 }
 
 export function cansForDrinks(drinks: number): string {

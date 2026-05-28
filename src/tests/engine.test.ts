@@ -7,8 +7,10 @@ import {
   continueBus,
   continueDeal,
   flipNextTableCard,
+  startBus,
   startGame
 } from '../game/engine';
+import { createShoe } from '../game/deck';
 import type { GameState, Player, TableCard } from '../game/state';
 
 const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue: number, suit: Card['suit'] = 'spades'): Card => ({
@@ -252,6 +254,93 @@ describe('engine start', () => {
     expect(busEscapesOnCorrectContinue(1, { guess: 'same', actual: 'same', correct: true })).toBe(true);
     expect(busEscapesOnCorrectContinue(1, { guess: 'higher', actual: 'higher', correct: true })).toBe(false);
     expect(busEscapesOnCorrectContinue(3, { guess: 'spades', actual: 'spades', correct: true })).toBe(true);
+  });
+
+  it('transitions from deal to table when the final continue finishes deal', () => {
+    const base = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const shoe = createShoe(base.phaseOneTwoDecks);
+    const state: GameState = {
+      ...base,
+      deal: {
+        subphase: 'suit',
+        playerIndex: 1,
+        lastAssignment: null,
+        lastResult: { guess: 'spades', actual: 'spades', correct: true },
+        awaitingContinue: true
+      },
+      shoe
+    };
+
+    const afterContinue = continueDeal(state);
+    expect(afterContinue.phase).toBe('table');
+    expect(afterContinue.table.cards).toHaveLength(11);
+    expect(afterContinue.shoe).toHaveLength(shoe.length - 11);
+  });
+
+  it('scores suit guesses during the suit subphase', () => {
+    const base = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const spade = card('suit-card', 'black', 'K', 13, 'spades');
+    const state: GameState = {
+      ...base,
+      deal: { ...base.deal, subphase: 'suit' },
+      players: [
+        {
+          id: 'player-1',
+          name: 'Alex',
+          hand: [card('a', 'red', '5', 5, 'hearts'), card('b', 'black', '9', 9)]
+        },
+        base.players[1]
+      ],
+      shoe: [spade, ...base.shoe]
+    };
+
+    const afterGuess = applyDealGuess(state, 'spades');
+    expect(afterGuess.deal.lastResult?.correct).toBe(true);
+    expect(afterGuess.log[afterGuess.log.length - 1]?.assignments?.[0]?.units).toBe(4);
+  });
+
+  it('ignores deal guesses outside the deal phase', () => {
+    const tableState: GameState = {
+      ...startGame({
+        playerNames: ['Alex', 'Sam'],
+        busMode: 'singleDeck',
+        themePreference: 'poker'
+      }),
+      phase: 'table'
+    };
+    const blocked = applyDealGuess(tableState, 'red');
+    expect(blocked.phase).toBe('table');
+    expect(blocked.players[0].hand).toHaveLength(0);
+  });
+
+  it('ends the game when the deal shoe is empty', () => {
+    const base = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const exhausted = applyDealGuess({ ...base, shoe: [] }, 'red');
+    expect(exhausted.phase).toBe('gameOver');
+    expect(exhausted.gameOverReason).toBe('deckExhausted');
+  });
+
+  it('ignores bus start outside bus intro', () => {
+    const dealState = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const blocked = startBus(dealState);
+    expect(blocked.phase).toBe('deal');
+    expect(blocked.bus).toBeNull();
   });
 });
 

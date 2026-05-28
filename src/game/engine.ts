@@ -12,6 +12,7 @@ import {
   type ScoreResult
 } from './scoring';
 import {
+  cardNumericValue,
   compareHigherLowerSame,
   compareInsideOutsideSame,
   type BusGuess,
@@ -133,8 +134,25 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
   };
 }
 
+function gameOverDeckExhausted(state: GameState): GameState {
+  return stamp({
+    ...state,
+    phase: 'gameOver',
+    gameOverReason: 'deckExhausted',
+    log: [
+      ...state.log,
+      makeLog('The deck ran out before the game could continue.', 'system', {
+        title: 'Deck exhausted',
+        result: 'neutral'
+      })
+    ]
+  });
+}
+
 export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
+  if (state.phase !== 'deal') return state;
   if (state.deal.awaitingContinue) return state;
+  if (!state.shoe.length) return gameOverDeckExhausted(state);
   const player = state.players[state.deal.playerIndex];
   const { card, deck } = drawOne(state.shoe);
   const score = scoreDealGuess(state.deal, player.hand, guess, card);
@@ -167,6 +185,7 @@ export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
 }
 
 export function continueDeal(state: GameState): GameState {
+  if (state.phase !== 'deal') return state;
   if (!state.deal.awaitingContinue) return state;
   const position = nextDealPosition(state.deal.playerIndex, state.deal.subphase, state.players.length);
   if (!position.done) {
@@ -182,6 +201,7 @@ export function continueDeal(state: GameState): GameState {
     });
   }
 
+  if (state.shoe.length < 11) return gameOverDeckExhausted(state);
   const tableBuild = createTableFromShoe(state.shoe);
   return stamp({
     ...state,
@@ -194,6 +214,7 @@ export function continueDeal(state: GameState): GameState {
 }
 
 export function flipNextTableCard(state: GameState): GameState {
+  if (state.phase !== 'table') return state;
   const active = state.table.cards[state.table.activeIndex];
   if (!active || state.table.completed) return state;
   const matchResult = matchTableCard(state.players, active);
@@ -233,6 +254,7 @@ export function determineBusRiders(players: Player[]): Player[] {
 }
 
 export function startBus(state: GameState, rng: () => number = Math.random): GameState {
+  if (state.phase !== 'busIntro') return state;
   const riders = determineBusRiders(state.players);
   if (!riders.length) {
     return stamp({
@@ -280,6 +302,7 @@ export function busEscapesOnCorrectContinue(positionIndex: number, lastResult: D
 }
 
 export function applyBusGuess(state: GameState, guess: BusGuess): GameState {
+  if (state.phase !== 'bus') return state;
   if (!state.bus || state.bus.exhausted || state.bus.escaped || state.bus.awaitingContinue) return state;
   const positionIndex = state.bus.progressIndex;
   const activeGuess = { positionIndex, guess } as BusPositionGuess;
@@ -343,6 +366,7 @@ export function applyBusGuess(state: GameState, guess: BusGuess): GameState {
 }
 
 export function continueBus(state: GameState, rng: () => number = Math.random): GameState {
+  if (state.phase !== 'bus') return state;
   if (!state.bus || !state.bus.awaitingContinue || !state.bus.lastResult) return state;
 
   const positionIndex = state.bus.progressIndex;
@@ -417,10 +441,11 @@ export function continueBus(state: GameState, rng: () => number = Math.random): 
   });
 }
 
-export function matchTableCard(players: Player[], tableCard: TableCard): TableMatchResult {
+export function matchTableCard(players: Player[], tableCard: TableCard, date = new Date()): TableMatchResult {
   const assignments: DrinkAssignment[] = [];
+  const tableValue = cardNumericValue(tableCard.card, date);
   const updatedPlayers = players.map((player) => {
-    const matchingCards = player.hand.filter((card) => card.numericValue === tableCard.card.numericValue);
+    const matchingCards = player.hand.filter((card) => cardNumericValue(card, date) === tableValue);
     if (!matchingCards.length) return player;
     matchingCards.forEach(() => {
       assignments.push({
@@ -434,7 +459,7 @@ export function matchTableCard(players: Player[], tableCard: TableCard): TableMa
     });
     return {
       ...player,
-      hand: player.hand.filter((card) => card.numericValue !== tableCard.card.numericValue)
+      hand: player.hand.filter((card) => cardNumericValue(card, date) !== tableValue)
     };
   });
   return { players: updatedPlayers, assignments };

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { IconButton } from './IconButton';
 
@@ -14,6 +15,27 @@ type DrawerProps = {
 };
 
 export function Drawer({ open, title, children, contentClassName = '', contentMaxHeight = '62dvh', onClose }: DrawerProps) {
+  const titleId = useId();
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const frame = window.requestAnimationFrame(() => {
+      const focusable = sheetRef.current?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      focusable?.focus();
+    });
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [open, onClose]);
+
   const sheet = (
     <AnimatePresence>
       {open
@@ -29,6 +51,7 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
             />,
             <motion.div
               key="sheet"
+              ref={sheetRef}
               className="fixed inset-x-0 bottom-0 z-[80] overflow-hidden rounded-t-[1.75rem] bg-[#0b1e16] shadow-sheet ring-1 ring-white/[0.09]"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -36,6 +59,7 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
               transition={{ type: 'spring', damping: 36, stiffness: 380, mass: 0.9 }}
               role="dialog"
               aria-modal="true"
+              aria-labelledby={titleId}
             >
               {/* Handle */}
               <div className="flex justify-center pb-1 pt-3">
@@ -43,7 +67,9 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
               </div>
               {/* Header */}
               <div className="flex items-center justify-between px-5 pb-3 pt-1">
-                <h2 className="text-lg font-bold text-[#fff7e6]">{title}</h2>
+                <h2 id={titleId} className="text-lg font-bold text-[#fff7e6]">
+                  {title}
+                </h2>
                 <IconButton label="Close" onClick={onClose}>
                   <X size={18} />
                 </IconButton>

@@ -5,6 +5,7 @@ import { busEscapesOnCorrectContinue } from '../../game/engine';
 import type { DealSubphase } from '../../game/phases';
 import type { DealResult, DrinkAssignment } from '../../game/state';
 import { Button } from '../common/Button';
+import { RecoveryScreen } from '../common/RecoveryScreen';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
 import { RulesDrawer } from '../rules/RulesDrawer';
@@ -33,7 +34,14 @@ export function BusScreen() {
   const [quitOpen, setQuitOpen] = useState(false);
   const [previewPlayerId, setPreviewPlayerId] = useState<string | null>(null);
   const bus = state.bus;
-  if (!bus) return null;
+  if (!bus) {
+    return (
+      <RecoveryScreen
+        message="Your saved bus round could not be loaded. Start a new game from setup."
+        onStartOver={() => dispatch({ type: 'QUIT_TO_SETUP' })}
+      />
+    );
+  }
 
   const progressIndex = Math.min(bus.progressIndex, 3);
   const activeSubphase = getBusSubphase(progressIndex);

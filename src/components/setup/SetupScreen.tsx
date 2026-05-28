@@ -8,7 +8,7 @@ import { PlayerEditor } from './PlayerEditor';
 const DEFAULT_NAMES = ['', ''];
 
 export function SetupScreen() {
-  const { state, dispatch, hasSavedGame, savedGame } = useGame();
+  const { state, dispatch } = useGame();
   const names = state.settings.playerNames;
 
   return (
@@ -49,15 +49,6 @@ export function SetupScreen() {
       </div>
 
       <footer className="setup-footer shrink-0 grid gap-2 pb-1">
-        {hasSavedGame && (
-          <Button
-            variant="secondary"
-            className="w-full shadow-none"
-            onClick={() => savedGame && dispatch({ type: 'HYDRATE', state: savedGame })}
-          >
-            Resume Game
-          </Button>
-        )}
         <Button className="w-full text-base shadow-none setup-start-button" onClick={() => dispatch({ type: 'START_GAME' })}>
           Start Game
         </Button>
@@ -104,6 +95,7 @@ function DeckModeButton({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`deck-mode-button min-h-[4.5rem] rounded-2xl px-3 py-2 text-left ring-1 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.98] ${
         active

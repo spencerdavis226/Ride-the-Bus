@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Card } from '../game/cards';
-import { compareHigherLowerSame, compareInsideOutsideSame } from '../game/rules';
+import { cardNumericValue, compareHigherLowerSame, compareInsideOutsideSame, isAceLowDate } from '../game/rules';
 import { busFailureUnits, scoreHigherLowerSame, scoreInsideOutsideSame, scoreRedBlack } from '../game/scoring';
 
 const card = (rank: string, numericValue: number, color: 'red' | 'black' = 'black'): Card => ({
@@ -32,6 +32,16 @@ describe('deal scoring', () => {
     expect(scoreInsideOutsideSame('inside', card('5', 5), card('9', 9), card('5', 5))).toMatchObject({ correct: false, units: 6 });
     expect(scoreInsideOutsideSame('same', card('5', 5), card('9', 9), card('5', 5))).toMatchObject({ correct: true, units: 6 });
     expect(scoreInsideOutsideSame('same', card('5', 5), card('9', 9), card('7', 7))).toMatchObject({ correct: false, units: 3 });
+  });
+
+  it('uses ace-low rank values on September 1 when comparing cards', () => {
+    const aceLowDay = new Date('2026-09-01T12:00:00');
+    expect(isAceLowDate(aceLowDay)).toBe(true);
+    const ace = card('A', 14);
+    const nine = card('9', 9);
+    expect(cardNumericValue(ace, aceLowDay)).toBe(1);
+    expect(compareHigherLowerSame(nine, ace, aceLowDay)).toBe('lower');
+    expect(compareHigherLowerSame(ace, nine, aceLowDay)).toBe('higher');
   });
 
   it('applies bus same-card double rules only on same-card misses', () => {
