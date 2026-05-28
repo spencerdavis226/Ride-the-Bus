@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@vite-pwa/assets-generator": "^0.2.6",
-    "framer-motion": "^11.18.2",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
