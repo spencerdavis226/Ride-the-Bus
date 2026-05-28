@@ -2,8 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { Card } from '../../game/cards';
-import { dealSubphaseLabels, type DealSubphase } from '../../game/phases';
-import type { Player } from '../../game/state';
+import type { DealSubphase } from '../../game/phases';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
@@ -18,7 +17,6 @@ import {
   PlayHero,
   PlayOutcomeSlot,
   PlayScreen,
-  PlayTitle,
   PlayTopBar,
   PlayTurnFrame,
   PlayTurnMain,
@@ -39,7 +37,6 @@ export function BusScreen() {
   const activeSubphase = getBusSubphase(progressIndex);
   const previewPlayer = previewPlayerId ? bus.riders.find((rider) => rider.id === previewPlayerId) : null;
   const activeRiderId = bus.riders.length === 1 ? bus.riders[0]?.id : null;
-  const riderTitle = formatRiderTitle(bus.riders);
   const justFailed = Boolean(bus.lastAssignment && progressIndex === 0);
   const modeLabel = getBusModeLabel(state.settings.busMode === 'endless', bus.reshuffleCount);
 
@@ -61,33 +58,16 @@ export function BusScreen() {
         <PlayTurnFrame className="bus-turn-content">
           <PlayTurnMain className="bus-turn-main">
             <PlayHero className="bus-hero">
-              <PlayTitle>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={riderTitle}
-                    className="block truncate"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.14, ease: 'easeOut' }}
-                  >
-                    {riderTitle}
-                  </motion.span>
-                </AnimatePresence>
-              </PlayTitle>
-              <BusStatus
+              <BusHeader
                 drinksEach={bus.drinksEach}
                 modeLabel={modeLabel}
                 progressIndex={progressIndex}
-                reset={justFailed}
-                subphase={activeSubphase}
               />
               <PlayOutcomeSlot className="bus-outcome-slot">
                 <AnimatePresence initial={false} mode="sync">
                   {justFailed && bus.lastAssignment && (
                     <BusOutcome
                       key={`${bus.lastAssignment.units}-${bus.drinksEach}`}
-                      drinksEach={bus.drinksEach}
                       label={bus.lastAssignment.label}
                     />
                   )}
@@ -156,65 +136,49 @@ function getBusSubphase(progressIndex: number): DealSubphase {
   return 'suit';
 }
 
-function formatRiderTitle(riders: Player[]): string {
-  if (riders.length === 1) return riders[0]?.name ?? 'Rider';
-  if (riders.length === 2) return riders.map((rider) => rider.name).join(' + ');
-  return `${riders.length} riders`;
-}
-
 function getBusModeLabel(endless: boolean, reshuffles: number): string | null {
   if (!endless && reshuffles === 0) return null;
   if (reshuffles === 0) return 'Endless';
   return `${endless ? 'Endless' : 'Single deck'} · ${reshuffles} reshuffle${reshuffles === 1 ? '' : 's'}`;
 }
 
-function getBusPrompt(subphase: DealSubphase): string {
-  if (subphase === 'redBlack') return 'Guess Red / Black';
-  if (subphase === 'higherLowerSame') return 'Guess Higher / Lower / Same';
-  if (subphase === 'insideOutsideSame') return 'Guess Inside / Outside / Same';
-  return 'Guess the Suit';
-}
-
-function BusStatus({
+function BusHeader({
   drinksEach,
   modeLabel,
   progressIndex,
-  reset,
-  subphase,
 }: {
   drinksEach: number;
   modeLabel: string | null;
   progressIndex: number;
-  reset: boolean;
-  subphase: DealSubphase;
 }) {
   return (
-    <motion.div layout className="bus-status-grid">
-      <div className="bus-command-copy">
-        <p className="bus-progress-line">
-          {reset ? 'Back to Card 1' : `Card ${progressIndex + 1} of 4`}
-          <span aria-hidden="true"> · </span>
-          {dealSubphaseLabels[subphase]}
-        </p>
-        <p className="bus-instruction-line">{getBusPrompt(subphase)}</p>
+    <motion.div layout className="bus-header-grid">
+      <div className="bus-title-block">
+        <h2 className="bus-card-title">Card {progressIndex + 1}</h2>
         {modeLabel && <p className="bus-mode-line">{modeLabel}</p>}
       </div>
-      <motion.div
-        key={drinksEach}
-        layout
-        className="bus-total-counter"
-        initial={{ scale: 0.92 }}
-        animate={{ scale: 1 }}
-        transition={playFadeTransition}
-      >
-        <span className="bus-total-value">{drinksEach}</span>
-        <span className="bus-total-label">each</span>
-      </motion.div>
+      <BusTotal drinksEach={drinksEach} />
     </motion.div>
   );
 }
 
-function BusOutcome({ drinksEach, label }: { drinksEach: number; label: string | null }) {
+function BusTotal({ drinksEach }: { drinksEach: number }) {
+  return (
+    <motion.div
+      key={drinksEach}
+      layout
+      className="bus-total-counter"
+      initial={{ scale: 0.92 }}
+      animate={{ scale: 1 }}
+      transition={playFadeTransition}
+    >
+      <span className="bus-total-value">{drinksEach}</span>
+      <span className="bus-total-label">total</span>
+    </motion.div>
+  );
+}
+
+function BusOutcome({ label }: { label: string | null }) {
   if (!label) {
     return null;
   }
@@ -230,7 +194,7 @@ function BusOutcome({ drinksEach, label }: { drinksEach: number; label: string |
       transition={playFadeTransition}
     >
       <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
-        Wrong · {label.replace('Riders: ', '')} · {drinksEach} each total
+        Wrong · {label.replace('Riders: ', '')}
       </span>
     </motion.div>
   );

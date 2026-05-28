@@ -77,17 +77,9 @@ export function TableScreen() {
           <motion.div layout className="deal-turn-main table-turn-main mx-auto mb-auto mt-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
             <motion.div layout className="deal-hero table-hero shrink-0">
               <TableHero card={focusCard} />
-              <motion.div layout className="deal-outcome-slot table-outcome-slot">
-                <AnimatePresence initial={false} mode="sync">
-                  {focusCard && (
-                    <TableResult
-                      key={`${focusCard.id}-${reviewingFlip ? 'review' : 'ready'}`}
-                      card={focusCard}
-                      revealed={reviewingFlip}
-                    />
-                  )}
-                </AnimatePresence>
-              </motion.div>
+              <div className="deal-outcome-slot table-outcome-slot">
+                {focusCard && <TableResult card={focusCard} revealed={reviewingFlip} />}
+              </div>
             </motion.div>
 
             <motion.div layout className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
@@ -270,18 +262,17 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
 
   const summary = revealed ? tableResultSummary(card.matchedAssignments) : `Give ${card.value}`;
   return (
-    <motion.div
-      layout
-      className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ ...playFadeTransition, duration: 0.12 }}
-    >
-      <span className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
+    <div className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left">
+      <motion.span
+        key={summary}
+        className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ ...playFadeTransition, duration: 0.12 }}
+      >
         {summary}
-      </span>
-    </motion.div>
+      </motion.span>
+    </div>
   );
 }
 

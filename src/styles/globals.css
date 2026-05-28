@@ -185,7 +185,7 @@ select {
   max-width: 100%;
 }
 
-.bus-status-grid {
+.bus-header-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -193,7 +193,6 @@ select {
   width: 100%;
   min-width: 0;
   max-width: min(100%, 42rem);
-  margin-top: clamp(0.15rem, 0.8vh, 0.4rem);
 }
 
 .bus-hero,
@@ -202,13 +201,12 @@ select {
   min-width: 0;
 }
 
-.bus-command-copy {
+.bus-title-block {
   display: grid;
   min-width: 0;
-  gap: clamp(0.12rem, 0.65vh, 0.24rem);
+  gap: clamp(0.08rem, 0.45vh, 0.18rem);
 }
 
-.bus-progress-line,
 .bus-mode-line,
 .bus-intro-command {
   margin: 0;
@@ -216,17 +214,16 @@ select {
   line-height: 1.05;
 }
 
-.bus-progress-line {
-  color: rgba(245, 217, 155, 0.76);
-  font-size: clamp(0.76rem, 2.9vw, 0.98rem);
-}
-
-.bus-instruction-line {
+.bus-card-title {
   margin: 0;
+  max-width: 100%;
+  overflow: hidden;
   color: #fff7e6;
-  font-size: clamp(1.02rem, 4vw, 1.42rem);
+  font-size: clamp(3.15rem, 15vw, 6.3rem);
   font-weight: 950;
-  line-height: 1.05;
+  line-height: 0.96;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bus-mode-line {
@@ -261,7 +258,7 @@ select {
 }
 
 .bus-outcome-slot {
-  min-height: clamp(2.45rem, 6.4dvh, 3.8rem);
+  min-height: clamp(1.8rem, 4.4dvh, 2.75rem);
 }
 
 .bus-outcome-summary {
@@ -587,12 +584,12 @@ select {
     border-radius: 1rem !important;
   }
 
-  .bus-status-grid {
+  .bus-header-grid {
     gap: 0.5rem !important;
   }
 
-  .bus-instruction-line {
-    font-size: clamp(0.95rem, 3.7vw, 1.18rem) !important;
+  .bus-card-title {
+    font-size: clamp(2.55rem, 12vw, 4.7rem) !important;
   }
 
   .bus-total-counter {
@@ -606,7 +603,7 @@ select {
   }
 
   .bus-outcome-slot {
-    min-height: 2.25rem !important;
+    min-height: 1.9rem !important;
   }
 
   .bus-intro-note {
@@ -712,17 +709,16 @@ select {
     border-radius: 0.9rem !important;
   }
 
-  .bus-status-grid {
+  .bus-header-grid {
     gap: 0.4rem !important;
   }
 
-  .bus-progress-line,
-  .bus-mode-line {
-    font-size: 0.68rem !important;
+  .bus-card-title {
+    font-size: clamp(2.15rem, 10vw, 3.65rem) !important;
   }
 
-  .bus-instruction-line {
-    font-size: 0.9rem !important;
+  .bus-mode-line {
+    font-size: 0.68rem !important;
   }
 
   .bus-total-counter {
