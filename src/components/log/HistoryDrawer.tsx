@@ -1,9 +1,11 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { GameLogEntry, HistoryFilter } from '../../game/log';
 import { getDefaultHistoryFilter, summarizeDrinkTotals, type DrinkTotal } from '../../game/log';
 import type { DrinkAssignment } from '../../game/state';
 import { Drawer } from '../common/Drawer';
+import { playFadeTransition, playLayoutTransition } from '../play/PlayLayout';
 
 const filters: Array<{ id: HistoryFilter; label: string }> = [
   { id: 'all', label: 'All' },
@@ -44,7 +46,9 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
       contentMaxHeight="min(78dvh, 46rem)"
       onClose={onClose}
     >
-      {showSummary && <DrinkSummary title={filter === 'deal' ? 'Deal drinks' : 'Bus total'} totals={totals} />}
+      <AnimatePresence initial={false}>
+        {showSummary && <DrinkSummary title={filter === 'deal' ? 'Deal drinks' : 'Bus total'} totals={totals} />}
+      </AnimatePresence>
       <PhaseFilters active={filter} onChange={setFilter} />
       <Timeline entries={entries} />
     </Drawer>
@@ -53,7 +57,14 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
 
 function DrinkSummary({ title, totals }: { title: string; totals: DrinkTotal[] }) {
   return (
-    <section className="rounded-2xl bg-[#f5d99b]/[0.10] p-3 ring-1 ring-[#f5d99b]/20">
+    <motion.section
+      layout
+      className="rounded-2xl bg-[#f5d99b]/[0.10] p-3 ring-1 ring-[#f5d99b]/20"
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+      transition={playFadeTransition}
+    >
       <p className="px-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/70">
         {title}
       </p>
@@ -68,7 +79,7 @@ function DrinkSummary({ title, totals }: { title: string; totals: DrinkTotal[] }
           ))}
         </div>
       )}
-    </section>
+    </motion.section>
   );
 }
 
@@ -82,7 +93,7 @@ function SummaryRow({ total }: { total: DrinkTotal }) {
   const secondary = total.take > 0 && total.give > 0 ? `${group ? 'give' : 'gives'} ${total.give}` : null;
 
   return (
-    <div className="flex min-h-[4.1rem] items-center justify-between gap-3 rounded-xl bg-black/25 px-4 py-3 ring-1 ring-white/[0.07]">
+    <motion.div layout className="flex min-h-[4.1rem] items-center justify-between gap-3 rounded-xl bg-black/25 px-4 py-3 ring-1 ring-white/[0.07]">
       <span className="min-w-0 truncate text-[clamp(1.05rem,4.8vw,1.45rem)] font-black text-[#fff7e6]">
         {total.playerName}
       </span>
@@ -92,7 +103,7 @@ function SummaryRow({ total }: { total: DrinkTotal }) {
         </span>
         {secondary && <span className="block text-xs font-black uppercase tracking-[0.12em] text-[#fff7e6]/48">{secondary}</span>}
       </span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -102,20 +113,27 @@ function PhaseFilters({ active, onChange }: { active: HistoryFilter; onChange: (
       {filters.map((filter) => {
         const selected = active === filter.id;
         return (
-          <button
+          <motion.button
+            layout
             key={filter.id}
             type="button"
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(filter.id)}
-            className={`min-h-11 rounded-xl text-sm font-black transition-colors ${
-              selected
-                ? 'bg-[#f5d99b] text-[#142019]'
-                : 'bg-white/[0.07] text-[#fff7e6]/68 ring-1 ring-white/[0.07] active:bg-white/[0.12]'
+            className={`relative min-h-11 overflow-hidden rounded-xl text-sm font-black transition-colors ${
+              selected ? 'text-[#142019]' : 'bg-white/[0.07] text-[#fff7e6]/68 ring-1 ring-white/[0.07] active:bg-white/[0.12]'
             }`}
+            transition={playLayoutTransition}
           >
-            {filter.label}
-          </button>
+            {selected && (
+              <motion.span
+                layoutId="history-filter-selection"
+                className="absolute inset-0 bg-[#f5d99b]"
+                transition={playLayoutTransition}
+              />
+            )}
+            <span className="relative z-10">{filter.label}</span>
+          </motion.button>
         );
       })}
     </div>
@@ -128,11 +146,13 @@ function Timeline({ entries }: { entries: GameLogEntry[] }) {
   }
 
   return (
-    <ol className="space-y-2">
-      {entries.map((entry) => (
-        <TimelineEntry key={entry.id} entry={entry} />
-      ))}
-    </ol>
+    <motion.ol layout className="space-y-2">
+      <AnimatePresence initial={false}>
+        {entries.map((entry) => (
+          <TimelineEntry key={entry.id} entry={entry} />
+        ))}
+      </AnimatePresence>
+    </motion.ol>
   );
 }
 
@@ -143,7 +163,14 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
   const detail = entry.detail && entry.detail !== title ? entry.detail : null;
 
   return (
-    <li className={`rounded-xl p-3 ring-1 ${quiet ? 'bg-white/[0.045] ring-white/[0.06]' : 'bg-white/[0.09] ring-[#f5d99b]/18'}`}>
+    <motion.li
+      layout
+      className={`rounded-xl p-3 ring-1 ${quiet ? 'bg-white/[0.045] ring-white/[0.06]' : 'bg-white/[0.09] ring-[#f5d99b]/18'}`}
+      initial={{ opacity: 0, y: 8, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.985 }}
+      transition={playFadeTransition}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="mb-1 flex flex-wrap items-center gap-1.5">
@@ -169,7 +196,7 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
           ))}
         </div>
       ) : null}
-    </li>
+    </motion.li>
   );
 }
 

@@ -13,10 +13,13 @@ import { HistoryDrawer } from '../log/HistoryDrawer';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
+  PlayActionSwap,
   PlayActionZone,
   PlayFelt,
   PlayScreen,
   PlayTopBar,
+  playFadeTransition,
+  playLayoutTransition,
 } from '../play/PlayLayout';
 
 export function TableScreen() {
@@ -65,51 +68,55 @@ export function TableScreen() {
 
       <PlayFelt className="table-felt">
         <motion.div
-          key="table-stage"
+          layout
           className="table-turn-content deal-turn-content relative flex h-full min-h-0 flex-col overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+          transition={playLayoutTransition}
         >
-          <div className="deal-turn-main table-turn-main mx-auto mb-auto mt-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
-            <div className="deal-hero table-hero shrink-0">
+          <motion.div layout className="deal-turn-main table-turn-main mx-auto mb-auto mt-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
+            <motion.div layout className="deal-hero table-hero shrink-0">
               <TableHero card={focusCard} />
-              <div className="deal-outcome-slot table-outcome-slot">
-                {focusCard && (
-                  <TableResult
-                    key={`${focusCard.id}-${reviewingFlip ? 'review' : 'ready'}`}
-                    card={focusCard}
-                    revealed={reviewingFlip}
-                  />
-                )}
-              </div>
-            </div>
+              <motion.div layout className="deal-outcome-slot table-outcome-slot">
+                <AnimatePresence initial={false} mode="sync">
+                  {focusCard && (
+                    <TableResult
+                      key={`${focusCard.id}-${reviewingFlip ? 'review' : 'ready'}`}
+                      card={focusCard}
+                      revealed={reviewingFlip}
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </motion.div>
 
-            <div className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
+            <motion.div layout className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
               <TableCardFocus card={focusCard} />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
       </PlayFelt>
 
       <PlayActionZone>
-        {reviewingFlip ? (
-          <Button
-            className="w-full text-base shadow-none"
-            onClick={moveToNextCard}
-            disabled={!state.table.cards[state.table.activeIndex]}
-          >
-            Next Card
-          </Button>
-        ) : (
-          <Button
-            className="w-full text-base shadow-none"
-            onClick={flipCurrentCard}
-            disabled={!focusCard}
-          >
-            Flip Card {buttonProgress}
-          </Button>
-        )}
+        <PlayActionSwap actionKey={reviewingFlip ? 'next-table-card' : `flip-table-card-${buttonProgress}`}>
+          {reviewingFlip ? (
+            <Button
+              className="w-full text-base shadow-none"
+              onClick={moveToNextCard}
+              disabled={!state.table.cards[state.table.activeIndex]}
+            >
+              Next Card
+            </Button>
+          ) : (
+            <Button
+              className="w-full text-base shadow-none"
+              onClick={flipCurrentCard}
+              disabled={!focusCard}
+            >
+              Flip Card {buttonProgress}
+            </Button>
+          )}
+        </PlayActionSwap>
       </PlayActionZone>
 
       <Drawer
@@ -216,11 +223,11 @@ function TableHero({ card }: { card: TableCard | null }) {
     return <div className="h-8" />;
   }
   return (
-    <div className="table-status-line grid max-w-full gap-[clamp(0.35rem,1.4vh,0.65rem)] overflow-hidden">
+    <motion.div layout className="table-status-line grid max-w-full gap-[clamp(0.35rem,1.4vh,0.65rem)] overflow-hidden">
       <h2 className="deal-player-name table-row-title min-w-0 truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
         Row {card.row}
       </h2>
-    </div>
+    </motion.div>
   );
 }
 
@@ -230,25 +237,29 @@ function TableCardFocus({ card }: { card: TableCard | null }) {
   }
 
   return (
-    <div className="table-card-focus flex h-full min-h-0 w-full min-w-0 items-center justify-center px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
-      <motion.div
-        key={`${card.id}-${card.faceUp ? 'up' : 'down'}`}
-        className="table-focus-card"
-        initial={card.faceUp ? { rotateY: 90 } : { rotateY: 0 }}
-        animate={{ rotateY: 0 }}
-        transition={{ duration: 0.24 }}
-        style={{ transformStyle: 'preserve-3d' }}
-      >
-        <PlayingCard
-          animateEntry={false}
-          card={card.card}
-          faceUp={card.faceUp}
-          highlighted={card.faceUp}
-          motionLayout={false}
-          size="fluid"
-        />
-      </motion.div>
-    </div>
+    <motion.div layout className="table-card-focus flex h-full min-h-0 w-full min-w-0 items-center justify-center px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
+      <AnimatePresence initial={false} mode="sync">
+        <motion.div
+          key={`${card.id}-${card.faceUp ? 'up' : 'down'}`}
+          layout
+          className="table-focus-card"
+          initial={card.faceUp ? { rotateY: 88, opacity: 0.75, scale: 0.985 } : { opacity: 0, scale: 0.985 }}
+          animate={{ rotateY: 0, opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.985 }}
+          transition={card.faceUp ? { ...playFadeTransition, duration: 0.24 } : playFadeTransition}
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          <PlayingCard
+            animateEntry={false}
+            card={card.card}
+            faceUp={card.faceUp}
+            highlighted={card.faceUp}
+            motionLayout={false}
+            size="fluid"
+          />
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -260,11 +271,12 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
   const summary = revealed ? tableResultSummary(card.matchedAssignments) : `Give ${card.value}`;
   return (
     <motion.div
+      layout
       className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.16, ease: 'easeOut' }}
+      initial={{ opacity: 0, y: 6, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -5, scale: 0.98 }}
+      transition={playFadeTransition}
     >
       <span className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
         {summary}

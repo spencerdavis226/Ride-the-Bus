@@ -32,7 +32,7 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 32, stiffness: 360 }}
+            transition={{ type: 'spring', damping: 36, stiffness: 380, mass: 0.9 }}
             role="dialog"
             aria-modal="true"
           >
@@ -52,7 +52,9 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
               className={`drawer-content overflow-y-auto px-5 ${contentClassName}`}
               style={{ maxHeight: contentMaxHeight, paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
             >
-              {children}
+              <motion.div layout transition={{ type: 'spring', damping: 34, stiffness: 360, mass: 0.85 }}>
+                {children}
+              </motion.div>
             </div>
           </motion.div>
         </>

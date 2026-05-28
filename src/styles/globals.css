@@ -159,17 +159,147 @@ select {
 
 .bus-card-slot {
   aspect-ratio: 5 / 7;
+  position: relative;
   max-height: 100cqh;
   width: min(100%, calc(100cqh * 5 / 7));
   transform-origin: center;
+}
+
+.bus-card-slot.is-current::before {
+  content: "";
+  position: absolute;
+  inset: -0.42rem;
+  z-index: -1;
+  border-radius: 1.25rem;
+  background: rgba(245, 217, 155, 0.11);
+  box-shadow:
+    0 0 0 2px rgba(245, 217, 155, 0.72),
+    0 0 24px rgba(245, 217, 155, 0.16);
+}
+
+.bus-card-slot.is-future {
+  filter: saturate(0.82);
 }
 
 .bus-result-card {
   max-width: 100%;
 }
 
+.bus-status-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.65rem, 2.8vw, 1rem);
+  width: 100%;
+  min-width: 0;
+  max-width: min(100%, 42rem);
+  margin-top: clamp(0.15rem, 0.8vh, 0.4rem);
+}
+
+.bus-hero,
+.bus-turn-main,
+.bus-intro-main {
+  min-width: 0;
+}
+
+.bus-command-copy {
+  display: grid;
+  min-width: 0;
+  gap: clamp(0.12rem, 0.65vh, 0.24rem);
+}
+
+.bus-progress-line,
+.bus-mode-line,
+.bus-intro-command {
+  margin: 0;
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.bus-progress-line {
+  color: rgba(245, 217, 155, 0.76);
+  font-size: clamp(0.76rem, 2.9vw, 0.98rem);
+}
+
+.bus-instruction-line {
+  margin: 0;
+  color: #fff7e6;
+  font-size: clamp(1.02rem, 4vw, 1.42rem);
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.bus-mode-line {
+  color: rgba(255, 247, 230, 0.50);
+  font-size: clamp(0.72rem, 2.45vw, 0.86rem);
+}
+
+.bus-total-counter {
+  display: grid;
+  min-width: clamp(4.35rem, 16vw, 5.7rem);
+  place-items: center;
+  border-radius: 1rem;
+  padding: clamp(0.48rem, 1.8vw, 0.68rem) clamp(0.65rem, 2.4vw, 0.88rem);
+  background: #f5d99b;
+  color: #142019;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    0 0.75rem 1.4rem rgba(0, 0, 0, 0.22);
+}
+
+.bus-total-value {
+  font-size: clamp(1.55rem, 6.2vw, 2.1rem);
+  font-weight: 950;
+  line-height: 0.9;
+}
+
+.bus-total-label {
+  font-size: clamp(0.62rem, 2.2vw, 0.74rem);
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.bus-outcome-slot {
+  min-height: clamp(2.45rem, 6.4dvh, 3.8rem);
+}
+
+.bus-outcome-summary {
+  color: #ffc0ca;
+}
+
+.bus-intro-command {
+  max-width: 100%;
+  color: rgba(245, 217, 155, 0.76);
+  font-size: clamp(0.9rem, 3.2vw, 1.1rem);
+}
+
+.bus-intro-note {
+  max-width: min(100%, 34rem);
+  color: rgba(255, 247, 230, 0.66);
+  font-size: clamp(0.9rem, 3vw, 1.02rem);
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.bus-rider-list {
+  width: min(100%, 42rem);
+  margin-inline: auto;
+}
+
+.bus-rider-row {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 247, 230, 0.06),
+    0 0.75rem 1.4rem rgba(0, 0, 0, 0.14);
+}
+
 .deal-action-zone {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.play-action-stack,
+.play-action-panel {
+  min-width: 0;
 }
 
 .table-card-focus {
@@ -457,16 +587,37 @@ select {
     border-radius: 1rem !important;
   }
 
-  .bus-status {
-    gap: 0.4rem !important;
-    margin-top: 0.4rem !important;
+  .bus-status-grid {
+    gap: 0.5rem !important;
   }
 
-  .bus-status-riders,
-  .bus-status-total,
-  .bus-status-mode {
-    border-radius: 0.8rem !important;
-    padding: 0.45rem 0.65rem !important;
+  .bus-instruction-line {
+    font-size: clamp(0.95rem, 3.7vw, 1.18rem) !important;
+  }
+
+  .bus-total-counter {
+    min-width: 4rem !important;
+    border-radius: 0.85rem !important;
+    padding: 0.45rem 0.6rem !important;
+  }
+
+  .bus-total-value {
+    font-size: 1.45rem !important;
+  }
+
+  .bus-outcome-slot {
+    min-height: 2.25rem !important;
+  }
+
+  .bus-intro-note {
+    font-size: 0.88rem !important;
+    line-height: 1.22 !important;
+  }
+
+  .bus-rider-row {
+    min-height: 3.9rem !important;
+    border-radius: 1rem !important;
+    padding-inline: 0.85rem !important;
   }
 }
 
@@ -532,7 +683,8 @@ select {
   }
 
   .deal-outcome-summary,
-  .table-outcome-summary {
+  .table-outcome-summary,
+  .bus-outcome-summary {
     font-size: 0.9rem !important;
   }
 
@@ -558,6 +710,48 @@ select {
   .deal-action-zone .tap-target {
     min-height: 48px !important;
     border-radius: 0.9rem !important;
+  }
+
+  .bus-status-grid {
+    gap: 0.4rem !important;
+  }
+
+  .bus-progress-line,
+  .bus-mode-line {
+    font-size: 0.68rem !important;
+  }
+
+  .bus-instruction-line {
+    font-size: 0.9rem !important;
+  }
+
+  .bus-total-counter {
+    min-width: 3.55rem !important;
+    padding: 0.36rem 0.48rem !important;
+  }
+
+  .bus-total-value {
+    font-size: 1.22rem !important;
+  }
+
+  .bus-total-label {
+    font-size: 0.55rem !important;
+  }
+
+  .bus-outcome-slot {
+    min-height: 1.95rem !important;
+  }
+
+  .bus-intro-note {
+    font-size: 0.78rem !important;
+  }
+
+  .bus-rider-list {
+    gap: 0.45rem !important;
+  }
+
+  .bus-rider-row {
+    min-height: 3.35rem !important;
   }
 }
 

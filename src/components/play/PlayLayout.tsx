@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, MotionConfig, motion, type Transition } from 'framer-motion';
 import { BookOpen, History, House } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { suitGlyphs, type Card, type Suit } from '../../game/cards';
@@ -8,6 +8,18 @@ import type { Player } from '../../game/state';
 import { PlayingCard } from '../cards/PlayingCard';
 import { IconButton } from '../common/IconButton';
 
+export const playLayoutTransition: Transition = {
+  type: 'spring',
+  damping: 34,
+  stiffness: 360,
+  mass: 0.85,
+};
+
+export const playFadeTransition: Transition = {
+  duration: 0.18,
+  ease: 'easeOut',
+};
+
 export function PlayScreen({
   children,
   className = '',
@@ -16,9 +28,13 @@ export function PlayScreen({
   className?: string;
 }) {
   return (
-    <section className={`deal-screen flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_24px_80px_rgba(245,217,155,0.06)] ${className}`}>
-      {children}
-    </section>
+    <MotionConfig reducedMotion="user" transition={playLayoutTransition}>
+      <LayoutGroup>
+        <section className={`deal-screen flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#042317] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_24px_80px_rgba(245,217,155,0.06)] ${className}`}>
+          {children}
+        </section>
+      </LayoutGroup>
+    </MotionConfig>
   );
 }
 
@@ -70,11 +86,26 @@ export function ResponsivePlayFrame({
   stage: ReactNode;
 }) {
   return (
-    <div className={`responsive-play-frame grid h-full min-h-0 min-w-0 gap-[clamp(0.65rem,2.4vh,1rem)] ${className}`}>
-      <div className="phase-hero-area min-h-0 min-w-0">{hero}</div>
-      <div className="phase-stage-area min-h-0 min-w-0">{stage}</div>
-      {result && <div className="phase-result-area min-h-0 min-w-0">{result}</div>}
-    </div>
+    <motion.div layout className={`responsive-play-frame grid h-full min-h-0 min-w-0 gap-[clamp(0.65rem,2.4vh,1rem)] ${className}`}>
+      <motion.div layout className="phase-hero-area min-h-0 min-w-0">{hero}</motion.div>
+      <motion.div layout className="phase-stage-area min-h-0 min-w-0">{stage}</motion.div>
+      <motion.div layout className="phase-result-area min-h-0 min-w-0">
+        <AnimatePresence initial={false} mode="sync">
+          {result && (
+            <motion.div
+              key="phase-result"
+              layout
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.98 }}
+              transition={playFadeTransition}
+            >
+              {result}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -92,7 +123,7 @@ export function PhaseHero({
   titleClassName?: string;
 }) {
   return (
-    <div className={`phase-hero deal-hero shrink-0 ${className}`}>
+    <motion.div layout className={`phase-hero deal-hero shrink-0 ${className}`}>
       <p className="phase-eyebrow text-[0.62rem] font-black uppercase tracking-[0.24em] text-[#f5d99b]/65">
         {eyebrow}
       </p>
@@ -102,7 +133,86 @@ export function PhaseHero({
         {title}
       </h2>
       {children}
-    </div>
+    </motion.div>
+  );
+}
+
+export function PlayTurnFrame({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      layout
+      className={`deal-turn-content flex h-full min-h-0 flex-col overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)] ${className}`}
+      initial={{ y: 18, scale: 0.985 }}
+      animate={{ y: 0, scale: 1 }}
+      transition={playLayoutTransition}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function PlayTurnMain({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      layout
+      className={`deal-turn-main mx-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)] ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function PlayHero({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div layout className={`deal-hero shrink-0 ${className}`}>
+      {children}
+    </motion.div>
+  );
+}
+
+export function PlayTitle({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <h2 className={`deal-player-name min-w-0 max-w-full truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)] ${className}`}>
+      {children}
+    </h2>
+  );
+}
+
+export function PlayOutcomeSlot({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div layout className={`deal-outcome-slot ${className}`}>
+      {children}
+    </motion.div>
   );
 }
 
@@ -216,7 +326,8 @@ export function PlayerTurnRail({
       {players.map((candidate) => {
         const active = candidate.id === activePlayerId;
         return (
-          <button
+          <motion.button
+            layout
             key={candidate.id}
             ref={(node) => {
               playerRefs.current[candidate.id] = node;
@@ -228,10 +339,11 @@ export function PlayerTurnRail({
                 ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
                 : 'bg-black/28 text-[#fff7e6]/58 ring-white/[0.07]'
             }`}
+            transition={playLayoutTransition}
           >
             <div className="turn-tile-name truncate text-[0.86rem] font-black leading-snug">{candidate.name}</div>
             <MiniHand cards={candidate.hand} active={active} />
-          </button>
+          </motion.button>
         );
       })}
     </div>
@@ -247,11 +359,31 @@ export function PlayFelt({ children, className = '' }: { children: ReactNode; cl
 }
 
 export function PlayActionZone({ children }: { children: ReactNode }) {
-  return <div className="deal-action-zone shrink-0 px-2 pb-3 pt-2">{children}</div>;
+  return <motion.div layout className="deal-action-zone shrink-0 px-2 pb-3 pt-2">{children}</motion.div>;
 }
 
 export function PhaseActionBar({ children }: { children: ReactNode }) {
   return <PlayActionZone>{children}</PlayActionZone>;
+}
+
+export function PlayActionSwap({ actionKey, children }: { actionKey: string; children: ReactNode }) {
+  return (
+    <motion.div layout className="play-action-stack grid">
+      <AnimatePresence initial={false} mode="sync">
+        <motion.div
+          key={actionKey}
+          layout
+          className="play-action-panel col-start-1 row-start-1"
+          initial={{ opacity: 0, y: 8, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.985 }}
+          transition={playFadeTransition}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
+  );
 }
 
 type GuessOption = {
@@ -380,25 +512,32 @@ function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
   }
 
   return (
-    <div className="mini-hand mt-1.5 flex justify-center gap-1">
-      {cards.slice(0, 4).map((card) => (
-        <MiniCard key={card.id} active={active} card={card} />
-      ))}
-    </div>
+    <motion.div layout className="mini-hand mt-1.5 flex justify-center gap-1">
+      <AnimatePresence initial={false}>
+        {cards.slice(0, 4).map((card) => (
+          <MiniCard key={card.id} active={active} card={card} />
+        ))}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
 function MiniCard({ active, card }: { active: boolean; card: Card }) {
   const red = card.color === 'red';
   return (
-    <span
+    <motion.span
+      layout
       className={`mini-card flex h-[2rem] w-[1.35rem] flex-col items-center justify-center rounded-[4px] border text-[0.66rem] font-black leading-[0.9] shadow-sm ${
         active ? 'border-[#142019]/18 bg-[#fbf2d9]' : 'border-black/18 bg-[#fbf2d9]'
       } ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+      initial={{ opacity: 0, scale: 0.82, y: 4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.82, y: -4 }}
+      transition={playFadeTransition}
       title={`${card.rank} ${card.suit}`}
     >
       <span>{card.rank}</span>
       <span className="mini-card-suit text-[0.74rem]">{suitGlyphs[card.suit]}</span>
-    </span>
+    </motion.span>
   );
 }

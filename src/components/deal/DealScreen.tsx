@@ -11,11 +11,14 @@ import { HistoryDrawer } from '../log/HistoryDrawer';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
+  PlayActionSwap,
   PlayActionZone,
   PlayFelt,
   PlayGuessPicker,
   PlayScreen,
   PlayTopBar,
+  playFadeTransition,
+  playLayoutTransition,
 } from '../play/PlayLayout';
 
 export function DealScreen() {
@@ -46,13 +49,14 @@ export function DealScreen() {
 
       <PlayFelt>
         <motion.div
+          layout
           className="deal-turn-content flex h-full min-h-0 flex-col overflow-hidden p-[clamp(0.9rem,3vw,1.5rem)]"
           initial={{ y: 18, scale: 0.985 }}
           animate={{ y: 0, scale: 1 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+          transition={playLayoutTransition}
         >
-          <div className="deal-turn-main mx-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
-            <div className="deal-hero shrink-0">
+          <motion.div layout className="deal-turn-main mx-auto flex h-full w-full max-w-full min-w-0 flex-col gap-[clamp(0.5rem,2.4vh,1rem)]">
+            <motion.div layout className="deal-hero shrink-0">
               <h2 className="deal-player-name max-w-full pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
@@ -67,58 +71,43 @@ export function DealScreen() {
                   </motion.span>
                 </AnimatePresence>
               </h2>
-              <AnimatePresence initial={false}>
-                {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
-                  <div className="deal-outcome-slot">
+              <motion.div layout className="deal-outcome-slot">
+                <AnimatePresence initial={false} mode="sync">
+                  {awaitingContinue && state.deal.lastAssignment && state.deal.lastResult && (
                     <DealOutcome
+                      key={`${state.deal.lastResult.actual}-${state.deal.lastAssignment.units}`}
                       assignment={state.deal.lastAssignment}
                       result={state.deal.lastResult}
                     />
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </motion.div>
 
-            <div className="deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
+            <motion.div layout className="deal-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
               <ActiveHand cards={player.hand} highlightedIndex={highlightedCardIndex} />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
       </PlayFelt>
 
       <PlayActionZone>
-        <AnimatePresence mode="wait">
+        <PlayActionSwap actionKey={awaitingContinue ? 'continue' : `guess-${player.id}-${state.deal.subphase}`}>
           {awaitingContinue ? (
-            <motion.div
-              key="next-btn"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+            <Button
+              className="w-full text-base"
+              style={{ minHeight: '58px' }}
+              onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}
             >
-              <Button
-                className="w-full text-base"
-                style={{ minHeight: '58px' }}
-                onClick={() => dispatch({ type: 'DEAL_CONTINUE' })}
-              >
-                Next
-              </Button>
-            </motion.div>
+              Next
+            </Button>
           ) : (
-            <motion.div
-              key={`guess-btns-${player.id}-${state.deal.subphase}`}
-              initial={{ opacity: 0, y: 14, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ type: 'spring', damping: 24, stiffness: 290 }}
-            >
-              <PlayGuessPicker
-                subphase={state.deal.subphase}
-                onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })}
-              />
-            </motion.div>
+            <PlayGuessPicker
+              subphase={state.deal.subphase}
+              onGuess={(guess) => dispatch({ type: 'DEAL_GUESS', guess })}
+            />
           )}
-        </AnimatePresence>
+        </PlayActionSwap>
       </PlayActionZone>
 
       <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
@@ -167,11 +156,12 @@ function DealOutcome({
 
   return (
     <motion.div
+      layout
       className="deal-outcome inline-flex max-w-[22rem] items-center text-left"
       data-result={correct ? 'correct' : 'wrong'}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.98 }}
       transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
       <span className="deal-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
@@ -269,7 +259,12 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
       className="deal-hand-frame flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]"
     >
       {fan && (
-        <div className="relative flex-shrink-0" style={{ width: totalFanW, height: fan.cardH + highlightHeadroom }}>
+        <motion.div
+          className="relative flex-shrink-0"
+          initial={false}
+          animate={{ width: totalFanW, height: fan.cardH + highlightHeadroom }}
+          transition={playLayoutTransition}
+        >
           {Array.from({ length: 4 }, (_, i) => {
             const card = cards[i];
             const highlighted = highlightedIndex === i;
@@ -277,10 +272,17 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
               <motion.div
                 key={i}
                 className="absolute top-0"
-                style={{ left: i * fan.step, top: highlightHeadroom, width: fan.cardW, height: fan.cardH, zIndex: i + (highlighted ? 10 : 0) }}
+                style={{ zIndex: i + (highlighted ? 10 : 0) }}
                 initial={false}
-                animate={{ y: highlighted ? -highlightLift : 0, scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 30, stiffness: 340 }}
+                animate={{
+                  left: i * fan.step,
+                  top: highlightHeadroom + (highlighted ? -highlightLift : 0),
+                  width: fan.cardW,
+                  height: fan.cardH,
+                  scale: highlighted ? 1.018 : 1,
+                  rotate: 0,
+                }}
+                transition={playLayoutTransition}
               >
                 <HandSlot
                   key={card?.id ?? `empty-${i}`}
@@ -291,7 +293,7 @@ function ActiveHand({ cards, highlightedIndex }: { cards: Card[]; highlightedInd
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );
@@ -317,7 +319,7 @@ function HandSlot({
       className="deal-card-flip"
       initial={{ rotateY: reduceMotion ? 180 : 0 }}
       animate={{ rotateY: 180 }}
-      transition={{ duration: reduceMotion ? 0.01 : 0.28, ease: [0.2, 0.75, 0.25, 1] }}
+      transition={reduceMotion ? { duration: 0.01 } : { ...playFadeTransition, duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }}
     >
       <div className="deal-card-face">
         <CardBack id={backId} size="fluid" />
