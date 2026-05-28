@@ -54,7 +54,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         themePreference: action.theme
       });
     case 'START_GAME':
-      return startGame(state.settings);
+      return startGame(settingsFromPlayers(state));
     case 'DEAL_GUESS':
       return withUndo(state, applyDealGuess(state, action.guess));
     case 'DEAL_CONTINUE':
@@ -70,10 +70,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'UNDO_LAST_ACTION':
       return state.undo ? { ...state.undo, undo: null } : state;
     case 'OPEN_NEW_GAME_FROM_EXISTING_PLAYERS':
-      return createSetupState({ ...state.settings, playerNames: state.settings.playerNames });
+      return createSetupState(settingsFromPlayers(state));
     case 'QUIT_TO_SETUP':
       clearSavedGame();
-      return createSetupState(state.settings);
+      return createSetupState(settingsFromPlayers(state));
     default:
       return state;
   }
@@ -83,6 +83,14 @@ function withUndo(previous: GameState, next: GameState): GameState {
   if (next === previous) return previous;
   const { undo: _undo, ...undo } = previous;
   return { ...next, undo };
+}
+
+function settingsFromPlayers(state: GameState): Settings {
+  if (!state.players.length) return state.settings;
+  return {
+    ...state.settings,
+    playerNames: state.players.map((player) => player.name)
+  };
 }
 
 function setupUpdate(state: GameState, settings: Settings): GameState {

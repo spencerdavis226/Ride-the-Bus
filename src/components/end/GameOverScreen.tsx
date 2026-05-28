@@ -55,24 +55,10 @@ export function GameOverScreen() {
       </div>
 
       <BottomActionBar>
-        <Button
-          className="w-full text-base"
-          onClick={() => dispatch({ type: 'START_GAME' })}
-        >
+        <Button className="w-full text-base" onClick={() => dispatch({ type: 'START_GAME' })}>
           Play Again
         </Button>
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={() => dispatch({ type: 'OPEN_NEW_GAME_FROM_EXISTING_PLAYERS' })}
-        >
-          Modify Players
-        </Button>
-        <Button
-          variant="ghost"
-          className="w-full"
-          onClick={() => dispatch({ type: 'QUIT_TO_SETUP' })}
-        >
+        <Button variant="secondary" className="w-full" onClick={() => dispatch({ type: 'QUIT_TO_SETUP' })}>
           Quit
         </Button>
       </BottomActionBar>
