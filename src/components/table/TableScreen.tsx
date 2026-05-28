@@ -10,6 +10,7 @@ import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { IconButton } from '../common/IconButton';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { RulesDrawer } from '../rules/RulesDrawer';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
@@ -141,13 +142,7 @@ export function TableScreen() {
           </div>
         </div>
       </Drawer>
-      <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>Flip table cards in order. Matching ranks from player hands are played automatically.</p>
-          <p>Rows give the row value. The riders with the most cards left ride together.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
-        </div>
-      </Drawer>
+      <RulesDrawer open={rulesOpen} scope="context" phase="table" onClose={() => setRulesOpen(false)} />
     </PlayScreen>
   );
 }

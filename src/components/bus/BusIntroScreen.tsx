@@ -6,6 +6,7 @@ import type { Player } from '../../game/state';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { RulesDrawer } from '../rules/RulesDrawer';
 import {
   HandPreviewOverlay,
   PlayerTurnRail,
@@ -111,15 +112,7 @@ export function BusIntroScreen() {
           </div>
         </div>
       </Drawer>
-      <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>The riders with the most cards left ride the bus.</p>
-          <p>Guess four bus cards in a row to escape, or call Same correctly on card 2 or 3 to get off immediately.</p>
-          <p>A wrong guess adds drinks and restarts progress.</p>
-          <p>The Bus starts from a fresh single deck unless endless mode is enabled.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
-        </div>
-      </Drawer>
+      <RulesDrawer open={rulesOpen} scope="context" phase="bus" onClose={() => setRulesOpen(false)} />
     </PlayScreen>
   );
 }

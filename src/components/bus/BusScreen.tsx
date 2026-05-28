@@ -7,6 +7,7 @@ import type { DealResult, DrinkAssignment } from '../../game/state';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { RulesDrawer } from '../rules/RulesDrawer';
 import { BusTotals } from '../play/BusTotals';
 import { buildBusFanSlots, PlayCardFanArea } from '../play/PlayCardFan';
 import {
@@ -129,14 +130,7 @@ export function BusScreen() {
           </div>
         </div>
       </Drawer>
-      <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>Guess four bus cards in a row to escape, or call Same correctly on card 2 or 3 to get off immediately.</p>
-          <p>A wrong guess sends riders back to the start and adds drinks to each rider.</p>
-          <p>The Bus uses its own fresh deck. Endless mode reshuffles when needed.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
-        </div>
-      </Drawer>
+      <RulesDrawer open={rulesOpen} scope="context" phase="bus" onClose={() => setRulesOpen(false)} />
     </PlayScreen>
   );
 }

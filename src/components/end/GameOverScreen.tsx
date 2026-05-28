@@ -4,6 +4,7 @@ import { useGame } from '../../app/GameProvider';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { RulesDrawer } from '../rules/RulesDrawer';
 import { BusTotals } from '../play/BusTotals';
 import { PlayActionZone, PlayFelt, PlayScreen, PlayTopBar, playFadeTransition } from '../play/PlayLayout';
 import { ConfettiBurst } from './ConfettiBurst';
@@ -91,14 +92,7 @@ export function GameOverScreen() {
           </div>
         </div>
       </Drawer>
-      <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>Escape after four correct bus guesses in a row, or call Same correctly on card 2 or 3.</p>
-          <p>A wrong guess sends riders back to the start and adds drinks to each rider.</p>
-          <p>The Bus uses its own fresh deck. Endless mode reshuffles when needed.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
-        </div>
-      </Drawer>
+      <RulesDrawer open={rulesOpen} scope="context" phase="bus" onClose={() => setRulesOpen(false)} />
     </PlayScreen>
   );
 }

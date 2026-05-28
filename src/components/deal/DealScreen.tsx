@@ -5,6 +5,7 @@ import type { DealResult, DrinkAssignment } from '../../game/state';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { RulesDrawer } from '../rules/RulesDrawer';
 import { buildDealFanSlots, PlayCardFanArea } from '../play/PlayCardFan';
 import {
   HandPreviewOverlay,
@@ -129,14 +130,7 @@ export function DealScreen() {
           </div>
         </div>
       </Drawer>
-      <Drawer open={rulesOpen} title="Rules" onClose={() => setRulesOpen(false)}>
-        <div className="space-y-4 text-sm leading-6 text-[#fff7e6]/72">
-          <p>Deal uses Red/Black, Higher/Lower/Same, Inside/Outside/Same, then Suit. Use Give and Take units.</p>
-          <p>The Table flips eleven cards. Matching ranks from player hands autoplay and give the row value.</p>
-          <p>The riders with the most cards left ride together. The Bus starts from a fresh single deck.</p>
-          <p className="text-[#f5d99b]">Aces are high, except on September 1st.</p>
-        </div>
-      </Drawer>
+      <RulesDrawer open={rulesOpen} scope="context" phase="deal" onClose={() => setRulesOpen(false)} />
     </PlayScreen>
   );
 }
