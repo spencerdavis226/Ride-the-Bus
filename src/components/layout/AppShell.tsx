@@ -16,7 +16,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isSetup = state.phase === 'setup';
   const showHome = state.phase !== 'setup';
   const showLog = state.phase !== 'setup';
-  const hideChrome = state.phase === 'deal' || state.phase === 'table' || state.phase === 'busIntro' || state.phase === 'bus';
+  const hideChrome =
+    state.phase === 'deal' ||
+    state.phase === 'table' ||
+    state.phase === 'busIntro' ||
+    state.phase === 'bus' ||
+    state.phase === 'gameOver';
 
   function quitToSetup() {
     setQuitOpen(false);

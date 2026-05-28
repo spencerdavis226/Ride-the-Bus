@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { DealSubphase } from '../../game/phases';
 import type { DealResult, DrinkAssignment } from '../../game/state';
-import { cansForDrinks } from '../../game/rules';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
 import { HistoryDrawer } from '../log/HistoryDrawer';
+import { BusTotals } from '../play/BusTotals';
 import { buildBusFanSlots, PlayCardFanArea } from '../play/PlayCardFan';
 import {
   HandPreviewOverlay,
@@ -163,29 +163,7 @@ function BusHeader({
         <h2 className="bus-card-title">Card {progressIndex + 1}</h2>
         {modeLabel && <p className="bus-mode-line">{modeLabel}</p>}
       </div>
-      <BusTotal drinksEach={drinksEach} />
-    </motion.div>
-  );
-}
-
-function BusTotal({ drinksEach }: { drinksEach: number }) {
-  return (
-    <motion.div
-      key={drinksEach}
-      layout
-      className="bus-total-stack"
-      initial={{ scale: 0.92 }}
-      animate={{ scale: 1 }}
-      transition={playFadeTransition}
-    >
-      <div className="bus-total-counter">
-        <span className="bus-total-value">{drinksEach}</span>
-        <span className="bus-total-label">total</span>
-      </div>
-      <div className="bus-can-counter" aria-label={`${cansForDrinks(drinksEach)} cans`}>
-        <span className="bus-can-value">{cansForDrinks(drinksEach)}</span>
-        <span className="bus-can-label">cans</span>
-      </div>
+      <BusTotals drinksEach={drinksEach} />
     </motion.div>
   );
 }

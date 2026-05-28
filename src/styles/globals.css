@@ -278,6 +278,58 @@ select {
     0 0.75rem 1.4rem rgba(0, 0, 0, 0.14);
 }
 
+.game-over-felt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.game-over-stack {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3.5vh, 1.5rem);
+  width: min(100%, 24rem);
+  padding: clamp(1rem, 4vw, 1.75rem);
+  text-align: center;
+}
+
+.game-over-copy {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.35rem, 1.4vh, 0.65rem);
+  width: 100%;
+}
+
+.game-over-title {
+  width: 100%;
+  max-width: 100%;
+  font-size: clamp(1.85rem, 12cqi, 4.25rem);
+  line-height: 1.05;
+  font-weight: 950;
+  color: #fff7e6;
+  text-wrap: pretty;
+}
+
+.game-over-subtitle {
+  width: 100%;
+  max-width: 20rem;
+  margin-inline: auto;
+  text-wrap: pretty;
+}
+
+.game-over-totals {
+  justify-items: center;
+}
+
 .deal-action-zone {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
