@@ -231,17 +231,38 @@ select {
   font-size: clamp(0.72rem, 2.45vw, 0.86rem);
 }
 
-.bus-total-counter {
+.bus-total-stack {
   display: grid;
+  justify-items: stretch;
+  gap: 0.28rem;
   min-width: clamp(4.35rem, 16vw, 5.7rem);
+}
+
+.bus-total-counter,
+.bus-can-counter {
+  display: grid;
   place-items: center;
   border-radius: 1rem;
+}
+
+.bus-total-counter {
   padding: clamp(0.48rem, 1.8vw, 0.68rem) clamp(0.65rem, 2.4vw, 0.88rem);
   background: #f5d99b;
   color: #142019;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.46),
     0 0.75rem 1.4rem rgba(0, 0, 0, 0.22);
+}
+
+.bus-can-counter {
+  grid-template-columns: auto auto;
+  justify-content: center;
+  gap: 0.22rem;
+  border-radius: 0.72rem;
+  padding: 0.28rem 0.42rem;
+  background: rgba(3, 18, 12, 0.50);
+  color: rgba(255, 247, 230, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(245, 217, 155, 0.16);
 }
 
 .bus-total-value {
@@ -254,6 +275,17 @@ select {
   font-size: clamp(0.62rem, 2.2vw, 0.74rem);
   font-weight: 950;
   line-height: 1;
+  text-transform: uppercase;
+}
+
+.bus-can-value,
+.bus-can-label {
+  font-size: clamp(0.68rem, 2.35vw, 0.8rem);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.bus-can-label {
   text-transform: uppercase;
 }
 
@@ -592,14 +624,28 @@ select {
     font-size: clamp(2.55rem, 12vw, 4.7rem) !important;
   }
 
-  .bus-total-counter {
+  .bus-total-stack {
     min-width: 4rem !important;
+    gap: 0.22rem !important;
+  }
+
+  .bus-total-counter {
     border-radius: 0.85rem !important;
     padding: 0.45rem 0.6rem !important;
   }
 
   .bus-total-value {
     font-size: 1.45rem !important;
+  }
+
+  .bus-can-counter {
+    border-radius: 0.62rem !important;
+    padding: 0.22rem 0.34rem !important;
+  }
+
+  .bus-can-value,
+  .bus-can-label {
+    font-size: 0.64rem !important;
   }
 
   .bus-outcome-slot {
@@ -721,8 +767,12 @@ select {
     font-size: 0.68rem !important;
   }
 
-  .bus-total-counter {
+  .bus-total-stack {
     min-width: 3.55rem !important;
+    gap: 0.18rem !important;
+  }
+
+  .bus-total-counter {
     padding: 0.36rem 0.48rem !important;
   }
 
@@ -732,6 +782,16 @@ select {
 
   .bus-total-label {
     font-size: 0.55rem !important;
+  }
+
+  .bus-can-counter {
+    border-radius: 0.55rem !important;
+    padding: 0.18rem 0.26rem !important;
+  }
+
+  .bus-can-value,
+  .bus-can-label {
+    font-size: 0.56rem !important;
   }
 
   .bus-outcome-slot {

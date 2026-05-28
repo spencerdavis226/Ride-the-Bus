@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { Card } from '../../game/cards';
 import type { DealSubphase } from '../../game/phases';
+import { cansForDrinks } from '../../game/rules';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
 import { Drawer } from '../common/Drawer';
@@ -167,13 +168,19 @@ function BusTotal({ drinksEach }: { drinksEach: number }) {
     <motion.div
       key={drinksEach}
       layout
-      className="bus-total-counter"
+      className="bus-total-stack"
       initial={{ scale: 0.92 }}
       animate={{ scale: 1 }}
       transition={playFadeTransition}
     >
-      <span className="bus-total-value">{drinksEach}</span>
-      <span className="bus-total-label">total</span>
+      <div className="bus-total-counter">
+        <span className="bus-total-value">{drinksEach}</span>
+        <span className="bus-total-label">total</span>
+      </div>
+      <div className="bus-can-counter" aria-label={`${cansForDrinks(drinksEach)} cans`}>
+        <span className="bus-can-value">{cansForDrinks(drinksEach)}</span>
+        <span className="bus-can-label">cans</span>
+      </div>
     </motion.div>
   );
 }
