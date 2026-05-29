@@ -210,16 +210,9 @@ select {
   max-width: 100%;
 }
 
-.deal-screen {
-  background:
-    radial-gradient(ellipse at 50% 46%, var(--rtb-felt-glow) 0%, rgba(4, 35, 23, 0.72) 48%, var(--rtb-edge-bg) 78%),
-    var(--rtb-edge-bg);
-}
-
+.deal-screen,
 .setup-screen {
-  background:
-    radial-gradient(ellipse at 50% 36%, rgba(22, 104, 74, 0.42) 0%, rgba(4, 35, 23, 0.76) 56%, var(--rtb-edge-bg) 84%),
-    var(--rtb-edge-bg);
+  background: var(--rtb-edge-bg);
 }
 
 .bus-header-grid {
