@@ -41,7 +41,7 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
         <div className="drawer-backdrop fixed inset-0 z-[80] bg-black/65 backdrop-blur-sm" onClick={onClose} />
         <div
           ref={sheetRef}
-          className="drawer-sheet fixed inset-x-0 bottom-0 z-[80] overflow-hidden rounded-t-[1.75rem] bg-[#0b1e16] shadow-sheet ring-1 ring-white/[0.09]"
+          className="drawer-sheet fixed inset-x-0 bottom-0 z-[80] overflow-hidden bg-[#0b1e16] shadow-sheet"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}

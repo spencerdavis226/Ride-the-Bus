@@ -30,7 +30,7 @@ export function PlayScreen({
   return (
     <MotionConfig reducedMotion="user" transition={playLayoutTransition}>
       <LayoutGroup>
-        <section className={`deal-screen flex h-full min-h-0 min-w-0 flex-col overflow-hidden shadow-[inset_0_0_0_1px_rgba(245,217,155,0.10),inset_0_24px_80px_rgba(245,217,155,0.06)] ${className}`}>
+        <section className={`deal-screen flex h-full min-h-0 min-w-0 flex-col overflow-hidden ${className}`}>
           {children}
         </section>
       </LayoutGroup>
@@ -372,7 +372,7 @@ export function PlayerTurnRail({
 
 export function PlayFelt({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`deal-table mx-2 mb-0 mt-1 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_35%,var(--rtb-felt-glow)_0%,rgba(3,30,20,0.97)_65%)] shadow-[inset_0_0_0_1px_rgba(245,217,155,0.09),inset_0_1px_0_rgba(245,217,155,0.08)] ${className}`}>
+    <div className={`deal-table mb-0 mt-1 flex min-h-0 flex-1 flex-col overflow-hidden ${className}`}>
       {children}
     </div>
   );
