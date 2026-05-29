@@ -53,17 +53,19 @@ export function PlayTopBar({
 }) {
   return (
     <div className="deal-nav relative flex shrink-0 items-center px-1 pb-0.5 pt-1.5">
-      <IconButton ghost label="Home" onClick={onHome} className="shrink-0">
-        <House size={21} strokeWidth={2.25} />
-      </IconButton>
+      <div className="flex shrink-0">
+        <IconButton ghost label="Home" onClick={onHome}>
+          <House size={21} strokeWidth={2.25} />
+        </IconButton>
+        <IconButton ghost label="Rules" onClick={onRules}>
+          <BookOpen size={21} strokeWidth={2.25} />
+        </IconButton>
+      </div>
       <p className="pointer-events-none absolute left-1/2 max-w-[48vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-[#d8c79f]/72">
         Ride the Bus
       </p>
       <div className="ml-auto flex shrink-0">
         {rightActions}
-        <IconButton ghost label="Rules" onClick={onRules}>
-          <BookOpen size={21} strokeWidth={2.25} />
-        </IconButton>
         {showLog && onLog && (
           <IconButton ghost label="History" onClick={onLog}>
             <History size={21} strokeWidth={2.25} />
