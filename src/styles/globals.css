@@ -3,12 +3,23 @@
 @tailwind utilities;
 
 :root {
+  --rtb-edge-bg: #042317;
+  --rtb-felt-bg: #031e14;
+  --rtb-felt-glow: rgba(22, 130, 90, 0.80);
+  --rtb-brass: #f5d99b;
   color-scheme: dark;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, ui-sans-serif, system-ui, sans-serif;
-  background: #071812;
+  background: var(--rtb-edge-bg);
   color: #fff7e6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--rtb-edge-bg);
 }
 
 * {
@@ -31,17 +42,13 @@ select {
 
 .safe-screen {
   height: 100dvh;
-  padding-top: env(safe-area-inset-top);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
 }
 
 .theme-poker {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(245, 217, 155, 0.14), transparent 24rem),
-    radial-gradient(ellipse at 50% 34%, rgba(24, 112, 78, 0.52), transparent 34rem),
-    linear-gradient(145deg, #143f30 0%, #071812 72%);
+  background: var(--rtb-edge-bg);
 }
 
 .glass-panel {
@@ -58,13 +65,21 @@ select {
   min-height: 52px;
 }
 
+.drawer-backdrop {
+  animation: drawer-backdrop-in 180ms ease-out both;
+}
+
+.drawer-sheet {
+  animation: drawer-sheet-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .landscape-blocker {
   display: none;
   padding:
-    max(1.5rem, env(safe-area-inset-top))
-    max(1.5rem, env(safe-area-inset-right))
-    max(1.5rem, env(safe-area-inset-bottom))
-    max(1.5rem, env(safe-area-inset-left));
+    max(1.5rem, env(safe-area-inset-top, 0px))
+    max(1.5rem, env(safe-area-inset-right, 0px))
+    max(1.5rem, env(safe-area-inset-bottom, 0px))
+    max(1.5rem, env(safe-area-inset-left, 0px));
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
@@ -96,8 +111,31 @@ select {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .drawer-backdrop,
+  .drawer-sheet {
+    animation: none;
+  }
+
   .card-back-shimmer {
     animation: none;
+  }
+}
+
+@keyframes drawer-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawer-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 
@@ -168,6 +206,10 @@ select {
 
 .bus-result-card {
   max-width: 100%;
+}
+
+.deal-screen {
+  background: var(--rtb-edge-bg);
 }
 
 .bus-header-grid {
@@ -350,8 +392,12 @@ select {
   justify-items: center;
 }
 
+.setup-footer {
+  padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+}
+
 .deal-action-zone {
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
 }
 
 .play-action-stack,
@@ -631,7 +677,7 @@ select {
   }
 
   .deal-action-zone {
-    padding: 0.4rem 0.5rem max(0.55rem, env(safe-area-inset-bottom)) !important;
+    padding: 0.4rem 0.5rem max(0.55rem, env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .deal-guess-picker {
@@ -765,7 +811,7 @@ select {
   }
 
   .deal-action-zone {
-    padding: 0.3rem 0.45rem max(0.4rem, env(safe-area-inset-bottom)) !important;
+    padding: 0.3rem 0.45rem max(0.4rem, env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .deal-guess-picker {

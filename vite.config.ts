@@ -17,12 +17,13 @@ export default defineConfig({
         name: 'Ride the Bus',
         short_name: 'Ride the Bus',
         description: 'A polished mobile-first Ride the Bus card game.',
+        id: base,
         display: 'standalone',
         orientation: 'portrait',
         start_url: base,
         scope: base,
-        theme_color: '#0b2f25',
-        background_color: '#071812',
+        theme_color: '#042317',
+        background_color: '#042317',
         icons: [
           {
             src: 'icons/icon-192.png',

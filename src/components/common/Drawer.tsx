@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useId, useRef } from 'react';
@@ -37,54 +36,36 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
   }, [open, onClose]);
 
   const sheet = (
-    <AnimatePresence>
-      {open
-        ? [
-            <motion.div
-              key="backdrop"
-              className="fixed inset-0 z-[80] bg-black/65 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, pointerEvents: 'none' }}
-              transition={{ duration: 0.22 }}
-              onClick={onClose}
-            />,
-            <motion.div
-              key="sheet"
-              ref={sheetRef}
-              className="fixed inset-x-0 bottom-0 z-[80] overflow-hidden rounded-t-[1.75rem] bg-[#0b1e16] shadow-sheet ring-1 ring-white/[0.09]"
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 36, stiffness: 380, mass: 0.9 }}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby={titleId}
-            >
-              {/* Handle */}
-              <div className="flex justify-center pb-1 pt-3">
-                <div className="h-[5px] w-10 rounded-full bg-white/[0.20]" />
-              </div>
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 pb-3 pt-1">
-                <h2 id={titleId} className="text-lg font-bold text-[#fff7e6]">
-                  {title}
-                </h2>
-                <IconButton label="Close" onClick={onClose}>
-                  <X size={18} />
-                </IconButton>
-              </div>
-              {/* Content */}
-              <div
-                className={`drawer-content overflow-y-auto px-5 ${contentClassName}`}
-                style={{ maxHeight: contentMaxHeight, paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
-              >
-                {children}
-              </div>
-            </motion.div>
-          ]
-        : null}
-    </AnimatePresence>
+    open ? (
+      <>
+        <div className="drawer-backdrop fixed inset-0 z-[80] bg-black/65 backdrop-blur-sm" onClick={onClose} />
+        <div
+          ref={sheetRef}
+          className="drawer-sheet fixed inset-x-0 bottom-0 z-[80] overflow-hidden rounded-t-[1.75rem] bg-[#0b1e16] shadow-sheet ring-1 ring-white/[0.09]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+        >
+          <div className="flex justify-center pb-1 pt-3">
+            <div className="h-[5px] w-10 rounded-full bg-white/[0.20]" />
+          </div>
+          <div className="flex items-center justify-between px-5 pb-3 pt-1">
+            <h2 id={titleId} className="text-lg font-bold text-[#fff7e6]">
+              {title}
+            </h2>
+            <IconButton label="Close" onClick={onClose}>
+              <X size={18} />
+            </IconButton>
+          </div>
+          <div
+            className={`drawer-content overflow-y-auto px-5 ${contentClassName}`}
+            style={{ maxHeight: contentMaxHeight, paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))' }}
+          >
+            {children}
+          </div>
+        </div>
+      </>
+    ) : null
   );
 
   if (typeof document === 'undefined') return sheet;
