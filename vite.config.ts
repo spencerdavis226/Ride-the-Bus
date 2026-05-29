@@ -15,7 +15,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'icon.svg'],
       manifest: {
         name: 'Ride the Bus',
-        short_name: 'Ride Bus',
+        short_name: 'Ride the Bus',
         description: 'A polished mobile-first Ride the Bus card game.',
         display: 'standalone',
         orientation: 'portrait',
