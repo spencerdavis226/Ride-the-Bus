@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { BusMode } from '../../game/state';
 import { Button } from '../common/Button';
+import { HomeScreenInstallPrompt } from './HomeScreenInstallPrompt';
 import { PlayerEditor } from './PlayerEditor';
 
 const DEFAULT_NAMES = ['', ''];
@@ -49,6 +50,7 @@ export function SetupScreen() {
       </div>
 
       <footer className="setup-footer shrink-0 grid gap-2 pb-1">
+        <HomeScreenInstallPrompt />
         <Button className="w-full text-base shadow-none setup-start-button" onClick={() => dispatch({ type: 'START_GAME' })}>
           Start Game
         </Button>
