@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
-import type { GameLogEntry, HistoryFilter } from '../../game/log';
+import type { GameLogEntry, GameLogPhase } from '../../game/log';
 import {
   getDefaultHistoryFilter,
   summarizeDrinkTotals,
@@ -11,8 +11,7 @@ import {
 } from '../../game/log';
 import { Drawer } from '../common/Drawer';
 
-const filters: Array<{ id: HistoryFilter; label: string }> = [
-  { id: 'all', label: 'All' },
+const filters: Array<{ id: GameLogPhase; label: string }> = [
   { id: 'deal', label: 'Deal' },
   { id: 'table', label: 'Table' },
   { id: 'bus', label: 'Bus' }
@@ -21,7 +20,8 @@ const filters: Array<{ id: HistoryFilter; label: string }> = [
 export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { state } = useGame();
   const defaultFilter = getDefaultHistoryFilter(state.phase, state.gameOverReason);
-  const [filter, setFilter] = useState<HistoryFilter>(defaultFilter);
+  const defaultPhaseFilter = defaultFilter === 'all' ? 'deal' : defaultFilter;
+  const [filter, setFilter] = useState<GameLogPhase>(defaultPhaseFilter);
   const summaryEntries = useMemo(
     () => state.log.filter((entry) => entry.kind === filter),
     [filter, state.log]
@@ -29,7 +29,8 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
   const totals = useMemo(() => summarizeDrinkTotals(summaryEntries), [summaryEntries]);
   const entries = useMemo(
     () => state.log
-      .filter((entry) => filter === 'all' || entry.kind === filter)
+      .filter((entry) => entry.kind === filter)
+      .filter(isTimelineEntry)
       .slice()
       .reverse(),
     [filter, state.log]
@@ -38,9 +39,9 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
 
   useEffect(() => {
     if (open) {
-      setFilter(defaultFilter);
+      setFilter(defaultPhaseFilter);
     }
-  }, [defaultFilter, open]);
+  }, [defaultPhaseFilter, open]);
 
   return (
     <Drawer
@@ -108,9 +109,9 @@ function SummaryRow({ total }: { total: DrinkTotal }) {
   );
 }
 
-function PhaseFilters({ active, onChange }: { active: HistoryFilter; onChange: (filter: HistoryFilter) => void }) {
+function PhaseFilters({ active, onChange }: { active: GameLogPhase; onChange: (filter: GameLogPhase) => void }) {
   return (
-    <div className="grid grid-cols-4 gap-2" role="tablist" aria-label="History phase">
+    <div className="grid grid-cols-3 gap-2" role="tablist" aria-label="History phase">
       {filters.map((filter) => {
         const selected = active === filter.id;
         return (
@@ -134,7 +135,7 @@ function PhaseFilters({ active, onChange }: { active: HistoryFilter; onChange: (
   );
 }
 
-function Timeline({ filter, entries }: { filter: HistoryFilter; entries: GameLogEntry[] }) {
+function Timeline({ filter, entries }: { filter: GameLogPhase; entries: GameLogEntry[] }) {
   if (entries.length === 0) {
     return <p className="rounded-xl bg-white/[0.05] p-4 text-center text-sm font-bold text-[#fff7e6]/58">Nothing here yet.</p>;
   }
@@ -154,28 +155,40 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
   const title = entry.title ?? entry.text;
   const detail = entry.detail && entry.detail !== title ? entry.detail : null;
   const showTableHits = entry.kind === 'table' && Boolean(entry.assignments?.length);
+  const tableHero = entry.kind === 'table' ? detail ?? entry.cardLabel ?? title : null;
+  const showTableEmpty = entry.kind === 'table' && !hasDrinks;
+  const showTitle = entry.kind !== 'table' || (!detail && !showTableEmpty);
 
   return (
     <li
       className={`rounded-xl px-3 py-2.5 ring-1 ${quiet ? 'bg-white/[0.045] ring-white/[0.06]' : 'bg-white/[0.09] ring-[#f5d99b]/18'}`}
     >
-      <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
-        <span className="rounded-full bg-black/22 px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.16em] text-[#f5d99b]/72">
-          {phaseLabel(entry.kind)}
-        </span>
-        {entry.result && entry.result !== 'neutral' && (
+      {entry.result && entry.result !== 'neutral' && (
+        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
           <span className={`rounded-full px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.16em] ${entry.result === 'correct' ? 'bg-[#8ee6a5]/15 text-[#8ee6a5]' : 'bg-[#ff7a7a]/15 text-[#ff9b9b]'}`}>
             {entry.result}
           </span>
-        )}
-      </div>
-      <p className={`${quiet ? 'text-sm text-[#fff7e6]/72' : 'text-[0.95rem] font-black text-[#fff7e6]'} leading-snug`}>
-        {title}
-      </p>
+        </div>
+      )}
+      {tableHero && <p className="history-table-hero">{tableHero}</p>}
+      {showTableEmpty && <p className="history-table-empty">{title}</p>}
+      {showTitle && (
+        <p className={`${quiet ? 'text-sm text-[#fff7e6]/72' : 'text-[0.95rem] font-black text-[#fff7e6]'} leading-snug`}>
+          {title}
+        </p>
+      )}
       {showTableHits && <TableHitRows entry={entry} />}
-      {detail && <p className="mt-0.5 text-sm font-semibold leading-snug text-[#fff7e6]/52">{detail}</p>}
+      {detail && entry.kind !== 'table' && <p className="mt-0.5 text-sm font-semibold leading-snug text-[#fff7e6]/52">{detail}</p>}
     </li>
   );
+}
+
+function isTimelineEntry(entry: GameLogEntry) {
+  const hasAssignments = Boolean(entry.assignments?.length);
+  if (hasAssignments || entry.cardLabel || entry.result === 'correct' || entry.result === 'wrong') {
+    return true;
+  }
+  return entry.result !== 'neutral';
 }
 
 function TableHitRows({ entry }: { entry: GameLogEntry }) {
@@ -192,11 +205,4 @@ function TableHitRows({ entry }: { entry: GameLogEntry }) {
       ))}
     </div>
   );
-}
-
-function phaseLabel(kind: GameLogEntry['kind']) {
-  if (kind === 'deal') return 'Deal';
-  if (kind === 'table') return 'Table';
-  if (kind === 'bus') return 'Bus';
-  return 'Game';
 }
