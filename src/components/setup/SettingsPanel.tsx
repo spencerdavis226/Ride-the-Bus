@@ -10,7 +10,7 @@ export function SettingsPanel({
   return (
     <div className="space-y-6 pb-2 text-sm">
       <fieldset>
-        <legend className="mb-2.5 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/75">
+        <legend className="mb-2.5 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--rtb-accent)]">
           The Bus
         </legend>
         <SegmentControl
@@ -23,7 +23,7 @@ export function SettingsPanel({
         />
       </fieldset>
 
-      <div className="rounded-xl bg-white/[0.06] p-3.5 leading-relaxed text-[#fff7e6]/55">
+      <div className="rounded-xl bg-[var(--rtb-surface-soft)] p-3.5 leading-relaxed text-[var(--rtb-text-muted)]">
         Add to Home Screen from Safari's share menu. The app works fully offline after the first load.
       </div>
     </div>
@@ -51,8 +51,8 @@ function SegmentControl({
           onClick={() => onChange(option.value)}
           className={`tap-target rounded-xl text-sm font-bold ring-1 transition-[transform,background-color,box-shadow] duration-100 active:scale-[0.97] ${
             option.value === value
-              ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
-              : 'bg-white/[0.07] text-[#fff7e6]/70 ring-white/[0.08] active:bg-white/[0.14]'
+              ? 'bg-[var(--rtb-accent)] text-[var(--rtb-accent-text)] ring-[var(--rtb-accent)] shadow-glow-sm'
+              : 'bg-[var(--rtb-surface-soft)] text-[var(--rtb-text-muted)] ring-[var(--rtb-border)] active:bg-[var(--rtb-surface-strong)]'
           }`}
         >
           {option.label}

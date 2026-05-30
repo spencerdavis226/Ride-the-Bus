@@ -7,15 +7,13 @@ export type GamePhase = 'setup' | 'deal' | 'table' | 'busIntro' | 'bus' | 'gameO
 export type BusMode = 'singleDeck' | 'endless';
 export type ThemeId =
   | 'poker'
-  | 'coffee'
-  | 'picnic'
-  | 'lounge'
-  | 'kitchen'
-  | 'velvet'
-  | 'ocean'
-  | 'copper'
-  | 'midnight'
-  | 'garden';
+  | 'dark'
+  | 'blackout'
+  | 'light'
+  | 'summer'
+  | 'autumn'
+  | 'winter'
+  | 'spring';
 export type CardBackId =
   | 'emerald'
   | 'ivory'

@@ -12,7 +12,7 @@ export function BowlingTableLayout({ cards }: { cards: TableCard[] }) {
             {rowCards.map((tableCard) => (
               <div key={tableCard.id} className="relative">
                 <PlayingCard card={tableCard.card} faceUp={tableCard.faceUp} compact highlighted={tableCard.faceUp} />
-                <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-[#f5d99b] text-xs font-bold text-[#142019]">
+                <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-[var(--rtb-accent)] text-xs font-bold text-[var(--rtb-accent-text)]">
                   {tableCard.value}
                 </span>
               </div>

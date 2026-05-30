@@ -99,7 +99,7 @@ export function BusIntroScreen() {
       </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-[var(--rtb-text)] opacity-75">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -135,15 +135,15 @@ function BusRiderRow({
       layout
       type="button"
       onClick={onPreview}
-      className="bus-rider-row flex min-h-[4.4rem] items-center justify-between rounded-2xl bg-white/[0.06] px-4 text-left ring-1 ring-white/[0.07] transition-colors active:bg-white/[0.11]"
+      className="bus-rider-row flex min-h-[4.4rem] items-center justify-between rounded-2xl bg-[var(--rtb-surface-soft)] px-4 text-left ring-1 ring-[var(--rtb-border)] transition-colors active:bg-[var(--rtb-surface-strong)]"
       initial={{ y: 12, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ ...playFadeTransition, delay: index * 0.04 }}
     >
-      <span className="min-w-0 truncate text-[clamp(1.15rem,5vw,1.75rem)] font-black text-[#fff7e6]">
+      <span className="min-w-0 truncate text-[clamp(1.15rem,5vw,1.75rem)] font-black text-[var(--rtb-text)]">
         {rider.name}
       </span>
-      <span className="shrink-0 rounded-xl bg-[#f5d99b] px-3 py-2 text-sm font-black text-[#142019]">
+      <span className="shrink-0 rounded-xl bg-[var(--rtb-accent)] px-3 py-2 text-sm font-black text-[var(--rtb-accent-text)]">
         {rider.hand.length} card{rider.hand.length === 1 ? '' : 's'}
       </span>
     </motion.button>

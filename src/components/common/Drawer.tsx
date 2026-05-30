@@ -38,19 +38,19 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
   const sheet = (
     open ? (
       <>
-        <div className="drawer-backdrop fixed inset-0 z-[80] bg-black/65 backdrop-blur-sm" onClick={onClose} />
+        <div className="drawer-backdrop fixed inset-0 z-[80] backdrop-blur-sm" onClick={onClose} />
         <div
           ref={sheetRef}
-          className="drawer-sheet fixed inset-x-0 bottom-0 z-[80] overflow-hidden bg-[#0b1e16] shadow-sheet"
+          className="drawer-sheet fixed inset-x-0 bottom-0 z-[80] overflow-hidden shadow-sheet"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
         >
           <div className="flex justify-center pb-1 pt-3">
-            <div className="h-[5px] w-10 rounded-full bg-white/[0.20]" />
+            <div className="h-[5px] w-10 rounded-full bg-[var(--rtb-text)] opacity-20" />
           </div>
           <div className="flex items-center justify-between px-5 pb-3 pt-1">
-            <h2 id={titleId} className="text-lg font-bold text-[#fff7e6]">
+            <h2 id={titleId} className="text-lg font-bold text-[var(--rtb-text)]">
               {title}
             </h2>
             <IconButton label="Close" onClick={onClose}>

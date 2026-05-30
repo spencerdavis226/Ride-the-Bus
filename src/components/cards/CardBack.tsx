@@ -34,7 +34,7 @@ export function CardBack({
   return (
     <div
       className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${palette.gradient} ${palette.border} ${sizeClasses[resolvedSize]} shadow-card ${
-        highlighted ? 'ring-2 ring-[#f5d99b]' : ''
+        highlighted ? 'ring-2 ring-[var(--rtb-focus)]' : ''
       }`}
       style={{
         boxShadow: [

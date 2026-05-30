@@ -8,8 +8,8 @@ type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 export function IconButton({ label, children, className = '', ghost = false, ...props }: IconButtonProps) {
   const base = ghost
-    ? 'text-[#d8c79f]/62 active:text-[#f5d99b]/90'
-    : 'bg-white/[0.10] text-[#fff7e6]/80 ring-1 ring-white/[0.10] active:bg-white/[0.18]';
+    ? 'text-[var(--rtb-text-muted)] active:text-[var(--rtb-accent)]'
+    : 'bg-[var(--rtb-surface-soft)] text-[var(--rtb-text)] ring-1 ring-[var(--rtb-border)] active:bg-[var(--rtb-surface-strong)]';
   return (
     <button
       aria-label={label}

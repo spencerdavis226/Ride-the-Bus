@@ -32,8 +32,8 @@ export function PlayingCard({
     return (
       <motion.div
         layout={motionLayout}
-        className={`card-fluid relative flex h-full w-full flex-col justify-between rounded-xl border bg-[#fbf2d9] text-[#111827] shadow-card ${
-          highlighted ? 'ring-2 ring-[#f5d99b]' : 'border-black/10'
+        className={`card-fluid relative flex h-full w-full flex-col justify-between rounded-xl border bg-[var(--rtb-card-front)] text-[var(--rtb-card-ink)] shadow-card ${
+          highlighted ? 'ring-2 ring-[var(--rtb-focus)]' : 'border-black/10'
         }`}
         style={{ padding: '6%', transformPerspective: 900 }}
         initial={animateEntry ? { rotateY: 90 } : false}
@@ -41,20 +41,20 @@ export function PlayingCard({
         transition={{ duration: animDuration, ease: 'easeOut' }}
       >
         <div
-          className={`inline-flex flex-col items-center gap-0 self-start font-bold leading-none tabular-nums ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+          className={`inline-flex flex-col items-center gap-0 self-start font-bold leading-none tabular-nums ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
           style={{ fontSize: '14cqw' }}
         >
           <span>{card.rank}</span>
           <span className="block leading-none">{suitGlyphs[card.suit]}</span>
         </div>
         <div
-          className={`self-center ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+          className={`self-center ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
           style={{ fontSize: '38cqw' }}
         >
           {suitGlyphs[card.suit]}
         </div>
         <div
-          className={`inline-flex rotate-180 flex-col items-center gap-0 self-end font-bold leading-none tabular-nums ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+        className={`inline-flex rotate-180 flex-col items-center gap-0 self-end font-bold leading-none tabular-nums ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
           style={{ fontSize: '14cqw' }}
         >
           <span>{card.rank}</span>
@@ -89,8 +89,8 @@ export function PlayingCard({
   return (
     <motion.div
       layout={motionLayout}
-      className={`relative flex flex-col justify-between rounded-lg border bg-[#fbf2d9] text-[#111827] shadow-card ${sizeClasses[resolvedSize]} ${
-        highlighted ? 'ring-2 ring-[#f5d99b]' : 'border-black/10'
+      className={`relative flex flex-col justify-between rounded-lg border bg-[var(--rtb-card-front)] text-[var(--rtb-card-ink)] shadow-card ${sizeClasses[resolvedSize]} ${
+        highlighted ? 'ring-2 ring-[var(--rtb-focus)]' : 'border-black/10'
       }`}
       style={{ transformPerspective: 900 }}
       initial={animateEntry ? { rotateY: 90 } : false}
@@ -98,14 +98,14 @@ export function PlayingCard({
       transition={{ duration: animDuration, ease: 'easeOut' }}
     >
       <div
-        className={`inline-flex flex-col items-center gap-0 self-start font-bold leading-none tabular-nums ${cornerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+        className={`inline-flex flex-col items-center gap-0 self-start font-bold leading-none tabular-nums ${cornerClasses[resolvedSize]} ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
       >
         <span>{card.rank}</span>
         <span className="block leading-none">{suitGlyphs[card.suit]}</span>
       </div>
-      <div className={`self-center ${centerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}>{suitGlyphs[card.suit]}</div>
+      <div className={`self-center ${centerClasses[resolvedSize]} ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}>{suitGlyphs[card.suit]}</div>
       <div
-        className={`inline-flex rotate-180 flex-col items-center gap-0 self-end font-bold leading-none tabular-nums ${cornerClasses[resolvedSize]} ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+        className={`inline-flex rotate-180 flex-col items-center gap-0 self-end font-bold leading-none tabular-nums ${cornerClasses[resolvedSize]} ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
       >
         <span>{card.rank}</span>
         <span className="block leading-none">{suitGlyphs[card.suit]}</span>

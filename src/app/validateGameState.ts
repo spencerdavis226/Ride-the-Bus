@@ -1,6 +1,7 @@
 import type { Card } from '../game/cards';
 import { dealSubphases } from '../game/phases';
 import type { BusState, DealState, GamePhase, GameState, Player, Settings, TableState } from '../game/state';
+import { isThemeId } from '../styles/themes';
 
 const gamePhases: GamePhase[] = ['setup', 'deal', 'table', 'busIntro', 'bus', 'gameOver'];
 const busModes = new Set(['singleDeck', 'endless']);
@@ -72,7 +73,12 @@ function isSettings(value: unknown): value is Settings {
     Array.isArray(value.playerNames) &&
     value.playerNames.every((name) => typeof name === 'string') &&
     typeof value.busMode === 'string' &&
-    busModes.has(value.busMode)
+    busModes.has(value.busMode) &&
+    (
+      value.themePreference === undefined ||
+      value.themePreference === 'random' ||
+      isThemeId(value.themePreference)
+    )
   );
 }
 

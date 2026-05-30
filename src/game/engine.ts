@@ -37,6 +37,7 @@ import type {
   ThemeId,
   ThemePreference
 } from './state';
+import { isThemeId, themeIds } from '../styles/themes';
 
 const cardBackIds: CardBackId[] = [
   'emerald',
@@ -585,8 +586,11 @@ function emptyTable(): TableState {
   return { cards: [], activeIndex: 0, completed: false };
 }
 
-function chooseTheme(_preference: ThemePreference, _rng: () => number = Math.random): ThemeId {
-  return 'poker';
+export function chooseTheme(preference: ThemePreference | unknown, rng: () => number = Math.random): ThemeId {
+  if (preference === 'random') {
+    return themeIds[Math.floor(rng() * themeIds.length)] ?? 'poker';
+  }
+  return isThemeId(preference) ? preference : 'poker';
 }
 
 function chooseCardBack(rng: () => number = Math.random): CardBackId {

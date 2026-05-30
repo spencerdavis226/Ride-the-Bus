@@ -1,7 +1,13 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
 
-const COLORS = ['#f5d99b', '#fff7e6', '#b72e35', '#bdf5cd', '#e8c878'] as const;
+const COLORS = [
+  'var(--rtb-accent)',
+  'var(--rtb-text)',
+  'var(--rtb-danger)',
+  'var(--rtb-success)',
+  'var(--rtb-warning)',
+] as const;
 
 type PieceShape = 'rect' | 'circle' | 'strip';
 

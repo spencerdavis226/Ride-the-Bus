@@ -50,9 +50,9 @@ export function GuessControls({ subphase, onGuess }: { subphase: DealSubphase; o
 }
 
 const toneClasses = {
-  dark: 'bg-[#1a3428] text-[#f5d99b] ring-1 ring-[#f5d99b]/18 shadow-[inset_0_1px_0_rgba(245,217,155,0.07)]',
-  red: 'bg-[#9b1c22] text-white ring-1 ring-red-900/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]',
-  gold: 'bg-[#f5d99b] text-[#142019] ring-1 ring-[#c9a84c]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.40)]',
+  dark: 'bg-[var(--rtb-guess-dark-bg)] text-[var(--rtb-guess-dark-text)] ring-1 ring-[var(--rtb-border-strong)] shadow-[inset_0_1px_0_var(--rtb-border)]',
+  red: 'bg-[var(--rtb-danger)] text-[var(--rtb-danger-text)] ring-1 ring-[var(--rtb-border)] shadow-[inset_0_1px_0_var(--rtb-border)]',
+  gold: 'bg-[var(--rtb-accent)] text-[var(--rtb-accent-text)] ring-1 ring-[var(--rtb-border-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]',
 };
 
 function GuessButton({

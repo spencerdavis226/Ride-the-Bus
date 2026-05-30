@@ -4,6 +4,7 @@ import {
   applyBusGuess,
   applyDealGuess,
   busEscapesOnCorrectContinue,
+  chooseTheme,
   continueBus,
   continueDeal,
   flipNextTableCard,
@@ -23,6 +24,11 @@ const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue
 });
 
 describe('engine start', () => {
+  it('chooses selected themes and defaults invalid theme input to poker', () => {
+    expect(chooseTheme('winter')).toBe('winter');
+    expect(chooseTheme('not-a-theme')).toBe('poker');
+  });
+
   it('starts deal with a calculated phase one/two shoe', () => {
     const state = startGame({
       playerNames: Array.from({ length: 11 }, (_, index) => `P${index + 1}`),
@@ -341,6 +347,23 @@ describe('engine start', () => {
     const blocked = startBus(dealState);
     expect(blocked.phase).toBe('deal');
     expect(blocked.bus).toBeNull();
+  });
+
+  it('preserves the selected theme while still randomizing card backs', () => {
+    const lowRoll = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'winter'
+    }, () => 0);
+    const highRoll = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'winter'
+    }, () => 0.99);
+
+    expect(lowRoll.theme).toBe('winter');
+    expect(highRoll.theme).toBe('winter');
+    expect(lowRoll.cardBackId).not.toBe(highRoll.cardBackId);
   });
 });
 

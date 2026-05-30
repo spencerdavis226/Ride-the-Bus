@@ -61,7 +61,7 @@ export function PlayTopBar({
           <BookOpen size={21} strokeWidth={2.25} />
         </IconButton>
       </div>
-      <p className="pointer-events-none absolute left-1/2 max-w-[48vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-[#d8c79f]/72">
+      <p className="pointer-events-none absolute left-1/2 max-w-[48vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-[var(--rtb-text-muted)]">
         Ride the Bus
       </p>
       <div className="ml-auto flex shrink-0">
@@ -126,11 +126,11 @@ export function PhaseHero({
 }) {
   return (
     <motion.div layout className={`phase-hero deal-hero shrink-0 ${className}`}>
-      <p className="phase-eyebrow text-[0.62rem] font-black uppercase tracking-[0.24em] text-[#f5d99b]/65">
+      <p className="phase-eyebrow text-[0.62rem] font-black uppercase tracking-[0.24em]">
         {eyebrow}
       </p>
       <h2
-        className={`phase-title deal-player-name max-w-full truncate pb-[0.02em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[1.05] tracking-normal text-[#fff7e6] sm:text-[clamp(4rem,10vw,8rem)] ${titleClassName}`}
+        className={`phase-title deal-player-name max-w-full truncate pb-[0.02em] text-[clamp(3.1rem,14vw,7.5rem)] font-black leading-[1.05] tracking-normal text-[var(--rtb-text)] sm:text-[clamp(4rem,10vw,8rem)] ${titleClassName}`}
       >
         {title}
       </h2>
@@ -198,7 +198,7 @@ export function PlayTitle({
   className?: string;
 }) {
   return (
-    <h2 className={`deal-player-name min-w-0 max-w-full truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)] ${className}`}>
+    <h2 className={`deal-player-name min-w-0 max-w-full truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[var(--rtb-text)] sm:text-[clamp(3.4rem,8vw,6.7rem)] ${className}`}>
       {children}
     </h2>
   );
@@ -354,10 +354,11 @@ export function PlayerTurnRail({
             }}
             type="button"
             onClick={() => onPreviewPlayer(candidate.id)}
-            className={`turn-tile min-w-[clamp(6.8rem,31vw,9.2rem)] shrink-0 rounded-xl px-3 py-2.5 text-center outline-none ring-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${
+            aria-pressed={active}
+            className={`turn-tile min-w-[clamp(6.8rem,31vw,9.2rem)] shrink-0 rounded-xl px-3 py-2.5 text-center outline-none ring-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--rtb-focus)] ${
               active
-                ? 'bg-[#f5d99b] text-[#142019] ring-[#f5d99b] shadow-glow-sm'
-                : 'bg-black/28 text-[#fff7e6]/58 ring-white/[0.07]'
+                ? 'bg-[var(--rtb-accent)] text-[var(--rtb-accent-text)] ring-[var(--rtb-accent)] shadow-glow-sm'
+                : 'bg-[var(--rtb-surface-soft)] text-[var(--rtb-text-muted)] ring-[var(--rtb-border)]'
             }`}
             transition={playLayoutTransition}
           >
@@ -434,7 +435,7 @@ export function PlayGuessPicker({
           key={option.label}
           type="button"
           onClick={() => onGuess(option.guess)}
-          className={`min-h-[58px] rounded-2xl px-2 text-[clamp(1rem,4.5vw,1.2rem)] font-black outline-none transition-transform duration-100 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[#f5d99b] ${guessToneClasses[option.tone]}`}
+          className={`min-h-[58px] rounded-2xl px-2 text-[clamp(1rem,4.5vw,1.2rem)] font-black outline-none transition-transform duration-100 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-[var(--rtb-focus)] ${guessToneClasses[option.tone]}`}
         >
           {option.icon ? (
             <span className="flex flex-col items-center justify-center gap-0.5 leading-none">
@@ -487,16 +488,16 @@ function formatSuitName(suit: Suit): string {
 }
 
 const guessToneClasses = {
-  dark: 'bg-[#1a3428] text-[#f5d99b] shadow-[inset_0_1px_0_rgba(245,217,155,0.07)]',
-  red: 'bg-[#9b1c22] text-white ring-1 ring-red-900/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]',
-  gold: 'bg-[#f5d99b] text-[#142019] ring-1 ring-[#c9a84c]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.40)]',
+  dark: 'bg-[var(--rtb-guess-dark-bg)] text-[var(--rtb-guess-dark-text)] shadow-[inset_0_1px_0_var(--rtb-border)]',
+  red: 'bg-[var(--rtb-danger)] text-[var(--rtb-danger-text)] ring-1 ring-[var(--rtb-border)] shadow-[inset_0_1px_0_var(--rtb-border)]',
+  gold: 'bg-[var(--rtb-accent)] text-[var(--rtb-accent-text)] ring-1 ring-[var(--rtb-border-strong)] shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]',
 };
 
 export function HandPreviewOverlay({ onClose, player }: { onClose: () => void; player: Player }) {
   return (
     <motion.button
       type="button"
-      className="fixed inset-0 z-40 flex items-start justify-center bg-black/45 px-4 pt-[clamp(7rem,18vh,11rem)] outline-none backdrop-blur-[2px]"
+      className="fixed inset-0 z-40 flex items-start justify-center bg-[var(--rtb-overlay)] px-4 pt-[clamp(7rem,18vh,11rem)] outline-none backdrop-blur-[2px]"
       onClick={onClose}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -504,14 +505,14 @@ export function HandPreviewOverlay({ onClose, player }: { onClose: () => void; p
       transition={{ duration: 0.16 }}
     >
       <motion.div
-        className="w-full max-w-[27rem] rounded-2xl bg-[#08291d] p-4 text-left shadow-[0_28px_80px_rgba(0,0,0,0.45),inset_0_0_0_1px_rgba(245,217,155,0.16)]"
+        className="w-full max-w-[27rem] rounded-2xl bg-[var(--rtb-surface-raised)] p-4 text-left shadow-[0_28px_80px_var(--rtb-shadow),inset_0_0_0_1px_var(--rtb-border-strong)]"
         onClick={(event) => event.stopPropagation()}
         initial={{ scale: 0.82, y: -8, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.86, y: -8, opacity: 0 }}
         transition={{ type: 'spring', damping: 22, stiffness: 330 }}
       >
-        <div className="truncate pb-3 text-center text-[clamp(1.3rem,5vw,1.8rem)] font-black leading-tight text-[#fff7e6]">
+        <div className="truncate pb-3 text-center text-[clamp(1.3rem,5vw,1.8rem)] font-black leading-tight text-[var(--rtb-text)]">
           {player.name}
         </div>
         <div className="grid grid-cols-4 gap-2">
@@ -548,8 +549,8 @@ function MiniCard({ active, card }: { active: boolean; card: Card }) {
     <motion.span
       layout
       className={`mini-card flex h-[2rem] w-[1.35rem] flex-col items-center justify-center rounded-[4px] border text-[0.66rem] font-black leading-[0.9] shadow-sm ${
-        active ? 'border-[#142019]/18 bg-[#fbf2d9]' : 'border-black/18 bg-[#fbf2d9]'
-      } ${red ? 'text-[#b72e35]' : 'text-[#111827]'}`}
+        active ? 'border-[var(--rtb-accent-text)]/20 bg-[var(--rtb-card-front)]' : 'border-black/18 bg-[var(--rtb-card-front)]'
+      } ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
       initial={{ opacity: 0, scale: 0.82, y: 4 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.82, y: -4 }}

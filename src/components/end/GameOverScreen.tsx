@@ -52,7 +52,7 @@ export function GameOverScreen() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={playFadeTransition}
           >
-            <p className="phase-eyebrow text-[0.62rem] font-black uppercase tracking-[0.24em] text-[#f5d99b]/65">
+            <p className="phase-eyebrow text-[0.62rem] font-black uppercase tracking-[0.24em]">
               Game Over
             </p>
             <h2 className="game-over-title">{title}</h2>
@@ -79,7 +79,7 @@ export function GameOverScreen() {
       <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-[var(--rtb-text)] opacity-75">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">

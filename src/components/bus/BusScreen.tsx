@@ -125,7 +125,7 @@ export function BusScreen() {
       </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-[var(--rtb-text)] opacity-75">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">

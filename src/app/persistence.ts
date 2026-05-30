@@ -1,12 +1,16 @@
-import { defaultSettings } from '../game/engine';
+import { chooseTheme, defaultSettings } from '../game/engine';
 import type { GameState, Settings } from '../game/state';
+import { isThemeId } from '../styles/themes';
 import { makeInitialState } from './reducer';
 import { ACTIVE_GAME_KEY, SETTINGS_KEY } from './storageKeys';
 import { isResumableGameState } from './validateGameState';
 
 export function normalizeLoadedGame(state: GameState): GameState {
+  const settings = normalizeSettings(state.settings);
   return {
     ...state,
+    settings,
+    theme: chooseTheme(settings.themePreference),
     deal: {
       ...state.deal,
       lastResult: state.deal.lastResult ?? null,
@@ -62,8 +66,28 @@ export function loadSettings(): Settings {
   if (typeof localStorage === 'undefined') return defaultSettings;
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? { ...defaultSettings, ...(JSON.parse(raw) as Partial<Settings>) } : defaultSettings;
+    return raw ? normalizeSettings(JSON.parse(raw) as Partial<Settings>) : defaultSettings;
   } catch {
     return defaultSettings;
   }
+}
+
+function normalizeSettings(value: Partial<Settings> | unknown): Settings {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return defaultSettings;
+  const candidate = value as Partial<Settings>;
+  const playerNames = Array.isArray(candidate.playerNames) && candidate.playerNames.every((name) => typeof name === 'string')
+    ? candidate.playerNames
+    : defaultSettings.playerNames;
+  const busMode = candidate.busMode === 'endless' || candidate.busMode === 'singleDeck'
+    ? candidate.busMode
+    : defaultSettings.busMode;
+  const themePreference = candidate.themePreference === 'random' || isThemeId(candidate.themePreference)
+    ? candidate.themePreference
+    : defaultSettings.themePreference;
+
+  return {
+    playerNames,
+    busMode,
+    themePreference
+  };
 }

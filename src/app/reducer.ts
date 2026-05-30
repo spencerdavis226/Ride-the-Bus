@@ -1,6 +1,7 @@
 import {
   applyBusGuess,
   applyDealGuess,
+  chooseTheme,
   continueBus,
   continueDeal,
   createSetupState,
@@ -50,10 +51,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         busMode: action.mode
       });
     case 'SET_THEME':
-      return setupUpdate(state, {
-        ...state.settings,
-        themePreference: action.theme
-      });
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          themePreference: action.theme
+        },
+        theme: chooseTheme(action.theme),
+        updatedAt: Date.now()
+      };
     case 'START_GAME':
       return startGame(settingsFromPlayers(state));
     case 'DEAL_GUESS':
@@ -105,6 +111,6 @@ function setupUpdate(state: GameState, settings: Settings): GameState {
     players: namesToPlayers(normalizedSettings.playerNames),
     settings: normalizedSettings,
     log: state.log,
-    theme: 'poker'
+    theme: chooseTheme(normalizedSettings.themePreference)
   };
 }

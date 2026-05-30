@@ -7,7 +7,7 @@ import {
   resolveInitialGameState,
   saveGame
 } from '../app/persistence';
-import { ACTIVE_GAME_KEY } from '../app/storageKeys';
+import { ACTIVE_GAME_KEY, SETTINGS_KEY } from '../app/storageKeys';
 import { isResumableGameState } from '../app/validateGameState';
 
 const storage = new Map<string, string>();
@@ -81,5 +81,29 @@ describe('persistence', () => {
     saveGame(afterQuit);
     expect(loadSavedGame()).toBeNull();
     expect(afterQuit.phase).toBe('setup');
+  });
+
+  it('updates theme immediately without clearing the active game', () => {
+    const state = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const next = gameReducer(state, { type: 'SET_THEME', theme: 'spring' });
+
+    expect(next.phase).toBe('deal');
+    expect(next.players.map((player) => player.name)).toEqual(['Alex', 'Sam']);
+    expect(next.log).toHaveLength(state.log.length);
+    expect(next.settings.themePreference).toBe('spring');
+    expect(next.theme).toBe('spring');
+  });
+
+  it('defaults legacy settings without a theme preference to poker', () => {
+    storage.set(SETTINGS_KEY, JSON.stringify({ playerNames: ['Alex', 'Sam'], busMode: 'endless' }));
+    const initial = resolveInitialGameState();
+
+    expect(initial.settings.themePreference).toBe('poker');
+    expect(initial.theme).toBe('poker');
+    expect(initial.settings.busMode).toBe('endless');
   });
 });

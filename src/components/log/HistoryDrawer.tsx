@@ -66,12 +66,12 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
 
 function DrinkSummary({ title, totals }: { title: string; totals: DrinkTotal[] }) {
   return (
-    <section className="rounded-2xl bg-[#f5d99b]/[0.10] p-3 ring-1 ring-[#f5d99b]/20">
-      <p className="px-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/70">
+    <section className="rounded-2xl bg-[var(--rtb-accent-panel)] p-3 ring-1 ring-[var(--rtb-border-strong)]">
+      <p className="px-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--rtb-accent)]">
         {title}
       </p>
       {totals.length === 0 ? (
-        <p className="mt-2 rounded-xl bg-black/20 px-4 py-4 text-center text-xl font-black text-[#fff7e6]">
+        <p className="mt-2 rounded-xl bg-[var(--rtb-surface-soft)] px-4 py-4 text-center text-xl font-black text-[var(--rtb-text)]">
           No drinks yet
         </p>
       ) : (
@@ -95,15 +95,15 @@ function SummaryRow({ total }: { total: DrinkTotal }) {
   const secondary = total.take > 0 && total.give > 0 ? `${group ? 'give' : 'gives'} ${total.give}` : null;
 
   return (
-    <div className="flex min-h-[4.1rem] items-center justify-between gap-3 rounded-xl bg-black/25 px-4 py-3 ring-1 ring-white/[0.07]">
-      <span className="min-w-0 truncate text-[clamp(1.05rem,4.8vw,1.45rem)] font-black text-[#fff7e6]">
+    <div className="flex min-h-[4.1rem] items-center justify-between gap-3 rounded-xl bg-[var(--rtb-surface-soft)] px-4 py-3 ring-1 ring-[var(--rtb-border)]">
+      <span className="min-w-0 truncate text-[clamp(1.05rem,4.8vw,1.45rem)] font-black text-[var(--rtb-text)]">
         {total.playerName}
       </span>
       <span className="shrink-0 text-right">
-        <span className={`block text-[clamp(1.15rem,5vw,1.65rem)] font-black leading-tight ${total.take > 0 ? 'text-[#ffdf8a]' : 'text-[#8ee6a5]'}`}>
+        <span className={`block text-[clamp(1.15rem,5vw,1.65rem)] font-black leading-tight ${total.take > 0 ? 'text-[var(--rtb-warning)]' : 'text-[var(--rtb-success)]'}`}>
           {primary}
         </span>
-        {secondary && <span className="block text-xs font-black uppercase tracking-[0.12em] text-[#fff7e6]/48">{secondary}</span>}
+        {secondary && <span className="block text-xs font-black uppercase tracking-[0.12em] text-[var(--rtb-text-muted)]">{secondary}</span>}
       </span>
     </div>
   );
@@ -123,8 +123,8 @@ function PhaseFilters({ active, onChange }: { active: GameLogPhase; onChange: (f
             onClick={() => onChange(filter.id)}
             className={`min-h-11 rounded-xl text-sm font-black transition-colors ${
               selected
-                ? 'bg-[#f5d99b] text-[#142019]'
-                : 'bg-white/[0.07] text-[#fff7e6]/68 ring-1 ring-white/[0.07] active:bg-white/[0.12]'
+                ? 'bg-[var(--rtb-accent)] text-[var(--rtb-accent-text)]'
+                : 'bg-[var(--rtb-surface-soft)] text-[var(--rtb-text-muted)] ring-1 ring-[var(--rtb-border)] active:bg-[var(--rtb-surface-strong)]'
             }`}
           >
             {filter.label}
@@ -137,7 +137,7 @@ function PhaseFilters({ active, onChange }: { active: GameLogPhase; onChange: (f
 
 function Timeline({ filter, entries }: { filter: GameLogPhase; entries: GameLogEntry[] }) {
   if (entries.length === 0) {
-    return <p className="rounded-xl bg-white/[0.05] p-4 text-center text-sm font-bold text-[#fff7e6]/58">Nothing here yet.</p>;
+    return <p className="rounded-xl bg-[var(--rtb-surface-soft)] p-4 text-center text-sm font-bold text-[var(--rtb-text-muted)]">Nothing here yet.</p>;
   }
 
   return (
@@ -161,11 +161,11 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
 
   return (
     <li
-      className={`rounded-xl px-3 py-2.5 ring-1 ${quiet ? 'bg-white/[0.045] ring-white/[0.06]' : 'bg-white/[0.09] ring-[#f5d99b]/18'}`}
+      className={`rounded-xl px-3 py-2.5 ring-1 ${quiet ? 'bg-[var(--rtb-surface-soft)] ring-[var(--rtb-border)]' : 'bg-[var(--rtb-accent-panel)] ring-[var(--rtb-border-strong)]'}`}
     >
       {entry.result && entry.result !== 'neutral' && (
         <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-          <span className={`rounded-full px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.16em] ${entry.result === 'correct' ? 'bg-[#8ee6a5]/15 text-[#8ee6a5]' : 'bg-[#ff7a7a]/15 text-[#ff9b9b]'}`}>
+          <span className={`rounded-full px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.16em] ${entry.result === 'correct' ? 'bg-[var(--rtb-accent-soft)] text-[var(--rtb-success)]' : 'bg-[var(--rtb-accent-soft)] text-[var(--rtb-danger)]'}`}>
             {entry.result}
           </span>
         </div>
@@ -173,12 +173,12 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
       {tableHero && <p className="history-table-hero">{tableHero}</p>}
       {showTableEmpty && <p className="history-table-empty">{title}</p>}
       {showTitle && (
-        <p className={`${quiet ? 'text-sm text-[#fff7e6]/72' : 'text-[0.95rem] font-black text-[#fff7e6]'} leading-snug`}>
+        <p className={`${quiet ? 'text-sm text-[var(--rtb-text-muted)]' : 'text-[0.95rem] font-black text-[var(--rtb-text)]'} leading-snug`}>
           {title}
         </p>
       )}
       {showTableHits && <TableHitRows entry={entry} />}
-      {detail && entry.kind !== 'table' && <p className="mt-0.5 text-sm font-semibold leading-snug text-[#fff7e6]/52">{detail}</p>}
+      {detail && entry.kind !== 'table' && <p className="mt-0.5 text-sm font-semibold leading-snug text-[var(--rtb-text-muted)]">{detail}</p>}
     </li>
   );
 }

@@ -83,11 +83,11 @@ function GameFlowStrip() {
     <div className="flex items-center justify-center gap-1.5 px-1" aria-hidden="true">
       {steps.map((step, index) => (
         <div key={step.id} className="flex items-center gap-1.5">
-          <span className="rounded-full bg-white/[0.08] px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] text-[#fff7e6]/62 ring-1 ring-white/[0.08]">
+          <span className="rounded-full bg-[var(--rtb-surface-soft)] px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--rtb-text-muted)] ring-1 ring-[var(--rtb-border)]">
             {step.label}
           </span>
           {index < steps.length - 1 ? (
-            <span className="flex h-6 w-4 shrink-0 items-center justify-center text-[#f5d99b]/45" aria-hidden="true">
+            <span className="flex h-6 w-4 shrink-0 items-center justify-center text-[var(--rtb-accent)] opacity-55" aria-hidden="true">
               <ChevronRight size={12} strokeWidth={2.75} />
             </span>
           ) : null}
@@ -117,8 +117,8 @@ function PhaseTabs({
             onClick={() => onChange(id)}
             className={`min-h-11 rounded-xl text-sm font-black transition-colors ${
               selected
-                ? 'bg-[#f5d99b] text-[#142019]'
-                : 'bg-white/[0.07] text-[#fff7e6]/68 ring-1 ring-white/[0.07] active:bg-white/[0.12]'
+                ? 'bg-[var(--rtb-accent)] text-[var(--rtb-accent-text)]'
+                : 'bg-[var(--rtb-surface-soft)] text-[var(--rtb-text-muted)] ring-1 ring-[var(--rtb-border)] active:bg-[var(--rtb-surface-strong)]'
             }`}
           >
             {rulesPhaseLabels[id]}
@@ -140,11 +140,11 @@ function RulesPhaseContent({
   const icons = ruleIcons[phase];
 
   return (
-    <section className="rounded-2xl bg-[#f5d99b]/[0.10] p-3 ring-1 ring-[#f5d99b]/20">
-      <p className="px-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[#f5d99b]/70">
+    <section className="rounded-2xl bg-[var(--rtb-accent-panel)] p-3 ring-1 ring-[var(--rtb-border-strong)]">
+      <p className="px-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--rtb-accent)]">
         {rulesPhaseEyebrows[phase]}
       </p>
-      <p className="mt-2 px-1 text-[clamp(1.05rem,4.5vw,1.35rem)] font-black leading-snug text-[#fff7e6]">
+      <p className="mt-2 px-1 text-[clamp(1.05rem,4.5vw,1.35rem)] font-black leading-snug text-[var(--rtb-text)]">
         {content.goal}
       </p>
       {showStepper ? <DealStepper /> : null}
@@ -166,16 +166,16 @@ function DealStepper() {
       {dealSteps.map(({ step, lines }) => (
         <li
           key={step}
-          className="flex min-h-[4.5rem] flex-col rounded-xl bg-black/25 px-2 py-2.5 text-center ring-1 ring-white/[0.07]"
+          className="flex min-h-[4.5rem] flex-col rounded-xl bg-[var(--rtb-surface-soft)] px-2 py-2.5 text-center ring-1 ring-[var(--rtb-border)]"
         >
           <span className="flex h-5 shrink-0 items-center justify-center">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f5d99b]/20 text-[0.62rem] font-black text-[#f5d99b]">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--rtb-accent-soft)] text-[0.62rem] font-black text-[var(--rtb-accent)]">
               {step}
             </span>
           </span>
           <span className="flex flex-1 flex-col items-center justify-center gap-0.5">
             {lines.map((line) => (
-              <span key={line} className="text-[0.6rem] font-bold leading-tight text-[#fff7e6]/72">
+              <span key={line} className="text-[0.6rem] font-bold leading-tight text-[var(--rtb-text-muted)]">
                 {line}
               </span>
             ))}
@@ -188,18 +188,18 @@ function DealStepper() {
 
 function RuleCard({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
-    <li className="flex min-h-[2.75rem] items-center gap-3 rounded-xl bg-black/25 px-3 py-2.5 ring-1 ring-white/[0.07]">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f5d99b]/15 text-[#f5d99b]">
+    <li className="flex min-h-[2.75rem] items-center gap-3 rounded-xl bg-[var(--rtb-surface-soft)] px-3 py-2.5 ring-1 ring-[var(--rtb-border)]">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--rtb-accent-soft)] text-[var(--rtb-accent)]">
         <Icon size={16} strokeWidth={2.25} />
       </span>
-      <p className="text-sm font-semibold leading-snug text-[#fff7e6]/82">{text}</p>
+      <p className="text-sm font-semibold leading-snug text-[var(--rtb-text)]">{text}</p>
     </li>
   );
 }
 
 function AceFootnote() {
   return (
-    <p className="rounded-xl bg-[#f5d99b]/[0.08] px-3.5 py-2.5 text-center text-sm font-semibold leading-snug text-[#f5d99b]/88 ring-1 ring-[#f5d99b]/16">
+    <p className="rounded-xl bg-[var(--rtb-accent-panel)] px-3.5 py-2.5 text-center text-sm font-semibold leading-snug text-[var(--rtb-accent)] ring-1 ring-[var(--rtb-border-strong)]">
       {aceFootnote}
     </p>
   );

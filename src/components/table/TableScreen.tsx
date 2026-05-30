@@ -130,7 +130,7 @@ export function TableScreen() {
       </AnimatePresence>
       <Drawer open={quitOpen} title="Go Home" onClose={() => setQuitOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-[#fff7e6]/72">
+          <p className="text-sm leading-6 text-[var(--rtb-text)] opacity-75">
             Return to setup and clear this run? Your player names and settings will stay ready for the next game.
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -212,7 +212,7 @@ function TableHero({ card }: { card: TableCard | null }) {
   }
   return (
     <motion.div layout className="table-status-line grid max-w-full gap-[clamp(0.35rem,1.4vh,0.65rem)] overflow-hidden">
-      <h2 className="deal-player-name table-row-title min-w-0 truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[#fff7e6] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
+      <h2 className="deal-player-name table-row-title min-w-0 truncate pb-[0.12em] text-[clamp(2.85rem,12vw,6.2rem)] font-black leading-[1.06] tracking-normal text-[var(--rtb-text)] sm:text-[clamp(3.4rem,8vw,6.7rem)]">
         Row {card.row}
       </h2>
     </motion.div>
