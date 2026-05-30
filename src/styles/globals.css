@@ -170,6 +170,109 @@ select {
   height: clamp(1rem, 5dvh, 2.5rem);
 }
 
+.table-outcome-slot {
+  min-height: clamp(6.35rem, 17dvh, 7.65rem);
+  align-items: center;
+}
+
+.table-outcome-slot:has(.table-hit-list-frame.has-overflow) {
+  min-height: clamp(7.35rem, 18.5dvh, 8.85rem);
+}
+
+.table-hit-list-frame {
+  position: relative;
+  width: 100%;
+}
+
+.table-hit-list {
+  display: grid;
+  width: 100%;
+  max-height: calc(3 * 2.05rem + 2 * 0.35rem);
+  gap: 0.35rem;
+  overflow: hidden;
+}
+
+.table-hit-list.is-scrollable {
+  max-height: calc(3.5 * 2.05rem + 3 * 0.35rem);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  scrollbar-gutter: stable;
+}
+
+.table-hit-list-frame.can-scroll-down .table-hit-list {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.05rem), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.05rem), transparent 100%);
+}
+
+.table-hit-list-frame.can-scroll-up .table-hit-list {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.05rem, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 1.05rem, #000 100%);
+}
+
+.table-hit-list-frame.can-scroll-up.can-scroll-down .table-hit-list {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.05rem, #000 calc(100% - 1.05rem), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 1.05rem, #000 calc(100% - 1.05rem), transparent 100%);
+}
+
+.table-hit-row,
+.history-table-hit-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  border-radius: 0.75rem;
+  background: rgba(2, 14, 10, 0.30);
+  box-shadow: inset 0 0 0 1px rgba(245, 217, 155, 0.10);
+}
+
+.table-hit-row {
+  min-height: 2.05rem;
+  padding: 0.34rem 0.58rem;
+}
+
+.table-hit-name,
+.history-table-hit-name {
+  min-width: 0;
+  overflow: hidden;
+  color: #fff7e6;
+  font-weight: 950;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-hit-name {
+  font-size: clamp(0.88rem, 3.2vw, 1.08rem);
+}
+
+.table-hit-count,
+.history-table-hit-count {
+  flex-shrink: 0;
+  color: rgba(245, 217, 155, 0.66);
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.history-table-hit-list {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.history-table-hit-row {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.65rem;
+  background: rgba(0, 0, 0, 0.20);
+}
+
+.history-table-hit-name {
+  font-size: 0.88rem;
+}
+
 .deal-card-flip {
   position: relative;
   height: 100%;

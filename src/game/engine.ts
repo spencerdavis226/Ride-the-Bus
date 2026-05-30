@@ -1,7 +1,7 @@
 import type { Card, Suit } from './cards';
 import { suitGlyphs } from './cards';
 import { calculatePhaseOneTwoDecks, createShoe, createStandardDeck, drawMany, drawOne, shuffleFisherYates } from './deck';
-import { makeLog } from './log';
+import { makeLog, tableHitTitle } from './log';
 import { dealSubphaseLabels, nextDealPosition } from './phases';
 import {
   busFailureUnits,
@@ -236,7 +236,7 @@ export function flipNextTableCard(state: GameState): GameState {
     log: [
       ...state.log,
       makeLog(`Table ${active.card.rank} on Row ${active.row}: ${summary}`, 'table', {
-        title: matchResult.assignments.length ? tableLogTitle(matchResult.assignments) : 'No drinks',
+        title: tableHitTitle(matchResult.assignments),
         detail: `Row ${active.row}: ${formatCard(active.card)}`,
         assignments: matchResult.assignments,
         cardLabel: formatCard(active.card),
@@ -603,18 +603,4 @@ function formatGuess(guess: BusGuess): string {
 
 function formatCard(card: Card): string {
   return `${card.rank} ${suitGlyphs[card.suit]}`;
-}
-
-function tableLogTitle(assignments: DrinkAssignment[]): string {
-  const grouped = assignments.reduce<Record<string, { name: string; units: number }>>((acc, assignment) => {
-    acc[assignment.playerId] = acc[assignment.playerId] ?? { name: assignment.playerName, units: 0 };
-    acc[assignment.playerId].units += assignment.units;
-    return acc;
-  }, {});
-  const summaries = Object.values(grouped);
-  if (summaries.length === 1) {
-    return `${summaries[0].name} gives ${summaries[0].units}`;
-  }
-  const total = summaries.reduce((sum, summary) => sum + summary.units, 0);
-  return `${summaries.length} players give ${total}`;
 }

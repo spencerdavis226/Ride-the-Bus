@@ -112,7 +112,7 @@ describe('engine start', () => {
       'Alex: Give 3',
       'Sam: Give 3'
     ]);
-    expect(entry.title).toBe('2 players give 9');
+    expect(entry.title).toBe('Alex, Sam give 9');
   });
 
   it('adds a structured bus history entry with rider debt', () => {

@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import type { GameLogEntry, HistoryFilter } from '../../game/log';
-import { getDefaultHistoryFilter, summarizeDrinkTotals, type DrinkTotal } from '../../game/log';
+import {
+  getDefaultHistoryFilter,
+  summarizeDrinkTotals,
+  summarizeTableHits,
+  tableHitCountLabel,
+  tableHitLine,
+  type DrinkTotal
+} from '../../game/log';
 import { Drawer } from '../common/Drawer';
 
 const filters: Array<{ id: HistoryFilter; label: string }> = [
@@ -146,6 +153,7 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
   const quiet = entry.kind === 'system' || !hasDrinks;
   const title = entry.title ?? entry.text;
   const detail = entry.detail && entry.detail !== title ? entry.detail : null;
+  const showTableHits = entry.kind === 'table' && Boolean(entry.assignments?.length);
 
   return (
     <li
@@ -164,8 +172,25 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
       <p className={`${quiet ? 'text-sm text-[#fff7e6]/72' : 'text-[0.95rem] font-black text-[#fff7e6]'} leading-snug`}>
         {title}
       </p>
+      {showTableHits && <TableHitRows entry={entry} />}
       {detail && <p className="mt-0.5 text-sm font-semibold leading-snug text-[#fff7e6]/52">{detail}</p>}
     </li>
+  );
+}
+
+function TableHitRows({ entry }: { entry: GameLogEntry }) {
+  const summaries = summarizeTableHits(entry.assignments ?? []);
+  if (!summaries.length) return null;
+
+  return (
+    <div className="history-table-hit-list">
+      {summaries.map((summary) => (
+        <div key={summary.playerId} className="history-table-hit-row">
+          <span className="history-table-hit-name">{tableHitLine(summary)}</span>
+          {tableHitCountLabel(summary) && <span className="history-table-hit-count">{tableHitCountLabel(summary)}</span>}
+        </div>
+      ))}
+    </div>
   );
 }
 

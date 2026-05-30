@@ -28,6 +28,13 @@ export type DrinkTotal = {
   take: number;
 };
 
+export type TableHitSummary = {
+  playerId: string;
+  playerName: string;
+  units: number;
+  count: number;
+};
+
 export function makeLog(text: string, kind: GameLogKind, details: LogDetails = {}): GameLogEntry {
   const now = Date.now();
   return {
@@ -38,6 +45,45 @@ export function makeLog(text: string, kind: GameLogKind, details: LogDetails = {
     phase: kind === 'system' ? details.phase : details.phase ?? kind,
     ...details
   };
+}
+
+export function summarizeTableHits(assignments: DrinkAssignment[]): TableHitSummary[] {
+  const grouped = assignments.reduce<Record<string, TableHitSummary>>((acc, assignment) => {
+    acc[assignment.playerId] = acc[assignment.playerId] ?? {
+      playerId: assignment.playerId,
+      playerName: assignment.playerName,
+      units: 0,
+      count: 0
+    };
+    acc[assignment.playerId].units += assignment.units;
+    acc[assignment.playerId].count += 1;
+    return acc;
+  }, {});
+
+  return Object.values(grouped);
+}
+
+export function tableHitLine(summary: TableHitSummary): string {
+  return `${summary.playerName} gives ${summary.units}`;
+}
+
+export function tableHitCountLabel(summary: TableHitSummary): string | null {
+  if (summary.count <= 1) return null;
+  return `${summary.count} cards`;
+}
+
+export function tableHitTitle(assignments: DrinkAssignment[], maxNames = 3): string {
+  const summaries = summarizeTableHits(assignments);
+  if (!summaries.length) return 'No drinks';
+
+  const total = summaries.reduce((sum, summary) => sum + summary.units, 0);
+  if (summaries.length === 1) {
+    return tableHitLine(summaries[0]);
+  }
+
+  const names = summaries.slice(0, maxNames).map((summary) => summary.playerName).join(', ');
+  const overflow = summaries.length > maxNames ? ` +${summaries.length - maxNames} more` : '';
+  return `${names}${overflow} give ${total}`;
 }
 
 export function summarizeDrinkTotals(entries: GameLogEntry[]): DrinkTotal[] {

@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs } from '../../game/cards';
-import type { CardBackId, DrinkAssignment, TableCard } from '../../game/state';
+import { summarizeTableHits, tableHitCountLabel, tableHitLine } from '../../game/log';
+import type { CardBackId, TableCard } from '../../game/state';
 import { CardBack } from '../cards/CardBack';
 import { PlayingCard } from '../cards/PlayingCard';
 import { Button } from '../common/Button';
@@ -255,42 +256,117 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
     return null;
   }
 
-  const summary = revealed ? tableResultSummary(card.matchedAssignments) : `Give ${card.value}`;
+  if (!revealed) {
+    const summary = `Give ${card.value}`;
+    return (
+      <div className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left">
+        <motion.span
+          key={summary}
+          className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ ...playFadeTransition, duration: 0.12 }}
+        >
+          {summary}
+        </motion.span>
+      </div>
+    );
+  }
+
+  const summaries = summarizeTableHits(card.matchedAssignments);
+  if (!summaries.length) {
+    return (
+      <div className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left">
+        <motion.span
+          key="no-matches"
+          className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ ...playFadeTransition, duration: 0.12 }}
+        >
+          No matches
+        </motion.span>
+      </div>
+    );
+  }
+
+  const motionKey = summaries.map((summary) => `${summary.playerId}:${summary.units}:${summary.count}`).join('|');
+  const overflowCount = Math.max(0, summaries.length - 3);
   return (
-    <div className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left">
-      <motion.span
-        key={summary}
-        className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ ...playFadeTransition, duration: 0.12 }}
-      >
-        {summary}
-      </motion.span>
+    <div className="deal-outcome table-outcome w-full max-w-[23rem] text-left">
+      <TableHitList motionKey={motionKey} scrollable={overflowCount > 0} summaries={summaries} />
     </div>
   );
 }
 
-function tableResultSummary(assignments: DrinkAssignment[]) {
-  if (!assignments.length) {
-    return 'No matches';
-  }
-  const grouped = assignments.reduce<Record<string, { cards: number; playerId: string; name: string; units: number }>>((acc, assignment) => {
-    acc[assignment.playerId] = acc[assignment.playerId] ?? {
-      cards: 0,
-      playerId: assignment.playerId,
-      name: assignment.playerName,
-      units: 0
+function TableHitList({
+  motionKey,
+  scrollable,
+  summaries,
+}: {
+  motionKey: string;
+  scrollable: boolean;
+  summaries: ReturnType<typeof summarizeTableHits>;
+}) {
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const [scrollState, setScrollState] = useState({ canScrollDown: false, canScrollUp: false });
+
+  const updateScrollState = useCallback(() => {
+    const list = listRef.current;
+    if (!list || !scrollable) {
+      setScrollState({ canScrollDown: false, canScrollUp: false });
+      return;
+    }
+
+    const maxScrollTop = Math.max(0, list.scrollHeight - list.clientHeight);
+    setScrollState({
+      canScrollDown: list.scrollTop < maxScrollTop - 1,
+      canScrollUp: list.scrollTop > 1
+    });
+  }, [scrollable]);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    list.scrollTop = 0;
+    const frame = window.requestAnimationFrame(updateScrollState);
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateScrollState);
+    resizeObserver?.observe(list);
+    window.addEventListener('resize', updateScrollState);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', updateScrollState);
     };
-    acc[assignment.playerId].cards += 1;
-    acc[assignment.playerId].units += assignment.units;
-    return acc;
-  }, {});
-  const summaries = Object.values(grouped);
-  if (summaries.length === 1) {
-    const [summary] = summaries;
-    return `${summary.name}: Give ${summary.units}`;
-  }
-  const totalUnits = summaries.reduce((sum, summary) => sum + summary.units, 0);
-  return `${summaries.length} players give ${totalUnits}`;
+  }, [motionKey, updateScrollState]);
+
+  const frameClasses = [
+    'table-hit-list-frame',
+    scrollable ? 'has-overflow' : '',
+    scrollState.canScrollUp ? 'can-scroll-up' : '',
+    scrollState.canScrollDown ? 'can-scroll-down' : ''
+  ].filter(Boolean).join(' ');
+
+  return (
+    <div className={frameClasses}>
+      <motion.div
+        ref={listRef}
+        key={motionKey}
+        className={`table-hit-list ${scrollable ? 'is-scrollable' : ''}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ ...playFadeTransition, duration: 0.12 }}
+        onScroll={updateScrollState}
+      >
+        {summaries.map((summary) => (
+          <div key={summary.playerId} className="table-hit-row">
+            <span className="table-hit-name">{tableHitLine(summary)}</span>
+            {tableHitCountLabel(summary) && <span className="table-hit-count">{tableHitCountLabel(summary)}</span>}
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
 }
