@@ -10,6 +10,7 @@ import {
   startGame
 } from '../game/engine';
 import { flipNextTableCard } from '../game/engine';
+import { normalizePlayerNames } from '../game/playerNames';
 import type { BusGuess } from '../game/rules';
 import type { BusMode, GameState, Settings, ThemePreference, UndoSnapshot } from '../game/state';
 import { clearSavedGame } from './persistence';
@@ -89,15 +90,20 @@ function settingsFromPlayers(state: GameState): Settings {
   if (!state.players.length) return state.settings;
   return {
     ...state.settings,
-    playerNames: state.players.map((player) => player.name)
+    playerNames: normalizePlayerNames(state.players.map((player) => player.name))
   };
 }
 
 function setupUpdate(state: GameState, settings: Settings): GameState {
+  const normalizedSettings = {
+    ...settings,
+    playerNames: normalizePlayerNames(settings.playerNames)
+  };
+
   return {
-    ...createSetupState(settings),
-    players: namesToPlayers(settings.playerNames),
-    settings,
+    ...createSetupState(normalizedSettings),
+    players: namesToPlayers(normalizedSettings.playerNames),
+    settings: normalizedSettings,
     log: state.log,
     theme: 'poker'
   };

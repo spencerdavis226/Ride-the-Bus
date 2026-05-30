@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import { formatPlayerNameInput, PLAYER_NAME_MAX_LENGTH } from '../../game/playerNames';
 
 export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (names: string[]) => void }) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -13,7 +14,7 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
   }, [names.length]);
 
   const updateName = (index: number, value: string) => {
-    onChange(names.map((name, i) => (i === index ? value : name)));
+    onChange(names.map((name, i) => (i === index ? formatPlayerNameInput(value) : name)));
   };
   const addPlayer = (focusNewPlayer = false) => {
     if (focusNewPlayer) {
@@ -52,6 +53,9 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
               inputRefs.current[index] = node;
             }}
             value={name}
+            autoCapitalize="words"
+            autoComplete="given-name"
+            maxLength={PLAYER_NAME_MAX_LENGTH}
             onChange={(e) => updateName(index, e.target.value)}
             onKeyDown={(e) => {
               if (e.key !== 'Enter') return;

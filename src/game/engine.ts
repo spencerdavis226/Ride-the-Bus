@@ -2,6 +2,7 @@ import type { Card, Suit } from './cards';
 import { suitGlyphs } from './cards';
 import { calculatePhaseOneTwoDecks, createShoe, createStandardDeck, drawMany, drawOne, shuffleFisherYates } from './deck';
 import { makeLog, tableHitTitle } from './log';
+import { getPlayerDisplayName, normalizePlayerNames } from './playerNames';
 import { dealSubphaseLabels, nextDealPosition } from './phases';
 import {
   busFailureUnits,
@@ -77,12 +78,14 @@ export const defaultSettings: Settings = {
 };
 
 export function createSetupState(settings: Settings = defaultSettings): GameState {
+  const playerNames = normalizePlayerNames(settings.playerNames);
+  const normalizedSettings = { ...settings, playerNames };
   const now = Date.now();
   return {
     phase: 'setup',
-    players: namesToPlayers(settings.playerNames),
-    settings,
-    phaseOneTwoDecks: calculatePhaseOneTwoDecks(settings.playerNames.length),
+    players: namesToPlayers(playerNames),
+    settings: normalizedSettings,
+    phaseOneTwoDecks: calculatePhaseOneTwoDecks(playerNames.length),
     shoe: [],
     deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, lastResult: null, awaitingContinue: false },
     table: emptyTable(),
@@ -100,13 +103,13 @@ export function createSetupState(settings: Settings = defaultSettings): GameStat
 export function namesToPlayers(names: string[]): Player[] {
   return names.map((name, index) => ({
     id: `player-${index + 1}`,
-    name: name.trim() || `Player ${index + 1}`,
+    name: getPlayerDisplayName(name, index),
     hand: []
   }));
 }
 
 export function startGame(settings: Settings, rng: () => number = Math.random): GameState {
-  const playerNames = settings.playerNames.length >= 2 ? settings.playerNames : ['', ''];
+  const playerNames = normalizePlayerNames(settings.playerNames.length >= 2 ? settings.playerNames : ['', '']);
   const phaseOneTwoDecks = calculatePhaseOneTwoDecks(playerNames.length);
   const now = Date.now();
   return {
