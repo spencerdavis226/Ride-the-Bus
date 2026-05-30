@@ -459,16 +459,6 @@ select {
   box-shadow: inset 0 0 0 1px var(--rtb-border-strong);
 }
 
-.theme-option-check {
-  color: var(--rtb-accent);
-}
-
-.theme-option-row.is-selected .theme-option-check {
-  background: var(--rtb-accent);
-  color: var(--rtb-accent-text);
-  box-shadow: inset 0 0 0 1px var(--rtb-border-strong);
-}
-
 .tap-target:focus-visible,
 .drawer-sheet button:focus-visible,
 .player-input:focus-visible {

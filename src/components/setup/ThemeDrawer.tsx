@@ -1,4 +1,4 @@
-import { Check, Leaf, Moon, Snowflake, Sparkles, Spade, Sprout, Sun, Waves, type LucideIcon } from 'lucide-react';
+import { Leaf, Moon, Snowflake, Sparkles, Spade, Sprout, Sun, Waves, type LucideIcon } from 'lucide-react';
 import { useGame } from '../../app/GameProvider';
 import type { ThemeId } from '../../game/state';
 import { themes, type ThemeIconName } from '../../styles/themes';
@@ -53,7 +53,7 @@ export function ThemeDrawer({ open, onClose }: { open: boolean; onClose: () => v
                 {theme.description}
               </span>
             </span>
-            <span className="theme-swatch-row flex shrink-0 items-center gap-1" aria-hidden="true">
+            <span className="theme-swatch-row ml-auto flex shrink-0 items-center gap-1" aria-hidden="true">
               {theme.colors.map((color) => (
                 <span
                   key={color}
@@ -61,9 +61,6 @@ export function ThemeDrawer({ open, onClose }: { open: boolean; onClose: () => v
                   style={{ backgroundColor: color }}
                 />
               ))}
-            </span>
-            <span className="theme-option-check grid h-7 w-7 shrink-0 place-items-center rounded-full" aria-hidden="true">
-              {selected ? <Check size={16} strokeWidth={3} /> : null}
             </span>
           </button>
         );
