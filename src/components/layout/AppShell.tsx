@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [state.theme, themeClass]);
 
   return (
-    <main className={`${themeClass} h-dvh overflow-hidden text-[var(--rtb-text)]`}>
+    <main className={`${themeClass} app-shell h-dvh overflow-hidden text-[var(--rtb-text)]`}>
       <div
         className="landscape-blocker fixed inset-0 z-[70] flex-col items-center justify-center gap-4 bg-[var(--rtb-app-bg)] text-center text-[var(--rtb-text)]"
         role="status"
@@ -98,7 +98,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
           <div
             className={`min-h-0 min-w-0 flex-1 ${
-              hideChrome ? 'flex flex-col overflow-hidden pb-0' : 'overflow-y-auto overflow-x-hidden px-3 pb-4'
+              hideChrome
+                ? 'flex flex-col overflow-hidden pb-0'
+                : `overflow-y-auto overflow-x-hidden px-3 ${isSetup ? 'pb-0' : 'pb-4'}`
             }`}
           >
             {children}
