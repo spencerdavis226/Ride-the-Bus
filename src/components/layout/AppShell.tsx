@@ -37,7 +37,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     const themeClasses = themes.map((theme) => theme.className);
     root.classList.remove(...themeClasses);
     root.classList.add(themeClass);
-    root.style.colorScheme = state.theme === 'light' || state.theme === 'summer' || state.theme === 'spring' ? 'light' : 'dark';
+    root.style.colorScheme =
+      state.theme === 'light' || state.theme === 'summer' || state.theme === 'winter' || state.theme === 'spring'
+        ? 'light'
+        : 'dark';
     return () => {
       root.classList.remove(themeClass);
       root.style.colorScheme = '';

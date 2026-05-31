@@ -115,8 +115,8 @@ function DeckModeButton({
 
 function DeckIcon({ label }: { label: '1' | 'inf' }) {
   return (
-    <span className="relative grid h-11 w-9 shrink-0 place-items-center rounded-md bg-[var(--rtb-card-front)] text-[var(--rtb-card-ink)] shadow-card ring-1 ring-black/10">
-      <span className="absolute -right-1 -top-1 h-full w-full rounded-md border border-[var(--rtb-card-front)] opacity-45" />
+    <span className="deck-mode-icon relative grid h-11 w-9 shrink-0 place-items-center rounded-md">
+      <span className="deck-mode-icon-stack absolute -right-1 -top-1 h-full w-full rounded-md border opacity-45" />
       {label === '1' ? (
         <span className="font-black leading-none">1</span>
       ) : (
