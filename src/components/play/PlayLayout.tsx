@@ -548,9 +548,8 @@ function MiniCard({ active, card }: { active: boolean; card: Card }) {
   return (
     <motion.span
       layout
-      className={`mini-card flex h-[2rem] w-[1.35rem] flex-col items-center justify-center rounded-[4px] border text-[0.66rem] font-black leading-[0.9] shadow-sm ${
-        active ? 'border-[var(--rtb-accent-text)]/20 bg-[var(--rtb-card-front)]' : 'border-black/18 bg-[var(--rtb-card-front)]'
-      } ${red ? 'text-[var(--rtb-card-red)]' : 'text-[var(--rtb-card-ink)]'}`}
+      className={`mini-card ${red ? 'is-red' : 'is-black'} flex h-[2rem] w-[1.35rem] flex-col items-center justify-center rounded-[4px] border border-[var(--rtb-card-border)] text-[0.66rem] font-black leading-[0.9] shadow-sm`}
+      data-active={active ? 'true' : undefined}
       initial={{ opacity: 0, scale: 0.82, y: 4 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.82, y: -4 }}

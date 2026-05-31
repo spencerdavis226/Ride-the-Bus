@@ -27,6 +27,7 @@ export const dealSteps = [
 
 export type RuleCardContent = {
   text: string;
+  tone?: 'correct' | 'incorrect' | 'neutral';
 };
 
 export type RulesPhaseContent = {
@@ -38,8 +39,8 @@ export const rulesByPhase: Record<RulesPhase, RulesPhaseContent> = {
   deal: {
     goal: 'Guess every player\'s four cards.',
     rules: [
-      { text: 'Right guess → Give drinks.' },
-      { text: 'Wrong guess → Take drinks.' },
+      { text: 'Right guess → Give drinks.', tone: 'correct' },
+      { text: 'Wrong guess → Take drinks.', tone: 'incorrect' },
     ],
   },
   table: {
@@ -53,8 +54,8 @@ export const rulesByPhase: Record<RulesPhase, RulesPhaseContent> = {
   bus: {
     goal: 'Four correct guesses to escape.',
     rules: [
-      { text: 'Call Same on card 2 or 3 → off immediately.' },
-      { text: 'Miss → drinks and back to card 1.' },
+      { text: 'Call Same on card 2 or 3 → off immediately.', tone: 'correct' },
+      { text: 'Miss → drinks and back to card 1.', tone: 'incorrect' },
       { text: 'Fresh 52-card deck (endless reshuffles when needed).' },
     ],
   },

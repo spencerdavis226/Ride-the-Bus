@@ -17,6 +17,7 @@ import {
   rulesPhaseEyebrows,
   rulesPhaseLabels,
   rulesPhases,
+  type RuleCardContent,
   type RulesPhase,
   type RulesScope,
 } from './rulesContent';
@@ -150,7 +151,7 @@ function RulesPhaseContent({
       {showStepper ? <DealStepper /> : null}
       <ul className="mt-3 grid gap-2">
         {content.rules.map((rule, index) => (
-          <RuleCard key={rule.text} icon={icons[index] ?? Check} text={rule.text} />
+          <RuleCard key={rule.text} icon={icons[index] ?? Check} rule={rule} />
         ))}
       </ul>
     </section>
@@ -186,13 +187,15 @@ function DealStepper() {
   );
 }
 
-function RuleCard({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
+function RuleCard({ icon: Icon, rule }: { icon: LucideIcon; rule: RuleCardContent }) {
+  const toneClass = rule.tone && rule.tone !== 'neutral' ? `is-${rule.tone}` : '';
+
   return (
-    <li className="flex min-h-[2.75rem] items-center gap-3 rounded-xl bg-[var(--rtb-surface-soft)] px-3 py-2.5 ring-1 ring-[var(--rtb-border)]">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--rtb-accent-soft)] text-[var(--rtb-accent)]">
+    <li className={`rule-card ${toneClass} flex min-h-[2.75rem] items-center gap-3 rounded-xl bg-[var(--rtb-surface-soft)] px-3 py-2.5 ring-1 ring-[var(--rtb-border)]`}>
+      <span className="rule-card-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg">
         <Icon size={16} strokeWidth={2.25} />
       </span>
-      <p className="text-sm font-semibold leading-snug text-[var(--rtb-text)]">{text}</p>
+      <p className="rule-card-text text-sm font-semibold leading-snug text-[var(--rtb-text)]">{rule.text}</p>
     </li>
   );
 }

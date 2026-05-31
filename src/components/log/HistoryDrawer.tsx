@@ -93,6 +93,11 @@ function SummaryRow({ total }: { total: DrinkTotal }) {
       ? group ? `give ${total.give}` : `gives ${total.give}`
       : 'even';
   const secondary = total.take > 0 && total.give > 0 ? `${group ? 'give' : 'gives'} ${total.give}` : null;
+  const primaryToneClass = total.take > 0
+    ? 'text-[var(--rtb-incorrect)]'
+    : total.give > 0
+      ? 'text-[var(--rtb-correct)]'
+      : 'text-[var(--rtb-text-muted)]';
 
   return (
     <div className="flex min-h-[4.1rem] items-center justify-between gap-3 rounded-xl bg-[var(--rtb-surface-soft)] px-4 py-3 ring-1 ring-[var(--rtb-border)]">
@@ -100,7 +105,7 @@ function SummaryRow({ total }: { total: DrinkTotal }) {
         {total.playerName}
       </span>
       <span className="shrink-0 text-right">
-        <span className={`block text-[clamp(1.15rem,5vw,1.65rem)] font-black leading-tight ${total.take > 0 ? 'text-[var(--rtb-warning)]' : 'text-[var(--rtb-success)]'}`}>
+        <span className={`block text-[clamp(1.15rem,5vw,1.65rem)] font-black leading-tight ${primaryToneClass}`}>
           {primary}
         </span>
         {secondary && <span className="block text-xs font-black uppercase tracking-[0.12em] text-[var(--rtb-text-muted)]">{secondary}</span>}
@@ -165,7 +170,7 @@ function TimelineEntry({ entry }: { entry: GameLogEntry }) {
     >
       {entry.result && entry.result !== 'neutral' && (
         <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-          <span className={`rounded-full px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.16em] ${entry.result === 'correct' ? 'bg-[var(--rtb-accent-soft)] text-[var(--rtb-success)]' : 'bg-[var(--rtb-accent-soft)] text-[var(--rtb-danger)]'}`}>
+          <span className={`rounded-full px-2 py-0.5 text-[0.62rem] font-black uppercase tracking-[0.16em] ${entry.result === 'correct' ? 'bg-[var(--rtb-correct-soft)] text-[var(--rtb-correct)]' : 'bg-[var(--rtb-incorrect-soft)] text-[var(--rtb-incorrect)]'}`}>
             {entry.result}
           </span>
         </div>

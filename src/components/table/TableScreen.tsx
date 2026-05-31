@@ -241,7 +241,6 @@ function TableCardFocus({ card }: { card: TableCard | null }) {
             animateEntry={false}
             card={card.card}
             faceUp={card.faceUp}
-            highlighted={card.faceUp}
             motionLayout={false}
             size="fluid"
           />

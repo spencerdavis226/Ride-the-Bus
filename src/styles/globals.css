@@ -25,10 +25,14 @@
   --rtb-danger-text: #ffffff;
   --rtb-success: #8ee6a5;
   --rtb-warning: #ffdf8a;
+  --rtb-correct: #f5d99b;
+  --rtb-incorrect: #ff9f7a;
   --rtb-overlay: rgba(0, 0, 0, 0.65);
   --rtb-focus: #f5d99b;
   --rtb-shadow: rgba(0, 0, 0, 0.34);
   --rtb-card-front: #fbf2d9;
+  --rtb-card-front-2: #efe1b9;
+  --rtb-card-border: rgba(37, 25, 12, 0.16);
   --rtb-card-ink: #111827;
   --rtb-card-red: #b72e35;
   --rtb-deck-icon-bg: color-mix(in srgb, var(--rtb-surface) 86%, var(--rtb-accent) 14%);
@@ -69,9 +73,16 @@
   --rtb-danger-text: #ffffff;
   --rtb-success: #8ee6a5;
   --rtb-warning: #ffdf8a;
+  --rtb-correct: #f5d99b;
+  --rtb-incorrect: #ff9f7a;
   --rtb-overlay: rgba(0, 0, 0, 0.65);
   --rtb-focus: #f5d99b;
   --rtb-shadow: rgba(0, 0, 0, 0.34);
+  --rtb-card-front: #fbf2d9;
+  --rtb-card-front-2: #efe1b9;
+  --rtb-card-border: rgba(37, 25, 12, 0.16);
+  --rtb-card-ink: #111827;
+  --rtb-card-red: #b72e35;
   --rtb-guess-dark-bg: #1a3428;
   --rtb-guess-dark-text: #f5d99b;
   --rtb-background:
@@ -99,9 +110,16 @@
   --rtb-danger-text: #190608;
   --rtb-success: #67e8b9;
   --rtb-warning: #fde68a;
+  --rtb-correct: #7dd3fc;
+  --rtb-incorrect: #f0abfc;
   --rtb-overlay: rgba(1, 6, 14, 0.72);
   --rtb-focus: #67e8f9;
   --rtb-shadow: rgba(0, 0, 0, 0.42);
+  --rtb-card-front: #e8f4ff;
+  --rtb-card-front-2: #b9d2ec;
+  --rtb-card-border: rgba(6, 19, 29, 0.18);
+  --rtb-card-ink: #081827;
+  --rtb-card-red: #b93656;
   --rtb-guess-dark-bg: #102a3d;
   --rtb-guess-dark-text: #a5f3fc;
   --rtb-background:
@@ -130,9 +148,16 @@
   --rtb-danger-text: #1f050b;
   --rtb-success: #5eead4;
   --rtb-warning: #facc15;
+  --rtb-correct: #22d3ee;
+  --rtb-incorrect: #facc15;
   --rtb-overlay: rgba(0, 0, 0, 0.78);
   --rtb-focus: #22d3ee;
   --rtb-shadow: rgba(0, 0, 0, 0.72);
+  --rtb-card-front: #151a22;
+  --rtb-card-front-2: #05070b;
+  --rtb-card-border: rgba(248, 250, 252, 0.18);
+  --rtb-card-ink: #f8fafc;
+  --rtb-card-red: #fb7185;
   --rtb-guess-dark-bg: #10151d;
   --rtb-guess-dark-text: #67e8f9;
   --rtb-background:
@@ -160,11 +185,18 @@
   --rtb-danger-text: #ffffff;
   --rtb-success: #047857;
   --rtb-warning: #b45309;
+  --rtb-correct: #0284c7;
+  --rtb-incorrect: #b45309;
   --rtb-overlay: rgba(10, 31, 48, 0.42);
   --rtb-focus: #0369a1;
   --rtb-shadow: rgba(2, 44, 72, 0.14);
-  --rtb-guess-dark-bg: #d9f1f9;
-  --rtb-guess-dark-text: #0f3b52;
+  --rtb-card-front: #ffffff;
+  --rtb-card-front-2: #dff7ff;
+  --rtb-card-border: rgba(16, 32, 51, 0.14);
+  --rtb-card-ink: #102033;
+  --rtb-card-red: #be123c;
+  --rtb-guess-dark-bg: #0284c7;
+  --rtb-guess-dark-text: #ffffff;
   --rtb-background:
     radial-gradient(ellipse at 72% -14%, rgba(125, 211, 252, 0.42), transparent 45%),
     linear-gradient(180deg, #ffffff 0%, #effbff 50%, #dff7ff 100%);
@@ -190,11 +222,18 @@
   --rtb-danger-text: #ffffff;
   --rtb-success: #15803d;
   --rtb-warning: #a16207;
+  --rtb-correct: #0f766e;
+  --rtb-incorrect: #f97316;
   --rtb-overlay: rgba(23, 49, 58, 0.40);
   --rtb-focus: #0f766e;
   --rtb-shadow: rgba(15, 74, 69, 0.15);
-  --rtb-guess-dark-bg: #d8f7ef;
-  --rtb-guess-dark-text: #0b4f49;
+  --rtb-card-front: #fffdf1;
+  --rtb-card-front-2: #d7f8ec;
+  --rtb-card-border: rgba(23, 49, 58, 0.14);
+  --rtb-card-ink: #17313a;
+  --rtb-card-red: #c2410c;
+  --rtb-guess-dark-bg: #0f766e;
+  --rtb-guess-dark-text: #ffffff;
   --rtb-background:
     radial-gradient(ellipse at 16% -10%, rgba(251, 191, 36, 0.22), transparent 44%),
     radial-gradient(ellipse at 82% 0%, rgba(94, 234, 212, 0.38), transparent 46%),
@@ -221,9 +260,16 @@
   --rtb-danger-text: #210805;
   --rtb-success: #a7d67a;
   --rtb-warning: #facc15;
+  --rtb-correct: #f2b35d;
+  --rtb-incorrect: #f9735b;
   --rtb-overlay: rgba(25, 13, 5, 0.70);
   --rtb-focus: #f2b35d;
   --rtb-shadow: rgba(0, 0, 0, 0.42);
+  --rtb-card-front: #fff3df;
+  --rtb-card-front-2: #f2d0a2;
+  --rtb-card-border: rgba(33, 18, 7, 0.18);
+  --rtb-card-ink: #2a1608;
+  --rtb-card-red: #c2410c;
   --rtb-guess-dark-bg: #4c2e17;
   --rtb-guess-dark-text: #f2c681;
   --rtb-background:
@@ -251,11 +297,18 @@
   --rtb-danger-text: #ffffff;
   --rtb-success: #047857;
   --rtb-warning: #b45309;
+  --rtb-correct: #4f46e5;
+  --rtb-incorrect: #0f766e;
   --rtb-overlay: rgba(31, 54, 82, 0.42);
   --rtb-focus: #4f46e5;
   --rtb-shadow: rgba(67, 85, 112, 0.16);
-  --rtb-guess-dark-bg: #e4ecfb;
-  --rtb-guess-dark-text: #273b62;
+  --rtb-card-front: #fbfdff;
+  --rtb-card-front-2: #dbeafe;
+  --rtb-card-border: rgba(31, 54, 82, 0.14);
+  --rtb-card-ink: #1f3653;
+  --rtb-card-red: #e11d48;
+  --rtb-guess-dark-bg: #4f46e5;
+  --rtb-guess-dark-text: #ffffff;
   --rtb-background:
     radial-gradient(ellipse at 18% -10%, rgba(199, 210, 254, 0.56), transparent 42%),
     radial-gradient(ellipse at 86% 0%, rgba(186, 230, 253, 0.56), transparent 48%),
@@ -282,11 +335,18 @@
   --rtb-danger-text: #ffffff;
   --rtb-success: #047857;
   --rtb-warning: #a16207;
+  --rtb-correct: #15803d;
+  --rtb-incorrect: #db2777;
   --rtb-overlay: rgba(22, 51, 35, 0.40);
   --rtb-focus: #15803d;
   --rtb-shadow: rgba(19, 89, 47, 0.14);
-  --rtb-guess-dark-bg: #dff7df;
-  --rtb-guess-dark-text: #14532d;
+  --rtb-card-front: #f8fff7;
+  --rtb-card-front-2: #ffe4f1;
+  --rtb-card-border: rgba(22, 51, 35, 0.14);
+  --rtb-card-ink: #163323;
+  --rtb-card-red: #be123c;
+  --rtb-guess-dark-bg: #15803d;
+  --rtb-guess-dark-text: #ffffff;
   --rtb-background:
     radial-gradient(ellipse at 18% -8%, rgba(249, 168, 212, 0.26), transparent 38%),
     radial-gradient(ellipse at 88% 0%, rgba(134, 239, 172, 0.36), transparent 46%),
@@ -308,6 +368,8 @@
   --rtb-accent-soft: color-mix(in srgb, var(--rtb-accent) 14%, transparent);
   --rtb-accent-panel: color-mix(in srgb, var(--rtb-accent) 10%, transparent);
   --rtb-border-strong: color-mix(in srgb, var(--rtb-accent) 24%, transparent);
+  --rtb-correct-soft: color-mix(in srgb, var(--rtb-correct) 16%, transparent);
+  --rtb-incorrect-soft: color-mix(in srgb, var(--rtb-incorrect) 16%, transparent);
   --rtb-deck-icon-bg: color-mix(in srgb, var(--rtb-surface) 86%, var(--rtb-accent) 14%);
   --rtb-deck-icon-ink: color-mix(in srgb, var(--rtb-text) 88%, var(--rtb-accent) 12%);
   --rtb-deck-icon-border: color-mix(in srgb, var(--rtb-accent) 28%, var(--rtb-border));
@@ -455,6 +517,37 @@ select {
   box-shadow: inset 0 0 0 1px var(--rtb-border);
 }
 
+.rule-card.is-correct {
+  background: var(--rtb-correct-soft) !important;
+}
+
+.rule-card.is-incorrect {
+  background: var(--rtb-incorrect-soft) !important;
+}
+
+.rule-card-icon {
+  background: var(--rtb-accent-soft);
+  color: var(--rtb-accent);
+}
+
+.rule-card.is-correct .rule-card-icon,
+.rule-card.is-correct .rule-card-text {
+  color: var(--rtb-correct);
+}
+
+.rule-card.is-correct .rule-card-icon {
+  background: var(--rtb-correct-soft);
+}
+
+.rule-card.is-incorrect .rule-card-icon,
+.rule-card.is-incorrect .rule-card-text {
+  color: var(--rtb-incorrect);
+}
+
+.rule-card.is-incorrect .rule-card-icon {
+  background: var(--rtb-incorrect-soft);
+}
+
 .drawer-content p,
 .drawer-content span {
   border-color: var(--rtb-border);
@@ -507,6 +600,27 @@ select {
 
 .card-fluid {
   container-type: inline-size;
+}
+
+.playing-card-front,
+.table-simple-card,
+.mini-card {
+  border-color: var(--rtb-card-border);
+  background:
+    radial-gradient(circle at 50% 16%, color-mix(in srgb, #ffffff 48%, var(--rtb-card-front) 52%), transparent 45%),
+    linear-gradient(155deg, var(--rtb-card-front), var(--rtb-card-front-2));
+  color: var(--rtb-card-ink);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 62%, transparent),
+    inset 0 -0.28rem 0.7rem color-mix(in srgb, var(--rtb-card-ink) 9%, transparent);
+}
+
+.mini-card.is-red {
+  color: var(--rtb-card-red);
+}
+
+.mini-card.is-black {
+  color: var(--rtb-card-ink);
 }
 
 @keyframes card-back-shimmer {
@@ -570,11 +684,11 @@ select {
 }
 
 .deal-outcome[data-result="correct"] .deal-outcome-summary {
-  color: #bdf5cd;
+  color: var(--rtb-correct);
 }
 
 .deal-outcome[data-result="wrong"] .deal-outcome-summary {
-  color: #ffc0ca;
+  color: var(--rtb-incorrect);
 }
 
 .table-outcome-slot:empty {
@@ -825,12 +939,11 @@ select {
 }
 
 .deal-outcome[data-result="correct"] .deal-outcome-summary {
-  color: var(--rtb-success);
+  color: var(--rtb-correct);
 }
 
-.deal-outcome[data-result="wrong"] .deal-outcome-summary,
-.bus-outcome-summary {
-  color: var(--rtb-danger);
+.deal-outcome[data-result="wrong"] .deal-outcome-summary {
+  color: var(--rtb-incorrect);
 }
 
 .bus-total-counter,
@@ -963,7 +1076,11 @@ select {
 }
 
 .bus-outcome-summary {
-  color: var(--rtb-danger);
+  color: var(--rtb-incorrect);
+}
+
+.bus-outcome[data-result="correct"] .bus-outcome-summary {
+  color: var(--rtb-correct);
 }
 
 .bus-rider-list {
@@ -1163,18 +1280,11 @@ select {
   place-items: center;
   align-content: center;
   gap: 0.04em;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.62), transparent 44%),
-    linear-gradient(155deg, #fff8df, #efe1b9);
-  color: #111827;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    inset 0 -0.28rem 0.7rem rgba(50, 32, 12, 0.08);
+  border: 1px solid var(--rtb-card-border);
 }
 
 .table-simple-card.is-red {
-  color: #b72e35;
+  color: var(--rtb-card-red);
 }
 
 .table-simple-rank,
@@ -1194,15 +1304,13 @@ select {
 
 .table-map-tile.is-active {
   z-index: 2;
+  transform: translateY(-0.16rem);
   filter: drop-shadow(0 0.82rem 0.82rem rgba(0, 0, 0, 0.34));
 }
 
 .table-map-tile.is-active .table-map-card-surface {
   border-radius: inherit;
-  box-shadow:
-    0 0 0 2px var(--rtb-focus),
-    0 0 0 5px var(--rtb-accent-soft),
-    0 0 24px var(--rtb-accent-soft);
+  box-shadow: 0 0.55rem 1rem color-mix(in srgb, var(--rtb-shadow) 52%, transparent);
 }
 
 .table-map-card-surface .card-fluid {
