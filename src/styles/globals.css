@@ -1030,11 +1030,11 @@ select {
 }
 
 .setup-footer {
-  padding-bottom: 0;
+  padding-bottom: max(0.75rem, calc(var(--rtb-safe-bottom) + 0.5rem));
 }
 
 .deal-action-zone {
-  padding-bottom: 0;
+  padding-bottom: max(0.75rem, calc(var(--rtb-safe-bottom) + 0.5rem));
 }
 
 .play-action-stack,
@@ -1048,16 +1048,15 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: var(--rtb-safe-bottom);
 }
 
 .setup-start-button {
-  min-height: calc(56px + var(--rtb-safe-bottom));
+  min-height: 56px;
 }
 
 .deal-action-zone .tap-target,
 .deal-guess-picker button {
-  min-height: calc(58px + var(--rtb-safe-bottom)) !important;
+  min-height: 58px !important;
 }
 
 .table-card-focus {
@@ -1332,7 +1331,7 @@ select {
   }
 
   .deal-action-zone {
-    padding: 0.4rem 0.5rem 0 !important;
+    padding: 0.4rem 0.5rem max(0.55rem, calc(var(--rtb-safe-bottom) + 0.35rem)) !important;
   }
 
   .deal-guess-picker {
@@ -1341,8 +1340,7 @@ select {
 
   .deal-guess-picker button,
   .deal-action-zone .tap-target {
-    min-height: calc(52px + var(--rtb-safe-bottom)) !important;
-    padding-bottom: var(--rtb-safe-bottom) !important;
+    min-height: 52px !important;
     border-radius: 1rem !important;
   }
 
@@ -1467,7 +1465,7 @@ select {
   }
 
   .deal-action-zone {
-    padding: 0.3rem 0.45rem 0 !important;
+    padding: 0.3rem 0.45rem max(0.4rem, calc(var(--rtb-safe-bottom) + 0.3rem)) !important;
   }
 
   .deal-guess-picker {
@@ -1476,8 +1474,7 @@ select {
 
   .deal-guess-picker button,
   .deal-action-zone .tap-target {
-    min-height: calc(48px + var(--rtb-safe-bottom)) !important;
-    padding-bottom: var(--rtb-safe-bottom) !important;
+    min-height: 48px !important;
     border-radius: 0.9rem !important;
   }
 
