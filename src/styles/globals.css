@@ -850,6 +850,36 @@ select {
   perspective: 900px;
 }
 
+.deal-card-fan-stack::before {
+  position: absolute;
+  right: 3%;
+  bottom: 1%;
+  left: 3%;
+  z-index: 0;
+  height: 28%;
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--rtb-shadow) 68%, transparent) 0%,
+    color-mix(in srgb, var(--rtb-shadow) 34%, transparent) 42%,
+    transparent 74%
+  );
+  content: '';
+  pointer-events: none;
+  transform: translateY(30%);
+}
+
+.deal-hand-frame .shadow-card,
+.deal-hand-frame .playing-card-front {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 62%, transparent),
+    inset 0 -0.28rem 0.7rem color-mix(in srgb, var(--rtb-card-ink) 9%, transparent) !important;
+}
+
+.deal-hand-frame .deal-card-slot {
+  z-index: 1;
+}
+
 .deal-card-face,
 .table-card-face {
   position: absolute;
@@ -895,11 +925,18 @@ select {
   color: var(--rtb-text);
 }
 
-.deck-mode-button[aria-pressed="true"],
-.turn-tile[aria-pressed="true"] {
+.deck-mode-button[aria-pressed="true"] {
   background: var(--rtb-accent) !important;
   color: var(--rtb-accent-text) !important;
   box-shadow: 0 0 18px color-mix(in srgb, var(--rtb-accent) 22%, transparent);
+}
+
+.turn-tile[aria-pressed="true"] {
+  background: var(--rtb-accent) !important;
+  color: var(--rtb-accent-text) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--rtb-accent-text) 18%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 24%, transparent);
 }
 
 .deck-mode-button[aria-pressed="false"],
@@ -1382,7 +1419,7 @@ select {
 
   .turn-rail {
     gap: 0.45rem !important;
-    padding: 0.1rem 0.75rem 0.45rem !important;
+    padding: 0.1rem 0.75rem 0.75rem !important;
   }
 
   .turn-tile {
@@ -1530,7 +1567,7 @@ select {
 
   .turn-rail {
     gap: 0.35rem !important;
-    padding: 0 0.55rem 0.35rem !important;
+    padding: 0 0.55rem 0.6rem !important;
   }
 
   .turn-tile {

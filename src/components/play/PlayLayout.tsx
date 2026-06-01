@@ -341,7 +341,7 @@ export function PlayerTurnRail({
   return (
     <div
       ref={railRef}
-      className="turn-rail flex shrink-0 gap-2 overflow-x-auto overflow-y-hidden px-4 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="turn-rail flex shrink-0 gap-2 overflow-x-auto overflow-y-hidden px-4 pb-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {players.map((candidate) => {
         const active = highlightedIds.includes(candidate.id);
@@ -533,7 +533,7 @@ function MiniHand({ active, cards }: { active: boolean; cards: Card[] }) {
   }
 
   return (
-    <motion.div layout className="mini-hand mt-1.5 flex justify-center gap-1">
+    <motion.div layout className="mini-hand mt-1.5 flex justify-center gap-1 px-1 pb-1">
       <AnimatePresence initial={false}>
         {cards.slice(0, 4).map((card) => (
           <MiniCard key={card.id} active={active} card={card} />

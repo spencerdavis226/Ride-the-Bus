@@ -15,6 +15,8 @@ export type PlayCardFanSlot = {
 };
 
 const SLOT_COUNT = 4;
+const CARD_SHADOW_GUTTER = 8;
+const CARD_SHADOW_BOTTOM_GUTTER = 8;
 
 export function computeFan(containerW: number, containerH: number) {
   const N = SLOT_COUNT;
@@ -190,7 +192,13 @@ export function PlayCardFan({
   }, []);
 
   const maxHighlightLift = liftHighlighted && !tightLandscape ? 18 : 0;
-  const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, Math.max(1, dims.h - maxHighlightLift)) : null;
+  const fan =
+    dims.w > 0 && dims.h > 0
+      ? computeFan(
+          Math.max(1, dims.w - CARD_SHADOW_GUTTER * 2),
+          Math.max(1, dims.h - maxHighlightLift - CARD_SHADOW_BOTTOM_GUTTER)
+        )
+      : null;
   const totalFanW = fan ? fan.cardW + fan.step * 3 : 0;
   const highlightLift = fan ? Math.min(maxHighlightLift, fan.cardH * 0.06) : 0;
   const highlightHeadroom = highlightLift + (highlightLift > 0 ? 3 : 0);
@@ -204,7 +212,7 @@ export function PlayCardFan({
       {fan && (
         <motion.div
           key={shakeKey}
-          className="relative flex-shrink-0"
+          className="deal-card-fan-stack relative flex-shrink-0"
           initial={false}
           animate={{
             width: totalFanW,
