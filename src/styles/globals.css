@@ -1017,27 +1017,62 @@ select {
 }
 
 .deck-mode-icon {
-  background: var(--rtb-deck-icon-bg);
+  position: relative;
+  display: block;
+  height: 2rem;
+  width: 1.75rem;
   color: var(--rtb-deck-icon-ink);
-  box-shadow:
-    0 0.45rem 1rem color-mix(in srgb, var(--rtb-shadow) 65%, transparent),
-    inset 0 0 0 1px var(--rtb-deck-icon-border);
 }
 
+.deck-mode-icon-face,
 .deck-mode-icon-stack {
+  position: absolute;
+  display: grid;
+  height: 1.85rem;
+  width: 1.4rem;
+  place-items: center;
+  border-radius: 0.42rem;
+  background: var(--rtb-deck-icon-bg);
   border-color: var(--rtb-deck-icon-border);
+  box-shadow:
+    0 0.35rem 0.75rem color-mix(in srgb, var(--rtb-shadow) 42%, transparent),
+    inset 0 0 0 1px var(--rtb-deck-icon-border),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 26%, transparent);
+}
+
+.deck-mode-icon-face {
+  z-index: 1;
+}
+
+.deck-mode-icon-single .deck-mode-icon-face {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.deck-mode-icon-endless .deck-mode-icon-stack {
+  right: 0.06rem;
+  top: 0.02rem;
+  opacity: 0.52;
+}
+
+.deck-mode-icon-endless .deck-mode-icon-face {
+  bottom: 0.02rem;
+  left: 0.06rem;
 }
 
 .deck-mode-button[aria-pressed="true"] .deck-mode-icon {
-  background: color-mix(in srgb, var(--rtb-accent-text) 88%, var(--rtb-accent) 12%);
   color: var(--rtb-accent);
-  box-shadow:
-    0 0.45rem 1rem color-mix(in srgb, var(--rtb-shadow) 55%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--rtb-accent-text) 72%, transparent);
 }
 
+.deck-mode-button[aria-pressed="true"] .deck-mode-icon-face,
 .deck-mode-button[aria-pressed="true"] .deck-mode-icon-stack {
-  border-color: color-mix(in srgb, var(--rtb-accent-text) 72%, transparent);
+  background: color-mix(in srgb, var(--rtb-accent-text) 92%, var(--rtb-accent) 8%);
+  border-color: color-mix(in srgb, var(--rtb-accent-text) 76%, transparent);
+  box-shadow:
+    0 0.35rem 0.75rem color-mix(in srgb, var(--rtb-shadow) 35%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--rtb-accent-text) 76%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 34%, transparent);
 }
 
 .table-hit-name,
@@ -1793,25 +1828,14 @@ select {
     font-size: clamp(4.6rem, 4.8vw, 7rem) !important;
   }
 
-  .setup-reset {
-    min-height: 4rem !important;
-    border-radius: 1.1rem !important;
-    padding-inline: 1.25rem !important;
-    font-size: 1rem !important;
-  }
-
   .bus-mode-selector {
-    margin-top: 1.1rem !important;
+    margin-top: 0 !important;
   }
 
   .deck-mode-button {
-    min-height: 5.6rem !important;
-    border-radius: 1.25rem !important;
-    padding-inline: 1.1rem !important;
-  }
-
-  .deck-mode-label {
-    font-size: 1.05rem !important;
+    height: 3.25rem !important;
+    width: 3.25rem !important;
+    border-radius: 1rem !important;
   }
 
   .setup-editor {

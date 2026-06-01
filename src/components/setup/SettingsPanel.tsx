@@ -11,12 +11,12 @@ export function SettingsPanel({
     <div className="space-y-6 pb-2 text-sm">
       <fieldset>
         <legend className="mb-2.5 text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--rtb-accent)]">
-          The Bus
+          Final Bus
         </legend>
         <SegmentControl
           options={[
-            { value: 'singleDeck', label: 'Single Deck' },
-            { value: 'endless', label: 'Endless' },
+            { value: 'singleDeck', label: 'Single-deck bus' },
+            { value: 'endless', label: 'Endless bus' },
           ]}
           value={busMode}
           onChange={(v) => onBusMode(v as BusMode)}
