@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'icon.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'icon.png'],
       manifest: {
         name: 'Ride the Bus',
         short_name: 'Ride the Bus',

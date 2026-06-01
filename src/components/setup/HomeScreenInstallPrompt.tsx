@@ -42,7 +42,7 @@ export function HomeScreenInstallPrompt() {
         <div className="rounded-2xl bg-[var(--rtb-accent-panel)] p-3 ring-1 ring-[var(--rtb-border-strong)]">
           <div className="flex items-center gap-3">
             <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-[var(--rtb-accent)] p-2 shadow-glow-sm">
-              <img src={`${import.meta.env.BASE_URL}icon.svg`} alt="" className="h-full w-full" />
+              <img src={`${import.meta.env.BASE_URL}icon.png`} alt="" className="h-full w-full" />
             </span>
             <div className="min-w-0">
               <p className="text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--rtb-accent)]">

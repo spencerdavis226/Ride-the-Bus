@@ -1,22 +1,23 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Resvg } from '@resvg/resvg-js';
+import sharp from 'sharp';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const svg = await readFile(resolve(root, 'public/icon.svg'));
+const sourceIcon = resolve(root, 'assets/brand/ride-the-bus-icon.png');
 
 async function writePng(path: string, size: number) {
-  const renderer = new Resvg(svg, {
-    fitTo: { mode: 'width', value: size },
-    background: '#0b2f25'
-  });
-  await writeFile(resolve(root, path), renderer.render().asPng());
+  await sharp(sourceIcon)
+    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toFile(resolve(root, path));
 }
 
 await mkdir(resolve(root, 'public/icons'), { recursive: true });
+await writePng('public/icon.png', 512);
+await writePng('public/favicon.png', 64);
 await writePng('public/icons/icon-192.png', 192);
 await writePng('public/icons/icon-512.png', 512);
 await writePng('public/apple-touch-icon.png', 180);
 
-console.log('Generated PWA icons from public/icon.svg');
+console.log('Generated PWA icons from assets/brand/ride-the-bus-icon.png');

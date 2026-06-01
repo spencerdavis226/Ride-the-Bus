@@ -53,7 +53,7 @@ The app includes:
 - Service worker/offline shell
 - Apple home-screen meta tags
 - Safe-area viewport handling
-- SVG source icon at `public/icon.svg`
+- Source icon at `assets/brand/ride-the-bus-icon.png`
 - PNG icon generation through `npm run generate:icons`
 
 ## Save and resume
