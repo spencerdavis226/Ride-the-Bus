@@ -44,7 +44,17 @@ export type CardBackId =
   | 'coral'
   | 'linen'
   | 'orchid'
-  | 'cobalt';
+  | 'cobalt'
+  | 'smoke'
+  | 'sage'
+  | 'sky'
+  | 'glass'
+  | 'citrus'
+  | 'copper'
+  | 'glacier'
+  | 'aurora'
+  | 'lavender'
+  | 'meadow';
 export type ThemePreference = 'random' | ThemeId;
 
 export type Player = {

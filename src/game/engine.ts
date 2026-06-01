@@ -39,38 +39,16 @@ import type {
 } from './state';
 import { isThemeId, themeIds } from '../styles/themes';
 
-const cardBackIds: CardBackId[] = [
-  'emerald',
-  'ivory',
-  'ruby',
-  'midnight',
-  'brass',
-  'plaid',
-  'obsidian',
-  'sapphire',
-  'amethyst',
-  'jade',
-  'cherry',
-  'carbon',
-  'casino',
-  'sunset',
-  'frost',
-  'moss',
-  'pearl',
-  'royal',
-  'ember',
-  'mint',
-  'grape',
-  'slate',
-  'rose',
-  'lagoon',
-  'whiskey',
-  'noir',
-  'coral',
-  'linen',
-  'orchid',
-  'cobalt'
-];
+export const cardBackIdsByTheme: Record<ThemeId, CardBackId[]> = {
+  poker: ['emerald', 'ivory', 'ruby', 'brass', 'casino'],
+  dark: ['midnight', 'sapphire', 'amethyst', 'jade', 'carbon'],
+  blackout: ['obsidian', 'noir', 'slate', 'smoke', 'sage'],
+  light: ['frost', 'pearl', 'linen', 'sky', 'glass'],
+  summer: ['mint', 'lagoon', 'coral', 'sunset', 'citrus'],
+  autumn: ['moss', 'ember', 'whiskey', 'plaid', 'copper'],
+  winter: ['royal', 'cobalt', 'glacier', 'aurora', 'lavender'],
+  spring: ['cherry', 'grape', 'rose', 'orchid', 'meadow'],
+};
 
 const TAUNT_CHANCE = 0.05;
 
@@ -294,6 +272,7 @@ export const defaultSettings: Settings = {
 export function createSetupState(settings: Settings = defaultSettings): GameState {
   const playerNames = normalizePlayerNames(settings.playerNames);
   const normalizedSettings = { ...settings, playerNames };
+  const theme = chooseTheme(settings.themePreference);
   const now = Date.now();
   return {
     phase: 'setup',
@@ -307,8 +286,8 @@ export function createSetupState(settings: Settings = defaultSettings): GameStat
     gameOverReason: null,
     log: [],
     undo: null,
-    theme: chooseTheme(settings.themePreference),
-    cardBackId: chooseCardBack(),
+    theme,
+    cardBackId: chooseCardBack(theme),
     createdAt: now,
     updatedAt: now
   };
@@ -325,13 +304,16 @@ export function namesToPlayers(names: string[]): Player[] {
 export function startGame(settings: Settings, rng: () => number = Math.random): GameState {
   const playerNames = normalizePlayerNames(settings.playerNames.length >= 2 ? settings.playerNames : ['', '']);
   const phaseOneTwoDecks = calculatePhaseOneTwoDecks(playerNames.length);
+  const shoe = shuffleFisherYates(createShoe(phaseOneTwoDecks), rng);
+  const theme = chooseTheme(settings.themePreference, rng);
+  const cardBackId = chooseCardBack(theme, rng);
   const now = Date.now();
   return {
     phase: 'deal',
     players: namesToPlayers(playerNames),
     settings: { ...settings, playerNames },
     phaseOneTwoDecks,
-    shoe: shuffleFisherYates(createShoe(phaseOneTwoDecks), rng),
+    shoe,
     deal: { subphase: 'redBlack', playerIndex: 0, lastAssignment: null, lastResult: null, awaitingContinue: false },
     table: emptyTable(),
     bus: null,
@@ -344,8 +326,8 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
       })
     ],
     undo: null,
-    theme: chooseTheme(settings.themePreference, rng),
-    cardBackId: chooseCardBack(rng),
+    theme,
+    cardBackId,
     createdAt: now,
     updatedAt: now
   };
@@ -811,8 +793,9 @@ export function chooseTheme(preference: ThemePreference | unknown, rng: () => nu
   return isThemeId(preference) ? preference : 'poker';
 }
 
-function chooseCardBack(rng: () => number = Math.random): CardBackId {
-  return cardBackIds[Math.floor(rng() * cardBackIds.length)] ?? 'emerald';
+function chooseCardBack(theme: ThemeId, rng: () => number = Math.random): CardBackId {
+  const pool = cardBackIdsByTheme[theme] ?? cardBackIdsByTheme.poker;
+  return pool[Math.floor(rng() * pool.length)] ?? 'emerald';
 }
 
 function wrongGuessTaunt(

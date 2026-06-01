@@ -4,6 +4,7 @@ import {
   applyBusGuess,
   applyDealGuess,
   busEscapesOnCorrectContinue,
+  cardBackIdsByTheme,
   chooseTheme,
   continueBus,
   continueDeal,
@@ -14,6 +15,8 @@ import {
 } from '../game/engine';
 import { createShoe } from '../game/deck';
 import type { GameState, Player, TableCard } from '../game/state';
+import { cardBackPalettes } from '../components/cards/cardBackPalette';
+import { themeIds } from '../styles/themes';
 
 const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue: number, suit: Card['suit'] = 'spades'): Card => ({
   id,
@@ -414,7 +417,37 @@ describe('engine start', () => {
 
     expect(lowRoll.theme).toBe('winter');
     expect(highRoll.theme).toBe('winter');
+    expect(cardBackIdsByTheme.winter).toContain(lowRoll.cardBackId);
+    expect(cardBackIdsByTheme.winter).toContain(highRoll.cardBackId);
     expect(lowRoll.cardBackId).not.toBe(highRoll.cardBackId);
+  });
+
+  it('keeps every UI theme on a five-option card-back palette pool', () => {
+    const usedCardBackIds = new Set<string>();
+
+    for (const theme of themeIds) {
+      const pool = cardBackIdsByTheme[theme];
+      expect(pool).toHaveLength(5);
+      expect(new Set(pool)).toHaveLength(5);
+
+      for (const cardBackId of pool) {
+        expect(cardBackPalettes[cardBackId]).toBeDefined();
+        usedCardBackIds.add(cardBackId);
+      }
+    }
+
+    expect(usedCardBackIds).toHaveLength(40);
+  });
+
+  it('chooses random card backs from the resolved random UI theme pool', () => {
+    const state = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'random'
+    }, () => 0.99);
+
+    expect(state.theme).toBe('spring');
+    expect(cardBackIdsByTheme[state.theme]).toContain(state.cardBackId);
   });
 });
 

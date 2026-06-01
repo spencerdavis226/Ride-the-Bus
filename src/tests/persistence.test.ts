@@ -96,6 +96,7 @@ describe('persistence', () => {
     expect(next.log).toHaveLength(state.log.length);
     expect(next.settings.themePreference).toBe('spring');
     expect(next.theme).toBe('spring');
+    expect(next.cardBackId).toBe(state.cardBackId);
   });
 
   it('defaults legacy settings without a theme preference to poker', () => {
