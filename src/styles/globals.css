@@ -1195,6 +1195,13 @@ select {
   width: auto;
   min-height: 11.5rem;
   max-width: min(70vw, 17.5rem);
+}
+
+.table-focus-card-motion {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
   transform-style: preserve-3d;
 }
 

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, type Transition } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
@@ -32,6 +32,7 @@ export function TableScreen() {
   const [quitOpen, setQuitOpen] = useState(false);
   const [previewPlayerId, setPreviewPlayerId] = useState<string | null>(null);
   const [reviewIndex, setReviewIndex] = useState<number | null>(null);
+  const [cardTransition, setCardTransition] = useState<'next' | 'none'>('none');
   const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const total = state.table.cards.length;
   const focusIndex = reviewIndex ?? state.table.activeIndex;
@@ -41,11 +42,13 @@ export function TableScreen() {
 
   function flipCurrentCard() {
     if (!focusCard || reviewingFlip) return;
+    setCardTransition('none');
     setReviewIndex(state.table.activeIndex);
     dispatch({ type: 'TABLE_FLIP_NEXT' });
   }
 
   function moveToNextCard() {
+    setCardTransition('next');
     setReviewIndex(null);
   }
 
@@ -85,7 +88,7 @@ export function TableScreen() {
             </motion.div>
 
             <motion.div layout className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
-              <TableCardFocus card={focusCard} cardBackId={state.cardBackId} />
+              <TableCardFocus card={focusCard} cardBackId={state.cardBackId} transitionDirection={cardTransition} />
             </motion.div>
           </motion.div>
         </motion.div>
@@ -219,44 +222,80 @@ function TableHero({ card }: { card: TableCard | null }) {
   );
 }
 
-function TableCardFocus({ card, cardBackId }: { card: TableCard | null; cardBackId: CardBackId }) {
+type TableCardTransitionDirection = 'next' | 'none';
+const tableCardEase = [0.2, 0.75, 0.25, 1] as const;
+
+function TableCardFocus({
+  card,
+  cardBackId,
+  transitionDirection,
+}: {
+  card: TableCard | null;
+  cardBackId: CardBackId;
+  transitionDirection: TableCardTransitionDirection;
+}) {
   const reduceMotion = useReducedMotion();
 
   if (!card) {
     return null;
   }
 
+  const slideDistance = 260;
+  const cardVariants = {
+    initial: (direction: TableCardTransitionDirection) => ({
+      opacity: reduceMotion ? 1 : direction === 'next' ? 0.2 : 0,
+      rotateY: reduceMotion || card.faceUp ? 180 : 0,
+      scale: reduceMotion ? 1 : 0.985,
+      x: reduceMotion ? 0 : direction === 'next' ? slideDistance : 0,
+    }),
+    animate: {
+      opacity: 1,
+      rotateY: reduceMotion || card.faceUp ? 180 : 0,
+      scale: 1,
+      x: 0,
+    },
+    exit: (direction: TableCardTransitionDirection) => ({
+      opacity: reduceMotion ? 0 : direction === 'next' ? 0.2 : 0,
+      scale: reduceMotion ? 1 : 0.985,
+      x: reduceMotion ? 0 : direction === 'next' ? -slideDistance : 0,
+    }),
+  };
+  const transition: Transition = reduceMotion
+    ? { duration: 0.01 }
+    : transitionDirection === 'next'
+      ? { duration: 0.3, ease: tableCardEase }
+      : card.faceUp
+        ? { ...playFadeTransition, duration: 0.28, ease: tableCardEase }
+        : playFadeTransition;
+
   return (
-    <motion.div layout className="table-card-focus flex h-full min-h-0 w-full min-w-0 items-center justify-center px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
-      <AnimatePresence initial={false} mode="sync">
-        <motion.div
-          key={card.id}
-          layout
-          className="table-focus-card"
-          initial={{ opacity: 0, scale: 0.985, rotateY: reduceMotion || card.faceUp ? 180 : 0 }}
-          animate={{ rotateY: reduceMotion || card.faceUp ? 180 : 0, opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.985 }}
-          transition={
-            reduceMotion
-              ? { duration: 0.01 }
-              : card.faceUp
-                ? { ...playFadeTransition, duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }
-                : playFadeTransition
-          }
-        >
-          <div className="table-card-face">
-            <CardBack id={cardBackId} size="fluid" />
-          </div>
-          <div className="table-card-face table-card-front">
-            <PlayingCard
-              animateEntry={false}
-              card={card.card}
-              motionLayout={false}
-              size="fluid"
-            />
-          </div>
-        </motion.div>
-      </AnimatePresence>
+    <motion.div layout className="table-card-focus relative flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-hidden px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
+      <div className="table-focus-card">
+        <AnimatePresence custom={transitionDirection} initial={false} mode="sync">
+          <motion.div
+            key={card.id}
+            custom={transitionDirection}
+            className="table-focus-card-motion"
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={transition}
+          >
+            <div className="table-card-face">
+              <CardBack id={cardBackId} size="fluid" />
+            </div>
+            <div className="table-card-face table-card-front">
+              <PlayingCard
+                animateEntry={false}
+                card={card.card}
+                motionLayout={false}
+                size="fluid"
+              />
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
