@@ -99,7 +99,7 @@ describe('engine start', () => {
     const afterGuess = applyDealGuess({ ...state, shoe: [card('deal-card', 'black', '2', 2)] }, 'red', nextRng([0.01, 0]));
 
     expect(afterGuess.deal.lastResult?.correct).toBe(false);
-    expect(afterGuess.deal.lastResult?.taunt).toBe('Alex, dogshit guess.');
+    expect(afterGuess.deal.lastResult?.taunt).toBe('Alex, dogshit guess');
   });
 
   it('skips deal taunts when the rare wrong-guess roll misses', () => {
@@ -191,7 +191,7 @@ describe('engine start', () => {
     const afterGuess = applyBusGuess(busState(), 'red', nextRng([0.01, 0]));
 
     expect(afterGuess.bus?.lastResult?.correct).toBe(false);
-    expect(afterGuess.bus?.lastResult?.taunt).toBe('Bus full of idiots.');
+    expect(afterGuess.bus?.lastResult?.taunt).toBe('Bus full of idiots');
   });
 
   it('defers bus reset until continue after a wrong guess', () => {
