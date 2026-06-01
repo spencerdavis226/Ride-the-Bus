@@ -145,6 +145,7 @@ function DealOutcome({
   const reduceMotion = useReducedMotion();
   const correct = result.correct;
   const action = assignment.direction === 'give' ? 'Give' : 'Take';
+  const outcomeText = !correct && result.taunt ? result.taunt : `${correct ? 'Correct' : 'Wrong'} · ${action} ${assignment.units}`;
 
   return (
     <motion.div
@@ -157,7 +158,7 @@ function DealOutcome({
       transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
       <span className="deal-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
-        {correct ? 'Correct' : 'Wrong'} · {action} {assignment.units}
+        {outcomeText}
       </span>
     </motion.div>
   );

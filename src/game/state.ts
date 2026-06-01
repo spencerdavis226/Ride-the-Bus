@@ -72,6 +72,7 @@ export type DealResult = {
   guess: BusGuess;
   actual: string;
   correct: boolean;
+  taunt?: string;
 };
 
 export type DealState = {

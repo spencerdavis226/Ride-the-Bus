@@ -207,6 +207,7 @@ function BusOutcome({
   }
 
   const penalty = assignment?.label.replace('Riders: ', '') ?? 'Take drinks';
+  const outcomeText = result.taunt ?? `Wrong · ${penalty}`;
 
   return (
     <motion.div
@@ -219,7 +220,7 @@ function BusOutcome({
       transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
       <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
-        Wrong · {penalty}
+        {outcomeText}
       </span>
     </motion.div>
   );

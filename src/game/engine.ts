@@ -72,6 +72,219 @@ const cardBackIds: CardBackId[] = [
   'cobalt'
 ];
 
+const TAUNT_CHANCE = 0.05;
+
+const dealTauntTemplates = [
+  '{name}, dogshit guess.',
+  '{name}, fucking brutal.',
+  '{name}, trash read.',
+  '{name}, humiliating.',
+  '{name}, wildly stupid.',
+  '{name}, garbage instincts.',
+  '{name}, sit there and drink.',
+  '{name}, the cards despise you.',
+  '{name}, embarrassing.',
+  '{name}, clown-level miss.',
+  '{name}, zero dignity.',
+  '{name}, unforgivable read.',
+  '{name}, delete that instinct.',
+  '{name}, tragic little guess.',
+  '{name}, shameful work.',
+  '{name}, absolutely cooked.',
+  '{name}, no thoughts detected.',
+  '{name}, spectacularly wrong.',
+  '{name}, miserable choice.',
+  '{name}, drink for that nonsense.',
+  '{name}, deeply unserious.',
+  '{name}, the table noticed.',
+  '{name}, awful in public.',
+  '{name}, pure card cowardice.',
+  '{name}, an intellectual crime.',
+  '{name}, retire immediately.',
+  '{name}, breathtakingly bad.',
+  '{name}, wipe that confidence off.',
+  '{name}, confidently useless.',
+  '{name}, full-body embarrassment.',
+  '{name}, the deck owns you.',
+  '{name}, piss-poor read.',
+  '{name}, tragic card sense.',
+  '{name}, a real low point.',
+  '{name}, deeply cursed guess.',
+  '{name}, drink and reflect.',
+  '{name}, terrible little moment.',
+  '{name}, your hunch sucks.',
+  '{name}, brutal self-own.',
+  '{name}, absolute guess rot.',
+  '{name}, zero card literacy.',
+  '{name}, pathetic read.',
+  '{name}, the room got dumber.',
+  '{name}, ugly guess.',
+  '{name}, stay away from casinos.',
+  '{name}, devastatingly dumb.',
+  '{name}, cursed decision.',
+  '{name}, no business guessing.',
+  '{name}, just awful.',
+  '{name}, elite-level failure.',
+  '{name}, piss away another drink.',
+  '{name}, shame on your instincts.',
+  '{name}, complete confidence scam.',
+  '{name}, deeply embarrassing.',
+  '{name}, what a disaster.',
+  '{name}, abysmal.',
+  '{name}, savage miss.',
+  '{name}, nasty little failure.',
+  '{name}, this is why you drink.',
+  '{name}, your gut is bankrupt.',
+  '{name}, horrendous.',
+  '{name}, stop trusting yourself.',
+  '{name}, the card laughed.',
+  '{name}, brutal incompetence.',
+  '{name}, pure failure energy.',
+  '{name}, ugly business.',
+  '{name}, unforgivably off.',
+  '{name}, garbage call.',
+  '{name}, impressively bad.',
+  '{name}, the deck humiliated you.',
+  '{name}, trash-tier instinct.',
+  '{name}, painful to watch.',
+  '{name}, no redemption there.',
+  '{name}, drink for the audacity.',
+  '{name}, hostile to logic.',
+  '{name}, a terrible idea.',
+  '{name}, fully exposed.',
+  '{name}, absolutely no sauce.',
+  '{name}, catastrophic read.',
+  '{name}, your confidence is fraud.',
+  '{name}, sad little miss.',
+  '{name}, not even close.',
+  '{name}, cursed by incompetence.',
+  '{name}, drink for being wrong.',
+  '{name}, an ugly collapse.',
+  '{name}, bad and loud.',
+  '{name}, truly foul work.',
+  '{name}, peak wrongness.',
+  '{name}, embarrassing instincts.',
+  '{name}, zero clutch.',
+  '{name}, drink through the shame.',
+  '{name}, the table rejects you.',
+  '{name}, no card sense.',
+  '{name}, wretched guess.',
+  '{name}, breathtaking failure.',
+  '{name}, aggressively wrong.',
+  '{name}, pure nonsense.',
+  '{name}, spectacular collapse.',
+  '{name}, filthy miss.',
+  '{name}, disgraceful read.'
+];
+
+const busTauntTemplates = [
+  'Bus full of idiots.',
+  'Group failure. Drink.',
+  'Pathetic. Take {units} each.',
+  'Absolute clown bus.',
+  'You all deserve this.',
+  'Disaster-class guessing.',
+  'Everyone looked stupid there.',
+  'Brutal miss. Drink.',
+  'The bus is judging you.',
+  'Collective dumpster fire.',
+  'Whole bus, zero dignity.',
+  'Teamwork, but embarrassing.',
+  'Riders got exposed.',
+  'Take {units} for that trash.',
+  'Group shame. Drink.',
+  'That was communal failure.',
+  'The bus smells weakness.',
+  'All aboard the shame bus.',
+  'Collective card blindness.',
+  'Take {units} each, failures.',
+  'Nobody looked smart there.',
+  'Riders, fully cooked.',
+  'Public group humiliation.',
+  'That was ugly.',
+  'Bus confidence bankrupt.',
+  'Take {units} and reflect.',
+  'The bus chose violence.',
+  'Everyone failed together.',
+  'Brutal group collapse.',
+  'Riders got rinsed.',
+  'Bus full of bad ideas.',
+  'That read was cursed.',
+  'Group instincts: trash.',
+  'Take {units}, no appeals.',
+  'The bus got humbled.',
+  'Collective nonsense.',
+  'Everyone drink for that.',
+  'Peak bus stupidity.',
+  'Riders, get wrecked.',
+  'That was shameful.',
+  'The bus has no sauce.',
+  'Take {units} for arrogance.',
+  'Group read: garbage.',
+  'Everyone looked cooked.',
+  'The deck owns this bus.',
+  'Riders got embarrassed.',
+  'Trash bus behavior.',
+  'Take {units} each, obviously.',
+  'This bus is cursed.',
+  'Collective confidence scam.',
+  'That miss was filthy.',
+  'Bus got bodied.',
+  'Group failure era.',
+  'The riders fumbled hard.',
+  'Take {units}; deserved.',
+  'Bus full of regret.',
+  'That was pure garbage.',
+  'Everyone sit in shame.',
+  'Riders, pathetic.',
+  'The table witnessed that.',
+  'Take {units} for incompetence.',
+  'Collective faceplant.',
+  'Bus read was rancid.',
+  'Whole bus got cooked.',
+  'The riders are unserious.',
+  'Group dignity deleted.',
+  'Take {units}; learn nothing.',
+  'Absolutely tragic bus.',
+  'Everyone guessed like trash.',
+  'The bus failed loudly.',
+  'Riders, no redemption.',
+  'Collective brain-off moment.',
+  'That was vile.',
+  'Take {units}, clowns.',
+  'The bus deserves this.',
+  'Group instincts bankrupt.',
+  'Everyone wear that shame.',
+  'Bus got humiliated.',
+  'Wrong with confidence.',
+  'Take {units}; brutal.',
+  'The riders are cooked.',
+  'Group collapse. Drink.',
+  'Bus read was criminal.',
+  'Everyone caught the L.',
+  'Take {units} for that mess.',
+  'Collective disaster.',
+  'The bus chose wrong.',
+  'Riders got flattened.',
+  'Group judgment denied.',
+  'Absolutely foul guess.',
+  'Take {units}; no sympathy.',
+  'The bus is a mistake.',
+  'Everyone looked fraudulent.',
+  'Riders, hideous work.',
+  'Collective trash fire.',
+  'Take {units} and shut up.',
+  'That was catastrophic.',
+  'Bus full of bad reads.',
+  'Everyone lost aura.',
+  'Collective collapse.'
+];
+
+export const wrongGuessTauntTemplateCounts = {
+  deal: dealTauntTemplates.length,
+  bus: busTauntTemplates.length
+} as const;
+
 export const defaultSettings: Settings = {
   playerNames: ['', ''],
   busMode: 'singleDeck',
@@ -153,7 +366,7 @@ function gameOverDeckExhausted(state: GameState): GameState {
   });
 }
 
-export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
+export function applyDealGuess(state: GameState, guess: BusGuess, rng: () => number = Math.random): GameState {
   if (state.phase !== 'deal') return state;
   if (state.deal.awaitingContinue) return state;
   if (!state.shoe.length) return gameOverDeckExhausted(state);
@@ -161,6 +374,10 @@ export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
   const { card, deck } = drawOne(state.shoe);
   const score = scoreDealGuess(state.deal, player.hand, guess, card);
   const assignment = makeAssignment(player, score, 'deal');
+  const taunt = wrongGuessTaunt(score.correct, dealTauntTemplates, rng, {
+    name: player.name,
+    units: assignment.units
+  });
   const players = state.players.map((candidate) =>
     candidate.id === player.id ? { ...candidate, hand: [...candidate.hand, card] } : candidate
   );
@@ -172,7 +389,7 @@ export function applyDealGuess(state: GameState, guess: BusGuess): GameState {
     deal: {
       ...state.deal,
       lastAssignment: assignment,
-      lastResult: { guess, actual: score.actual, correct: score.correct },
+      lastResult: { guess, actual: score.actual, correct: score.correct, ...(taunt ? { taunt } : {}) },
       awaitingContinue: true
     },
     log: [
@@ -305,7 +522,7 @@ export function busEscapesOnCorrectContinue(positionIndex: number, lastResult: D
   return viaSame || viaFullRun;
 }
 
-export function applyBusGuess(state: GameState, guess: BusGuess): GameState {
+export function applyBusGuess(state: GameState, guess: BusGuess, rng: () => number = Math.random): GameState {
   if (state.phase !== 'bus') return state;
   if (!state.bus || state.bus.exhausted || state.bus.escaped || state.bus.awaitingContinue) return state;
   const positionIndex = state.bus.progressIndex;
@@ -344,12 +561,13 @@ export function applyBusGuess(state: GameState, guess: BusGuess): GameState {
     label: `Riders: Take ${units} each`
   };
   const projectedTotal = state.bus.drinksEach + units;
+  const taunt = wrongGuessTaunt(score.correct, busTauntTemplates, rng, { units });
   return stamp({
     ...state,
     bus: {
       ...state.bus,
       lastAssignment: assignment,
-      lastResult: { guess, actual: score.actual, correct: false },
+      lastResult: { guess, actual: score.actual, correct: false, ...(taunt ? { taunt } : {}) },
       awaitingContinue: true
     },
     log: [
@@ -595,6 +813,19 @@ export function chooseTheme(preference: ThemePreference | unknown, rng: () => nu
 
 function chooseCardBack(rng: () => number = Math.random): CardBackId {
   return cardBackIds[Math.floor(rng() * cardBackIds.length)] ?? 'emerald';
+}
+
+function wrongGuessTaunt(
+  correct: boolean,
+  templates: string[],
+  rng: () => number,
+  context: { name?: string; units?: number }
+): string | undefined {
+  if (correct || rng() >= TAUNT_CHANCE) return undefined;
+  const template = templates[Math.floor(rng() * templates.length)] ?? templates[0] ?? '';
+  return template
+    .replace('{name}', context.name ?? 'You')
+    .replace('{units}', String(context.units ?? 1));
 }
 
 function stamp(state: GameState): GameState {

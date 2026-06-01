@@ -9,7 +9,8 @@ import {
   continueDeal,
   flipNextTableCard,
   startBus,
-  startGame
+  startGame,
+  wrongGuessTauntTemplateCounts
 } from '../game/engine';
 import { createShoe } from '../game/deck';
 import type { GameState, Player, TableCard } from '../game/state';
@@ -24,6 +25,10 @@ const card = (id: string, color: Card['color'], rank: Card['rank'], numericValue
 });
 
 describe('engine start', () => {
+  it('keeps exactly 100 taunts per wrong-guess category', () => {
+    expect(wrongGuessTauntTemplateCounts).toEqual({ deal: 100, bus: 100 });
+  });
+
   it('chooses selected themes and defaults invalid theme input to poker', () => {
     expect(chooseTheme('winter')).toBe('winter');
     expect(chooseTheme('not-a-theme')).toBe('poker');
@@ -79,6 +84,45 @@ describe('engine start', () => {
     ]);
     expect(entry?.title).toBe('Alex owes 1');
     expect(entry?.result).toBe('wrong');
+  });
+
+  it('adds a rare taunt to wrong deal guesses', () => {
+    const state = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+
+    const afterGuess = applyDealGuess({ ...state, shoe: [card('deal-card', 'black', '2', 2)] }, 'red', nextRng([0.01, 0]));
+
+    expect(afterGuess.deal.lastResult?.correct).toBe(false);
+    expect(afterGuess.deal.lastResult?.taunt).toBe('Alex, dogshit guess.');
+  });
+
+  it('skips deal taunts when the rare wrong-guess roll misses', () => {
+    const state = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+
+    const afterGuess = applyDealGuess({ ...state, shoe: [card('deal-card', 'black', '2', 2)] }, 'red', nextRng([0.05]));
+
+    expect(afterGuess.deal.lastResult?.correct).toBe(false);
+    expect(afterGuess.deal.lastResult?.taunt).toBeUndefined();
+  });
+
+  it('never taunts correct deal guesses', () => {
+    const state = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+
+    const afterGuess = applyDealGuess({ ...state, shoe: [card('deal-card', 'red', '2', 2, 'hearts')] }, 'red', nextRng([0.01, 0]));
+
+    expect(afterGuess.deal.lastResult?.correct).toBe(true);
+    expect(afterGuess.deal.lastResult?.taunt).toBeUndefined();
   });
 
   it('adds a structured table history entry with all matched assignments', () => {
@@ -138,6 +182,13 @@ describe('engine start', () => {
     ]);
     expect(entry?.title).toBe('Riders owe 1 each');
     expect(entry?.result).toBe('wrong');
+  });
+
+  it('adds a rare taunt to wrong bus guesses', () => {
+    const afterGuess = applyBusGuess(busState(), 'red', nextRng([0.01, 0]));
+
+    expect(afterGuess.bus?.lastResult?.correct).toBe(false);
+    expect(afterGuess.bus?.lastResult?.taunt).toBe('Bus full of idiots.');
   });
 
   it('defers bus reset until continue after a wrong guess', () => {
@@ -376,6 +427,10 @@ function busStateAt(progressIndex: 0 | 1 | 2 | 3, visibleCards: Array<Card | nul
       visibleCards
     }
   };
+}
+
+function nextRng(values: number[]): () => number {
+  return () => values.shift() ?? 0;
 }
 
 function busState(): GameState {
