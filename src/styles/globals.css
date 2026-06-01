@@ -444,14 +444,27 @@ select {
   min-height: 52px;
 }
 
-.drawer-backdrop {
+.drawer-backdrop[data-state='opening'] {
   animation: drawer-backdrop-in 180ms ease-out both;
 }
 
 .drawer-sheet {
   background: var(--rtb-app-bg);
   box-shadow: none;
+}
+
+.drawer-sheet[data-state='opening'] {
   animation: drawer-sheet-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.drawer-backdrop[data-state='closing'] {
+  animation: drawer-backdrop-out 180ms ease-in both;
+  pointer-events: none;
+}
+
+.drawer-sheet[data-state='closing'] {
+  animation: drawer-sheet-out 260ms cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
 }
 
 .drawer-backdrop {
@@ -463,6 +476,33 @@ select {
   box-shadow:
     0 -18px 44px var(--rtb-shadow),
     inset 0 1px 0 var(--rtb-border);
+}
+
+.drawer-sheet.is-dragging,
+.drawer-sheet.is-settling {
+  animation: none;
+  transform: translateY(var(--drawer-drag-y, 0));
+}
+
+.drawer-sheet.is-dragging {
+  user-select: none;
+}
+
+.drawer-sheet.is-settling {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drawer-grabber-zone {
+  cursor: grab;
+  touch-action: none;
+}
+
+.drawer-grabber-zone:active {
+  cursor: grabbing;
+}
+
+.drawer-grabber {
+  background: color-mix(in srgb, var(--rtb-text) 26%, transparent);
 }
 
 .drawer-sheet h2,
@@ -647,6 +687,7 @@ select {
   .drawer-backdrop,
   .drawer-sheet {
     animation: none;
+    transition: none;
   }
 
   .card-back-shimmer {
@@ -663,12 +704,30 @@ select {
   }
 }
 
+@keyframes drawer-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 @keyframes drawer-sheet-in {
   from {
     transform: translateY(100%);
   }
   to {
     transform: translateY(0);
+  }
+}
+
+@keyframes drawer-sheet-out {
+  from {
+    transform: translateY(var(--drawer-drag-y, 0));
+  }
+  to {
+    transform: translateY(100%);
   }
 }
 
