@@ -207,7 +207,7 @@ function BusOutcome({
   }
 
   const penalty = assignment?.label.replace('Riders: ', '') ?? 'Take drinks';
-  const outcomeText = result.taunt ?? `Wrong · ${penalty}`;
+  const outcomeText = result.taunt ? `${result.taunt} · ${penalty}` : `Wrong · ${penalty}`;
 
   return (
     <motion.div

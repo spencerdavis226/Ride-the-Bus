@@ -145,7 +145,8 @@ function DealOutcome({
   const reduceMotion = useReducedMotion();
   const correct = result.correct;
   const action = assignment.direction === 'give' ? 'Give' : 'Take';
-  const outcomeText = !correct && result.taunt ? result.taunt : `${correct ? 'Correct' : 'Wrong'} · ${action} ${assignment.units}`;
+  const penalty = `${action} ${assignment.units}`;
+  const outcomeText = !correct && result.taunt ? `${result.taunt} · ${penalty}` : `${correct ? 'Correct' : 'Wrong'} · ${penalty}`;
 
   return (
     <motion.div

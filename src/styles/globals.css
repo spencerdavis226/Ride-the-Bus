@@ -133,25 +133,25 @@
   --rtb-edge-bg: #000000;
   --rtb-app-bg-soft: #05080d;
   --rtb-felt-bg: #020507;
-  --rtb-felt-glow: rgba(34, 211, 238, 0.26);
+  --rtb-felt-glow: rgba(159, 191, 138, 0.16);
   --rtb-surface: #0b0f14;
   --rtb-surface-strong: #141a22;
   --rtb-surface-raised: rgba(11, 15, 20, 0.92);
   --rtb-surface-soft: rgba(248, 250, 252, 0.07);
   --rtb-text: #f8fafc;
   --rtb-text-muted: #a8b3c4;
-  --rtb-accent: #22d3ee;
+  --rtb-accent: #9fbf8a;
   --rtb-brass: var(--rtb-accent);
-  --rtb-accent-text: #001017;
+  --rtb-accent-text: #0b1208;
   --rtb-border: rgba(248, 250, 252, 0.14);
   --rtb-danger: #fb7185;
   --rtb-danger-text: #1f050b;
-  --rtb-success: #5eead4;
+  --rtb-success: #9fd19b;
   --rtb-warning: #facc15;
-  --rtb-correct: #22d3ee;
+  --rtb-correct: #9fbf8a;
   --rtb-incorrect: #facc15;
   --rtb-overlay: rgba(0, 0, 0, 0.78);
-  --rtb-focus: #22d3ee;
+  --rtb-focus: #c6d8ad;
   --rtb-shadow: rgba(0, 0, 0, 0.72);
   --rtb-card-front: #151a22;
   --rtb-card-front-2: #05070b;
@@ -159,10 +159,8 @@
   --rtb-card-ink: #f8fafc;
   --rtb-card-red: #fb7185;
   --rtb-guess-dark-bg: #10151d;
-  --rtb-guess-dark-text: #67e8f9;
-  --rtb-background:
-    radial-gradient(ellipse at 50% -24%, rgba(34, 211, 238, 0.12), transparent 42%),
-    #000000;
+  --rtb-guess-dark-text: #bed6a7;
+  --rtb-background: #000000;
 }
 
 .theme-light {
@@ -613,6 +611,14 @@ select {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, #ffffff 62%, transparent),
     inset 0 -0.28rem 0.7rem color-mix(in srgb, var(--rtb-card-ink) 9%, transparent);
+}
+
+.theme-blackout .playing-card-front,
+.theme-blackout .table-simple-card,
+.theme-blackout .mini-card {
+  background:
+    radial-gradient(ellipse at -22% -20%, color-mix(in srgb, #ffffff 18%, var(--rtb-card-front) 82%), transparent 50%),
+    linear-gradient(155deg, var(--rtb-card-front), var(--rtb-card-front-2));
 }
 
 .mini-card.is-red {
