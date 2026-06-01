@@ -53,7 +53,7 @@ export function RulesDrawer({
     <Drawer
       open={open}
       title="Rules"
-      contentClassName="space-y-4"
+      contentClassName={scope === 'full' ? 'rules-drawer-content space-y-4 pt-1' : 'space-y-4'}
       contentMaxHeight={scope === 'full' ? 'min(78dvh, 46rem)' : '62dvh'}
       onClose={onClose}
     >
@@ -81,7 +81,7 @@ function GameFlowStrip() {
   ];
 
   return (
-    <div className="flex items-center justify-center gap-1.5 px-1" aria-hidden="true">
+    <div className="flex items-center justify-center gap-1.5 px-1 py-0.5" aria-hidden="true">
       {steps.map((step, index) => (
         <div key={step.id} className="flex items-center gap-1.5">
           <span className="rounded-full bg-[var(--rtb-surface-soft)] px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em] text-[var(--rtb-text-muted)] ring-1 ring-[var(--rtb-border)]">
