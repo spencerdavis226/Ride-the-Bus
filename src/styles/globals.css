@@ -494,6 +494,7 @@ select {
 
 .drawer-grabber-zone {
   cursor: grab;
+  min-height: 44px;
   touch-action: none;
 }
 
