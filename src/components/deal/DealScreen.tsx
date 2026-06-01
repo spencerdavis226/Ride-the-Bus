@@ -85,7 +85,7 @@ export function DealScreen() {
               </PlayOutcomeSlot>
             </PlayHero>
 
-            <PlayCardFanArea slots={slots} />
+            <PlayCardFanArea liftHighlighted={false} slots={slots} />
           </PlayTurnMain>
         </PlayTurnFrame>
       </PlayFelt>

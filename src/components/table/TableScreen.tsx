@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
@@ -85,7 +85,7 @@ export function TableScreen() {
             </motion.div>
 
             <motion.div layout className="deal-stage table-stage grid min-h-0 flex-1 grid-cols-1 grid-rows-1 overflow-visible">
-              <TableCardFocus card={focusCard} />
+              <TableCardFocus card={focusCard} cardBackId={state.cardBackId} />
             </motion.div>
           </motion.div>
         </motion.div>
@@ -219,7 +219,9 @@ function TableHero({ card }: { card: TableCard | null }) {
   );
 }
 
-function TableCardFocus({ card }: { card: TableCard | null }) {
+function TableCardFocus({ card, cardBackId }: { card: TableCard | null; cardBackId: CardBackId }) {
+  const reduceMotion = useReducedMotion();
+
   if (!card) {
     return null;
   }
@@ -228,22 +230,31 @@ function TableCardFocus({ card }: { card: TableCard | null }) {
     <motion.div layout className="table-card-focus flex h-full min-h-0 w-full min-w-0 items-center justify-center px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
       <AnimatePresence initial={false} mode="sync">
         <motion.div
-          key={`${card.id}-${card.faceUp ? 'up' : 'down'}`}
+          key={card.id}
           layout
           className="table-focus-card"
-          initial={card.faceUp ? { rotateY: 88, opacity: 0.75, scale: 0.985 } : { opacity: 0, scale: 0.985 }}
-          animate={{ rotateY: 0, opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.985, rotateY: reduceMotion || card.faceUp ? 180 : 0 }}
+          animate={{ rotateY: reduceMotion || card.faceUp ? 180 : 0, opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.985 }}
-          transition={card.faceUp ? { ...playFadeTransition, duration: 0.24 } : playFadeTransition}
-          style={{ transformStyle: 'preserve-3d' }}
+          transition={
+            reduceMotion
+              ? { duration: 0.01 }
+              : card.faceUp
+                ? { ...playFadeTransition, duration: 0.28, ease: [0.2, 0.75, 0.25, 1] }
+                : playFadeTransition
+          }
         >
-          <PlayingCard
-            animateEntry={false}
-            card={card.card}
-            faceUp={card.faceUp}
-            motionLayout={false}
-            size="fluid"
-          />
+          <div className="table-card-face">
+            <CardBack id={cardBackId} size="fluid" />
+          </div>
+          <div className="table-card-face table-card-front">
+            <PlayingCard
+              animateEntry={false}
+              card={card.card}
+              motionLayout={false}
+              size="fluid"
+            />
+          </div>
         </motion.div>
       </AnimatePresence>
     </motion.div>
@@ -256,20 +267,7 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
   }
 
   if (!revealed) {
-    const summary = `Give ${card.value}`;
-    return (
-      <div className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left">
-        <motion.span
-          key={summary}
-          className="deal-outcome-summary table-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ ...playFadeTransition, duration: 0.12 }}
-        >
-          {summary}
-        </motion.span>
-      </div>
-    );
+    return null;
   }
 
   const summaries = summarizeTableHits(card.matchedAssignments);

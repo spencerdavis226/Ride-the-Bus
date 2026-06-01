@@ -108,12 +108,14 @@ export function buildBusFanSlots(
 
 export function PlayCardFanArea({
   fanClassName = '',
+  liftHighlighted = true,
   shake = false,
   shakeKey,
   slots,
   stageClassName = 'overflow-hidden',
 }: {
   fanClassName?: string;
+  liftHighlighted?: boolean;
   shake?: boolean;
   shakeKey?: string;
   slots: PlayCardFanSlot[];
@@ -121,18 +123,26 @@ export function PlayCardFanArea({
 }) {
   return (
     <PlayCardStage className={stageClassName}>
-      <PlayCardFan className={fanClassName} shake={shake} shakeKey={shakeKey} slots={slots} />
+      <PlayCardFan
+        className={fanClassName}
+        liftHighlighted={liftHighlighted}
+        shake={shake}
+        shakeKey={shakeKey}
+        slots={slots}
+      />
     </PlayCardStage>
   );
 }
 
 export function PlayCardFan({
   className = '',
+  liftHighlighted = true,
   shake = false,
   shakeKey,
   slots,
 }: {
   className?: string;
+  liftHighlighted?: boolean;
   shake?: boolean;
   shakeKey?: string;
   slots: PlayCardFanSlot[];
@@ -179,11 +189,12 @@ export function PlayCardFan({
     return () => query.removeEventListener('change', sync);
   }, []);
 
-  const maxHighlightLift = tightLandscape ? 0 : 18;
+  const maxHighlightLift = liftHighlighted && !tightLandscape ? 18 : 0;
   const fan = dims.w > 0 && dims.h > 0 ? computeFan(dims.w, Math.max(1, dims.h - maxHighlightLift)) : null;
   const totalFanW = fan ? fan.cardW + fan.step * 3 : 0;
   const highlightLift = fan ? Math.min(maxHighlightLift, fan.cardH * 0.06) : 0;
   const highlightHeadroom = highlightLift + (highlightLift > 0 ? 3 : 0);
+  const highlightedScale = liftHighlighted ? 1.018 : 1;
 
   return (
     <div
@@ -209,7 +220,7 @@ export function PlayCardFan({
               <motion.div
                 key={i}
                 aria-label={slot.ariaLabel}
-                className="absolute top-0"
+                className="deal-card-slot absolute top-0"
                 style={{ zIndex: i + (highlighted ? 10 : 0) }}
                 initial={false}
                 animate={{
@@ -217,7 +228,7 @@ export function PlayCardFan({
                   top: highlightHeadroom + (highlighted ? -highlightLift : 0),
                   width: fan.cardW,
                   height: fan.cardH,
-                  scale: highlighted ? 1.018 : 1,
+                  scale: highlighted ? highlightedScale : 1,
                   rotate: 0,
                 }}
                 transition={playLayoutTransition}
