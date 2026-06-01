@@ -692,17 +692,18 @@ select {
 }
 
 .table-outcome-slot:empty {
-  height: 0;
-  min-height: 0;
+  min-height: var(--table-result-slot-height);
 }
 
 .table-outcome-slot {
-  min-height: clamp(6.35rem, 17dvh, 7.65rem);
+  --table-result-slot-height: clamp(4.5rem, 10dvh, 5.2rem);
+  height: var(--table-result-slot-height);
+  min-height: var(--table-result-slot-height);
   align-items: flex-start;
 }
 
 .table-outcome-slot:has(.table-hit-list-frame.has-overflow) {
-  min-height: clamp(7.35rem, 18.5dvh, 8.85rem);
+  min-height: var(--table-result-slot-height);
 }
 
 .table-hit-list-frame {
@@ -713,13 +714,13 @@ select {
 .table-hit-list {
   display: grid;
   width: 100%;
-  max-height: calc(3 * 2.05rem + 2 * 0.35rem);
+  max-height: var(--table-result-slot-height);
   gap: 0.35rem;
   overflow: hidden;
 }
 
 .table-hit-list.is-scrollable {
-  max-height: calc(3.5 * 2.05rem + 3 * 0.35rem);
+  max-height: var(--table-result-slot-height);
   overflow-y: auto;
   padding-right: 0.25rem;
   scrollbar-gutter: stable;
