@@ -41,8 +41,8 @@ export function HomeScreenInstallPrompt() {
       >
         <div className="rounded-2xl bg-[var(--rtb-accent-panel)] p-3 ring-1 ring-[var(--rtb-border-strong)]">
           <div className="flex items-center gap-3">
-            <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-[var(--rtb-accent)] p-2 shadow-glow-sm">
-              <img src={`${import.meta.env.BASE_URL}icon.png`} alt="" className="h-full w-full" />
+            <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-[1rem] bg-[var(--rtb-surface)] shadow-glow-sm ring-1 ring-[var(--rtb-border-strong)]">
+              <img src={`${import.meta.env.BASE_URL}icon.png`} alt="" className="h-full w-full object-cover" />
             </span>
             <div className="min-w-0">
               <p className="text-[0.62rem] font-black uppercase tracking-[0.22em] text-[var(--rtb-accent)]">
@@ -84,6 +84,11 @@ function useCanSuggestInstall(): boolean {
   const [canSuggestInstall, setCanSuggestInstall] = useState(false);
 
   useEffect(() => {
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('showInstallPrompt')) {
+      setCanSuggestInstall(true);
+      return;
+    }
+
     const navigatorWithStandalone = window.navigator as NavigatorWithStandalone;
     setCanSuggestInstall(
       canSuggestIOSHomeScreenInstall({
@@ -112,7 +117,7 @@ function InstallStep({
   title: string;
 }) {
   return (
-    <li className="flex min-h-[5rem] gap-3 rounded-2xl bg-[var(--rtb-surface-soft)] p-3 ring-1 ring-[var(--rtb-border)]">
+    <li className="flex min-h-[5rem] items-center gap-3 rounded-2xl bg-[var(--rtb-surface-soft)] p-3 ring-1 ring-[var(--rtb-border)]">
       <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--rtb-accent-soft)] text-[var(--rtb-accent)] ring-1 ring-[var(--rtb-border)]">
         {icon}
         <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-[var(--rtb-accent)] text-[0.62rem] font-black text-[var(--rtb-accent-text)]">
