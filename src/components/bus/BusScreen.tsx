@@ -191,12 +191,11 @@ function BusOutcome({
   if (correct) {
     return (
       <motion.div
-        layout
         className="deal-outcome bus-outcome inline-flex max-w-[22rem] items-center text-left"
         data-result="correct"
-        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -6, scale: 0.98 }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
         transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
       >
         <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">
@@ -211,12 +210,11 @@ function BusOutcome({
 
   return (
     <motion.div
-      layout
       className="deal-outcome bus-outcome inline-flex max-w-[22rem] items-center text-left"
       data-result="wrong"
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
       transition={{ duration: reduceMotion ? 0.08 : 0.16, ease: 'easeOut' }}
     >
       <span className="deal-outcome-summary bus-outcome-summary text-[clamp(0.95rem,3.4vw,1.15rem)] font-black leading-tight">

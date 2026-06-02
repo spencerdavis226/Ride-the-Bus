@@ -212,9 +212,9 @@ export function PlayOutcomeSlot({
   className?: string;
 }) {
   return (
-    <motion.div layout className={`deal-outcome-slot ${className}`}>
+    <div className={`deal-outcome-slot ${className}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
