@@ -35,9 +35,9 @@ export function TableScreen() {
   const [cardTransition, setCardTransition] = useState<'next' | 'none'>('none');
   const previewPlayer = previewPlayerId ? state.players.find((candidate) => candidate.id === previewPlayerId) : null;
   const total = state.table.cards.length;
-  const focusIndex = reviewIndex ?? state.table.activeIndex;
+  const focusIndex = reviewIndex ?? (state.table.completed ? total - 1 : state.table.activeIndex);
   const focusCard = state.table.cards[focusIndex] ?? null;
-  const reviewingFlip = reviewIndex !== null;
+  const reviewingFlip = reviewIndex !== null || state.table.completed;
   const buttonProgress = `${Math.min(focusIndex + 1, total)}/${total}`;
 
   function flipCurrentCard() {
@@ -48,6 +48,11 @@ export function TableScreen() {
   }
 
   function moveToNextCard() {
+    if (state.table.completed) {
+      dispatch({ type: 'TABLE_CONTINUE' });
+      return;
+    }
+
     setCardTransition('next');
     setReviewIndex(null);
   }
@@ -100,9 +105,9 @@ export function TableScreen() {
             <Button
               className="w-full text-base shadow-none"
               onClick={moveToNextCard}
-              disabled={!state.table.cards[state.table.activeIndex]}
+              disabled={!state.table.completed && !state.table.cards[state.table.activeIndex]}
             >
-              Next Card
+              {state.table.completed ? 'Next' : 'Next Card'}
             </Button>
           ) : (
             <Button

@@ -432,7 +432,7 @@ export function flipNextTableCard(state: GameState): GameState {
   const summary = matchResult.assignments.length
     ? matchResult.assignments.map((assignment) => assignment.label).join(', ')
     : `No matches on ${active.card.rank}.`;
-  const nextState: GameState = stamp({
+  return stamp({
     ...state,
     players: matchResult.players,
     table: { cards, activeIndex: nextIndex, completed },
@@ -447,7 +447,11 @@ export function flipNextTableCard(state: GameState): GameState {
       })
     ]
   });
-  return completed ? advanceAfterTable(nextState) : nextState;
+}
+
+export function continueTable(state: GameState): GameState {
+  if (state.phase !== 'table' || !state.table.completed) return state;
+  return advanceAfterTable(state);
 }
 
 export function determineBusRiders(players: Player[]): Player[] {

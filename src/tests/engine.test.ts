@@ -8,6 +8,7 @@ import {
   chooseTheme,
   continueBus,
   continueDeal,
+  continueTable,
   flipNextTableCard,
   startBus,
   startGame,
@@ -166,6 +167,43 @@ describe('engine start', () => {
       'Sam: Give 3'
     ]);
     expect(entry.title).toBe('Alex, Sam give 9');
+  });
+
+  it('holds the final table card outcome until continue before bus prep', () => {
+    const base = startGame({
+      playerNames: ['Alex', 'Sam'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    const players: Player[] = [
+      { id: 'player-1', name: 'Alex', hand: [card('alex-card', 'black', '2', 2)] },
+      { id: 'player-2', name: 'Sam', hand: [card('sam-card', 'red', '3', 3, 'hearts')] }
+    ];
+    const finalCard: TableCard = {
+      id: 'table-final',
+      row: 5,
+      value: 5,
+      card: card('table-final-card', 'black', 'K', 13),
+      faceUp: false,
+      matchedAssignments: []
+    };
+    const state: GameState = {
+      ...base,
+      phase: 'table',
+      players,
+      table: { cards: [finalCard], activeIndex: 0, completed: false },
+      log: []
+    };
+
+    const afterFlip = flipNextTableCard(state);
+    expect(afterFlip.phase).toBe('table');
+    expect(afterFlip.table.completed).toBe(true);
+    expect(afterFlip.table.cards[0]).toEqual(expect.objectContaining({ faceUp: true }));
+    expect(afterFlip.log[0]?.text).toContain('Table K on Row 5');
+
+    const afterContinue = continueTable(afterFlip);
+    expect(afterContinue.phase).toBe('busIntro');
+    expect(afterContinue.log[afterContinue.log.length - 1]?.title).toBe('2 riders will ride');
   });
 
   it('adds a structured bus history entry with rider debt', () => {
