@@ -1368,7 +1368,16 @@ select {
   z-index: 1;
   height: 100%;
   width: 100%;
-  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.table-card-reveal-surface {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 
 .table-card-focus .shadow-card,

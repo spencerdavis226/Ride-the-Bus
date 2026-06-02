@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion, type Transition } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs } from '../../game/cards';
 import { summarizeTableHits, tableHitCountLabel, tableHitLine } from '../../game/log';
@@ -223,7 +223,8 @@ function TableHero({ card }: { card: TableCard | null }) {
 }
 
 type TableCardTransitionDirection = 'next' | 'none';
-const tableCardEase = [0.2, 0.75, 0.25, 1] as const;
+const tableCardEase = [0.22, 1, 0.36, 1] as const;
+const tableCardExitBuffer = 96;
 
 function TableCardFocus({
   card,
@@ -235,42 +236,67 @@ function TableCardFocus({
   transitionDirection: TableCardTransitionDirection;
 }) {
   const reduceMotion = useReducedMotion();
+  const focusRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [slideDistance, setSlideDistance] = useState(520);
+
+  useLayoutEffect(() => {
+    if (reduceMotion) return;
+
+    const updateSlideDistance = () => {
+      const focusWidth = focusRef.current?.getBoundingClientRect().width ?? 0;
+      const cardWidth = cardRef.current?.getBoundingClientRect().width ?? 0;
+      if (!focusWidth || !cardWidth) return;
+
+      setSlideDistance(Math.ceil((focusWidth + cardWidth) / 2 + tableCardExitBuffer));
+    };
+
+    updateSlideDistance();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateSlideDistance);
+      return () => window.removeEventListener('resize', updateSlideDistance);
+    }
+
+    const resizeObserver = new ResizeObserver(updateSlideDistance);
+    if (focusRef.current) resizeObserver.observe(focusRef.current);
+    if (cardRef.current) resizeObserver.observe(cardRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, [reduceMotion]);
 
   if (!card) {
     return null;
   }
 
-  const slideDistance = 260;
   const cardVariants = {
     initial: (direction: TableCardTransitionDirection) => ({
-      opacity: reduceMotion ? 1 : direction === 'next' ? 0.2 : 0,
-      rotateY: reduceMotion || card.faceUp ? 180 : 0,
-      scale: reduceMotion ? 1 : 0.985,
+      opacity: reduceMotion || direction === 'next' ? 1 : 0,
+      scale: reduceMotion || direction === 'next' ? 1 : 0.985,
       x: reduceMotion ? 0 : direction === 'next' ? slideDistance : 0,
     }),
     animate: {
       opacity: 1,
-      rotateY: reduceMotion || card.faceUp ? 180 : 0,
       scale: 1,
       x: 0,
     },
     exit: (direction: TableCardTransitionDirection) => ({
-      opacity: reduceMotion ? 0 : direction === 'next' ? 0.2 : 0,
-      scale: reduceMotion ? 1 : 0.985,
+      opacity: reduceMotion || direction === 'next' ? 1 : 0,
+      scale: reduceMotion || direction === 'next' ? 1 : 0.985,
       x: reduceMotion ? 0 : direction === 'next' ? -slideDistance : 0,
     }),
   };
   const transition: Transition = reduceMotion
     ? { duration: 0.01 }
     : transitionDirection === 'next'
-      ? { duration: 0.3, ease: tableCardEase }
+      ? { duration: 0.44, ease: tableCardEase }
       : card.faceUp
         ? { ...playFadeTransition, duration: 0.28, ease: tableCardEase }
         : playFadeTransition;
 
   return (
-    <motion.div layout className="table-card-focus relative flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
-      <div className="table-focus-card">
+    <div ref={focusRef} className="table-card-focus relative flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
+      <div ref={cardRef} className="table-focus-card">
         <AnimatePresence custom={transitionDirection} initial={false} mode="sync">
           <motion.div
             key={card.id}
@@ -282,21 +308,40 @@ function TableCardFocus({
             exit="exit"
             transition={transition}
           >
-            <div className="table-card-face">
-              <CardBack id={cardBackId} size="fluid" />
-            </div>
-            <div className="table-card-face table-card-front">
-              <PlayingCard
-                animateEntry={false}
-                card={card.card}
-                motionLayout={false}
-                size="fluid"
-              />
-            </div>
+            <AnimatePresence initial={false} mode="sync">
+              {card.faceUp ? (
+                <motion.div
+                  key={`${card.id}-front`}
+                  className="table-card-reveal-surface"
+                  initial={reduceMotion ? false : { opacity: 0.01, rotateY: -88 }}
+                  animate={{ opacity: 1, rotateY: 0 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0.01, rotateY: 88 }}
+                  transition={reduceMotion ? { duration: 0.01 } : { duration: 0.18, ease: tableCardEase, delay: 0.12 }}
+                >
+                  <PlayingCard
+                    animateEntry={false}
+                    card={card.card}
+                    motionLayout={false}
+                    size="fluid"
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`${card.id}-back`}
+                  className="table-card-reveal-surface"
+                  initial={false}
+                  animate={{ opacity: 1, rotateY: 0 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0.01, rotateY: 88 }}
+                  transition={reduceMotion ? { duration: 0.01 } : { duration: 0.16, ease: tableCardEase }}
+                >
+                  <CardBack id={cardBackId} size="fluid" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </AnimatePresence>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
