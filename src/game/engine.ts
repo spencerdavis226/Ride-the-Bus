@@ -2,7 +2,7 @@ import type { Card, Suit } from './cards';
 import { suitGlyphs } from './cards';
 import { calculatePhaseOneTwoDecks, createShoe, createStandardDeck, drawMany, drawOne, shuffleFisherYates } from './deck';
 import { makeLog, tableHitTitle } from './log';
-import { getPlayerDisplayName, normalizePlayerNames } from './playerNames';
+import { getPlayerDisplayName, normalizeSetupPlayerNames } from './playerNames';
 import { dealSubphaseLabels, nextDealPosition } from './phases';
 import {
   busFailureUnits,
@@ -264,13 +264,13 @@ export const wrongGuessTauntTemplateCounts = {
 } as const;
 
 export const defaultSettings: Settings = {
-  playerNames: ['', ''],
+  playerNames: [''],
   busMode: 'singleDeck',
   themePreference: 'poker'
 };
 
 export function createSetupState(settings: Settings = defaultSettings): GameState {
-  const playerNames = normalizePlayerNames(settings.playerNames);
+  const playerNames = normalizeSetupPlayerNames(settings.playerNames);
   const normalizedSettings = { ...settings, playerNames };
   const theme = chooseTheme(settings.themePreference);
   const now = Date.now();
@@ -302,7 +302,7 @@ export function namesToPlayers(names: string[]): Player[] {
 }
 
 export function startGame(settings: Settings, rng: () => number = Math.random): GameState {
-  const playerNames = normalizePlayerNames(settings.playerNames.length >= 2 ? settings.playerNames : ['', '']);
+  const playerNames = normalizeSetupPlayerNames(settings.playerNames);
   const phaseOneTwoDecks = calculatePhaseOneTwoDecks(playerNames.length);
   const shoe = shuffleFisherYates(createShoe(phaseOneTwoDecks), rng);
   const theme = chooseTheme(settings.themePreference, rng);

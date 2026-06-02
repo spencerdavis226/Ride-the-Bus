@@ -1,4 +1,5 @@
 export const PLAYER_NAME_MAX_LENGTH = 12;
+export const MIN_PLAYER_COUNT = 1;
 
 export function formatPlayerNameInput(value: string): string {
   const singleLineName = value.replace(/[\r\n\t]+/g, ' ').trimStart();
@@ -9,6 +10,11 @@ export function formatPlayerNameInput(value: string): string {
 
 export function normalizePlayerNames(names: string[]): string[] {
   return names.map(formatPlayerNameInput);
+}
+
+export function normalizeSetupPlayerNames(names: string[]): string[] {
+  const normalizedNames = normalizePlayerNames(names);
+  return normalizedNames.length >= MIN_PLAYER_COUNT ? normalizedNames : [''];
 }
 
 export function getPlayerDisplayName(name: string, index: number): string {

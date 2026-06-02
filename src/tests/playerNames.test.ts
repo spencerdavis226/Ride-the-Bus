@@ -3,6 +3,7 @@ import { startGame } from '../game/engine';
 import {
   formatPlayerNameInput,
   getPlayerDisplayName,
+  normalizeSetupPlayerNames,
   PLAYER_NAME_MAX_LENGTH
 } from '../game/playerNames';
 
@@ -23,6 +24,10 @@ describe('player name formatting', () => {
     expect(getPlayerDisplayName('', 0)).toBe('Player 1');
   });
 
+  it('keeps at least one setup player row', () => {
+    expect(normalizeSetupPlayerNames([])).toEqual(['']);
+  });
+
   it('applies the same name rules when starting a game directly', () => {
     const state = startGame({
       playerNames: ['alexanderthegreat', 'sam'],
@@ -32,5 +37,16 @@ describe('player name formatting', () => {
 
     expect(state.settings.playerNames).toEqual(['Alexanderthe', 'Sam']);
     expect(state.players.map((player) => player.name)).toEqual(['Alexanderthe', 'Sam']);
+  });
+
+  it('allows starting a single-player game directly', () => {
+    const state = startGame({
+      playerNames: ['alex'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+
+    expect(state.settings.playerNames).toEqual(['Alex']);
+    expect(state.players.map((player) => player.name)).toEqual(['Alex']);
   });
 });

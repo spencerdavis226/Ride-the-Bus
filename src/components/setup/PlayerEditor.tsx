@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { formatPlayerNameInput, PLAYER_NAME_MAX_LENGTH } from '../../game/playerNames';
+import { formatPlayerNameInput, MIN_PLAYER_COUNT, PLAYER_NAME_MAX_LENGTH } from '../../game/playerNames';
 
 export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (names: string[]) => void }) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -23,7 +23,10 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
     onChange([...names, '']);
   };
   const removePlayer = (index: number) => {
-    if (names.length <= 2) return;
+    if (names.length <= MIN_PLAYER_COUNT) {
+      onChange(names.map((name, i) => (i === index ? '' : name)));
+      return;
+    }
     onChange(names.filter((_, i) => i !== index));
   };
   const focusNextPlayer = (index: number) => {
@@ -66,9 +69,8 @@ export function PlayerEditor({ names, onChange }: { names: string[]; onChange: (
             placeholder={`Player ${index + 1}`}
           />
           <button
-            aria-label={`Remove ${name || `Player ${index + 1}`}`}
-            className="player-remove grid h-11 w-11 shrink-0 place-items-center rounded-lg text-[var(--rtb-text-faint)] transition-[transform,color] duration-100 active:scale-90 active:text-[var(--rtb-text)] disabled:opacity-25"
-            disabled={names.length <= 2}
+            aria-label={`${names.length <= MIN_PLAYER_COUNT ? 'Clear' : 'Remove'} ${name || `Player ${index + 1}`}`}
+            className="player-remove grid h-11 w-11 shrink-0 place-items-center rounded-lg text-[var(--rtb-text-faint)] transition-[transform,color] duration-100 active:scale-90 active:text-[var(--rtb-text)]"
             onClick={() => removePlayer(index)}
             type="button"
           >

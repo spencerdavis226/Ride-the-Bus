@@ -39,6 +39,19 @@ describe('persistence', () => {
     expect(isResumableGameState(loaded)).toBe(true);
   });
 
+  it('round-trips a one-player resumable game', () => {
+    const state = startGame({
+      playerNames: ['Alex'],
+      busMode: 'singleDeck',
+      themePreference: 'poker'
+    });
+    saveGame(state);
+    const loaded = loadSavedGame();
+    expect(loaded?.phase).toBe('deal');
+    expect(loaded?.players).toHaveLength(1);
+    expect(isResumableGameState(loaded)).toBe(true);
+  });
+
   it('auto-resolves initial state from an in-progress save', () => {
     const state = startGame({
       playerNames: ['Alex', 'Sam'],

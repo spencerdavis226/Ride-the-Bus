@@ -1,4 +1,5 @@
 import type { Card } from '../game/cards';
+import { MIN_PLAYER_COUNT } from '../game/playerNames';
 import { dealSubphases } from '../game/phases';
 import type { BusState, DealState, GamePhase, GameState, Player, Settings, TableState } from '../game/state';
 import { isThemeId } from '../styles/themes';
@@ -86,7 +87,7 @@ export function isResumableGameState(value: unknown): value is GameState {
   if (!isRecord(value)) return false;
   if (typeof value.phase !== 'string' || !gamePhases.includes(value.phase as GamePhase)) return false;
   if (value.phase === 'setup') return false;
-  if (!Array.isArray(value.players) || value.players.length < 2 || !value.players.every(isPlayer)) {
+  if (!Array.isArray(value.players) || value.players.length < MIN_PLAYER_COUNT || !value.players.every(isPlayer)) {
     return false;
   }
   if (!isSettings(value.settings)) return false;
