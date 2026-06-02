@@ -269,7 +269,7 @@ function TableCardFocus({
         : playFadeTransition;
 
   return (
-    <motion.div layout className="table-card-focus relative flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-hidden px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
+    <motion.div layout className="table-card-focus relative flex h-full min-h-0 w-full min-w-0 items-center justify-center overflow-visible px-[clamp(0.25rem,2vw,1.5rem)] py-[clamp(0.4rem,2vh,1rem)]">
       <div className="table-focus-card">
         <AnimatePresence custom={transitionDirection} initial={false} mode="sync">
           <motion.div
