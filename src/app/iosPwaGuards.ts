@@ -1,4 +1,6 @@
 type TouchState = {
+  startX: number;
+  startY: number;
   x: number;
   y: number;
 };
@@ -15,6 +17,7 @@ const scrollableSelector = [
   '.overflow-y-auto',
   '[data-scrollable="true"]',
 ].join(',');
+const touchMoveCancelThreshold = 8;
 
 function isIOSDevice() {
   if (typeof navigator === 'undefined') return false;
@@ -55,15 +58,20 @@ function shouldBlockScrollableBounce(scrollable: ScrollableInfo, currentX: numbe
 export function startIOSPwaGuards() {
   if (typeof window === 'undefined' || typeof document === 'undefined' || !isIOSDevice()) return;
 
-  const touchState: TouchState = { x: 0, y: 0 };
+  const touchState: TouchState = { startX: 0, startY: 0, x: 0, y: 0 };
 
   const prevent = (event: Event) => {
     event.preventDefault();
   };
 
   const onTouchStart = (event: TouchEvent) => {
-    touchState.x = event.touches[0]?.clientX ?? 0;
-    touchState.y = event.touches[0]?.clientY ?? 0;
+    const touch = event.touches[0];
+    const x = touch?.clientX ?? 0;
+    const y = touch?.clientY ?? 0;
+    touchState.startX = x;
+    touchState.startY = y;
+    touchState.x = x;
+    touchState.y = y;
   };
 
   const onTouchMove = (event: TouchEvent) => {
@@ -74,6 +82,16 @@ export function startIOSPwaGuards() {
 
     const currentX = event.touches[0]?.clientX ?? touchState.x;
     const currentY = event.touches[0]?.clientY ?? touchState.y;
+    const movedEnough =
+      Math.abs(currentX - touchState.startX) > touchMoveCancelThreshold ||
+      Math.abs(currentY - touchState.startY) > touchMoveCancelThreshold;
+
+    if (!movedEnough) {
+      touchState.x = currentX;
+      touchState.y = currentY;
+      return;
+    }
+
     const scrollable = findScrollableElement(event.target);
 
     if (!scrollable || shouldBlockScrollableBounce(scrollable, currentX, currentY, touchState)) {
