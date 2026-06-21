@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion, type Transition } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useGame } from '../../app/GameProvider';
 import { suitGlyphs } from '../../game/cards';
 import { summarizeTableHits, tableHitCountLabel, tableHitLine } from '../../game/log';
@@ -30,6 +30,7 @@ export function TableScreen() {
   const [logOpen, setLogOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [quitOpen, setQuitOpen] = useState(false);
+  const [tableHitsOpen, setTableHitsOpen] = useState(false);
   const [previewPlayerId, setPreviewPlayerId] = useState<string | null>(null);
   const [reviewIndex, setReviewIndex] = useState<number | null>(null);
   const [cardTransition, setCardTransition] = useState<'next' | 'none'>('none');
@@ -88,7 +89,7 @@ export function TableScreen() {
             <motion.div layout className="deal-hero table-hero shrink-0">
               <TableHero card={focusCard} />
               <div className="deal-outcome-slot table-outcome-slot">
-                {focusCard && <TableResult card={focusCard} revealed={reviewingFlip} />}
+                {focusCard && <TableResult card={focusCard} revealed={reviewingFlip} onViewAll={() => setTableHitsOpen(true)} />}
               </div>
             </motion.div>
 
@@ -129,6 +130,15 @@ export function TableScreen() {
         onClose={() => setOverviewOpen(false)}
       >
         <TableMap cards={state.table.cards} activeIndex={focusIndex} cardBackId={state.cardBackId} />
+      </Drawer>
+      <Drawer
+        open={tableHitsOpen}
+        title="Table Hits"
+        contentClassName="table-hits-drawer-content"
+        contentMaxHeight="min(74dvh, 42rem)"
+        onClose={() => setTableHitsOpen(false)}
+      >
+        {focusCard && <TableHitsDrawer card={focusCard} />}
       </Drawer>
       <HistoryDrawer open={logOpen} onClose={() => setLogOpen(false)} />
       <AnimatePresence>
@@ -367,7 +377,7 @@ function TableCardFocus({
   );
 }
 
-function TableResult({ card, revealed }: { card: TableCard; revealed: boolean }) {
+function TableResult({ card, onViewAll, revealed }: { card: TableCard; onViewAll: () => void; revealed: boolean }) {
   if (!card) {
     return null;
   }
@@ -377,6 +387,7 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
   }
 
   const summaries = summarizeTableHits(card.matchedAssignments);
+  const totalUnits = summaries.reduce((sum, summary) => sum + summary.units, 0);
   if (!summaries.length) {
     return (
       <div className="deal-outcome table-outcome inline-flex max-w-[22rem] items-center text-left">
@@ -393,83 +404,77 @@ function TableResult({ card, revealed }: { card: TableCard; revealed: boolean })
     );
   }
 
-  const motionKey = summaries.map((summary) => `${summary.playerId}:${summary.units}:${summary.count}`).join('|');
-  const overflowCount = Math.max(0, summaries.length - 3);
+  const manyHits = summaries.length > 3;
+  const visibleSummaries = manyHits ? summaries.slice(0, 2) : summaries;
+
   return (
-    <div className="deal-outcome table-outcome w-full max-w-[23rem] text-left">
-      <TableHitList motionKey={motionKey} scrollable={overflowCount > 0} summaries={summaries} />
+    <motion.div
+      key={`${card.id}-${summaries.length}-${totalUnits}`}
+      className={`deal-outcome table-outcome table-hit-result w-full max-w-[23rem] text-left ${manyHits ? 'is-many' : 'is-small'}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ ...playFadeTransition, duration: 0.12 }}
+    >
+      {manyHits && (
+        <div className="table-hit-summary-row">
+          <span>{summaries.length} players hit</span>
+          <span>Give {card.value}</span>
+        </div>
+      )}
+      <TableHitRows summaries={visibleSummaries} />
+      {manyHits && (
+        <button type="button" className="table-hit-view-all" onClick={onViewAll}>
+          View all {summaries.length}
+        </button>
+      )}
+    </motion.div>
+  );
+}
+
+function TableHitRows({ summaries }: { summaries: ReturnType<typeof summarizeTableHits> }) {
+  return (
+    <div className="table-hit-rows">
+      {summaries.map((summary) => (
+        <div key={summary.playerId} className="table-hit-row">
+          <span className="table-hit-name">{tableHitLine(summary)}</span>
+          {tableHitCountLabel(summary) && <span className="table-hit-count">{tableHitCountLabel(summary)}</span>}
+        </div>
+      ))}
     </div>
   );
 }
 
-function TableHitList({
-  motionKey,
-  scrollable,
-  summaries,
-}: {
-  motionKey: string;
-  scrollable: boolean;
-  summaries: ReturnType<typeof summarizeTableHits>;
-}) {
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const [scrollState, setScrollState] = useState({ canScrollDown: false, canScrollUp: false });
+function TableHitsDrawer({ card }: { card: TableCard }) {
+  const summaries = summarizeTableHits(card.matchedAssignments);
+  const totalUnits = summaries.reduce((sum, summary) => sum + summary.units, 0);
 
-  const updateScrollState = useCallback(() => {
-    const list = listRef.current;
-    if (!list || !scrollable) {
-      setScrollState({ canScrollDown: false, canScrollUp: false });
-      return;
-    }
-
-    const maxScrollTop = Math.max(0, list.scrollHeight - list.clientHeight);
-    setScrollState({
-      canScrollDown: list.scrollTop < maxScrollTop - 1,
-      canScrollUp: list.scrollTop > 1
-    });
-  }, [scrollable]);
-
-  useEffect(() => {
-    const list = listRef.current;
-    if (!list) return;
-
-    list.scrollTop = 0;
-    const frame = window.requestAnimationFrame(updateScrollState);
-    const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateScrollState);
-    resizeObserver?.observe(list);
-    window.addEventListener('resize', updateScrollState);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      resizeObserver?.disconnect();
-      window.removeEventListener('resize', updateScrollState);
-    };
-  }, [motionKey, updateScrollState]);
-
-  const frameClasses = [
-    'table-hit-list-frame',
-    scrollable ? 'has-overflow' : '',
-    scrollState.canScrollUp ? 'can-scroll-up' : '',
-    scrollState.canScrollDown ? 'can-scroll-down' : ''
-  ].filter(Boolean).join(' ');
+  if (!summaries.length) {
+    return (
+      <div className="table-hits-drawer-empty">
+        No matches on {card.card.rank} {suitGlyphs[card.card.suit]}.
+      </div>
+    );
+  }
 
   return (
-    <div className={frameClasses}>
-      <motion.div
-        ref={listRef}
-        key={motionKey}
-        className={`table-hit-list ${scrollable ? 'is-scrollable' : ''}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ ...playFadeTransition, duration: 0.12 }}
-        onScroll={updateScrollState}
-      >
-        {summaries.map((summary) => (
-          <div key={summary.playerId} className="table-hit-row">
-            <span className="table-hit-name">{tableHitLine(summary)}</span>
-            {tableHitCountLabel(summary) && <span className="table-hit-count">{tableHitCountLabel(summary)}</span>}
-          </div>
-        ))}
-      </motion.div>
+    <div className="table-hits-drawer">
+      <div className="table-hits-drawer-hero">
+        <div>
+          <p className="table-hits-drawer-eyebrow">Row {card.row}</p>
+          <p className="table-hits-drawer-title">
+            {card.card.rank} {suitGlyphs[card.card.suit]}
+          </p>
+        </div>
+        <div className="table-hits-drawer-total">
+          <span>{summaries.length}</span>
+          <span>hits</span>
+        </div>
+      </div>
+      <div className="table-hits-drawer-meta">
+        <span>Give {card.value}</span>
+        <span>{totalUnits} total</span>
+      </div>
+      <TableHitRows summaries={summaries} />
     </div>
   );
 }
