@@ -38,6 +38,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     root.classList.remove(...themeClasses);
     root.classList.add(themeClass);
     root.classList.toggle('rtb-document-scroll', isSetup);
+    if (!isSetup) {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
     root.style.colorScheme =
       state.theme === 'light' || state.theme === 'summer' || state.theme === 'winter' || state.theme === 'spring'
         ? 'light'

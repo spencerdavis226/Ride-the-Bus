@@ -11,13 +11,24 @@ type ScrollableInfo = {
   element: HTMLElement;
 };
 
+type ScrollSnapshot = {
+  entries: Array<{ element: HTMLElement; scrollLeft: number; scrollTop: number }>;
+  rootLeft: number;
+  rootTop: number;
+};
+
 const scrollableSelector = [
   '.drawer-content',
   '.turn-rail',
   '.overflow-y-auto',
   '[data-scrollable="true"]',
 ].join(',');
+const keyboardTargetSelector = 'input, textarea, select';
 const touchMoveCancelThreshold = 8;
+const keyboardOpenHeightDelta = 80;
+const keyboardClosedHeightDelta = 24;
+const setupKeyboardPollMs = 120;
+const setupKeyboardResetDelays = [0, 80, 180, 360, 700];
 
 function isIOSDevice() {
   if (typeof navigator === 'undefined') return false;
@@ -59,16 +70,125 @@ function isRigidScrollPhase() {
   return document.querySelector<HTMLElement>('.app-shell')?.dataset.rigidScroll === 'true';
 }
 
+function isSetupScrollPhase() {
+  const shell = document.querySelector<HTMLElement>('.app-shell');
+  return shell?.dataset.phase === 'setup' && shell.dataset.rigidScroll !== 'true';
+}
+
+function isKeyboardTarget(target: EventTarget | null) {
+  return target instanceof Element && target.matches(keyboardTargetSelector);
+}
+
+function captureScrollSnapshot(): ScrollSnapshot {
+  const entries = Array.from(document.querySelectorAll<HTMLElement>(scrollableSelector)).map((element) => ({
+    element,
+    scrollLeft: element.scrollLeft,
+    scrollTop: element.scrollTop,
+  }));
+
+  return {
+    entries,
+    rootLeft: window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft || 0,
+    rootTop: window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0,
+  };
+}
+
 export function startIOSPwaGuards() {
   if (typeof window === 'undefined' || typeof document === 'undefined' || !isIOSDevice()) return;
 
   const touchState: TouchState = { startX: 0, startY: 0, x: 0, y: 0 };
+  const viewport = window.visualViewport;
+  let stableViewportHeight = viewport?.height ?? window.innerHeight;
+  let setupKeyboardFocused = false;
+  let setupKeyboardOpened = false;
+  let setupKeyboardSnapshot: ScrollSnapshot | null = null;
+  let pendingKeyboardSnapshot: ScrollSnapshot | null = null;
+  let setupKeyboardPollId: number | null = null;
+  let setupKeyboardResetIds: number[] = [];
 
   const prevent = (event: Event) => {
     event.preventDefault();
   };
 
+  const clearSetupKeyboardReset = () => {
+    setupKeyboardResetIds.forEach((timerId) => window.clearTimeout(timerId));
+    setupKeyboardResetIds = [];
+  };
+
+  const clearSetupKeyboardPoll = () => {
+    if (setupKeyboardPollId === null) return;
+    window.clearInterval(setupKeyboardPollId);
+    setupKeyboardPollId = null;
+  };
+
+  const restoreSetupScroll = () => {
+    const snapshot = setupKeyboardSnapshot;
+    const rootLeft = snapshot?.rootLeft ?? 0;
+    const rootTop = snapshot?.rootTop ?? 0;
+
+    window.scrollTo(rootLeft, rootTop);
+    document.documentElement.scrollLeft = rootLeft;
+    document.documentElement.scrollTop = rootTop;
+    document.body.scrollLeft = rootLeft;
+    document.body.scrollTop = rootTop;
+    snapshot?.entries.forEach(({ element, scrollLeft, scrollTop }) => {
+      element.scrollLeft = scrollLeft;
+      element.scrollTop = scrollTop;
+    });
+  };
+
+  const scheduleSetupKeyboardReset = () => {
+    clearSetupKeyboardReset();
+    setupKeyboardResetIds = setupKeyboardResetDelays.map((delay) =>
+      window.setTimeout(() => {
+        restoreSetupScroll();
+        if (delay === setupKeyboardResetDelays[setupKeyboardResetDelays.length - 1]) {
+          stableViewportHeight = viewport?.height ?? window.innerHeight;
+          setupKeyboardOpened = false;
+          setupKeyboardSnapshot = null;
+          setupKeyboardResetIds = [];
+        }
+      }, delay)
+    );
+  };
+
+  const checkSetupKeyboardState = () => {
+    if (!setupKeyboardFocused || !isSetupScrollPhase()) return;
+
+    const currentHeight = viewport?.height ?? window.innerHeight;
+    const currentOffsetTop = viewport?.offsetTop ?? 0;
+    const keyboardLooksOpen =
+      currentHeight < stableViewportHeight - keyboardOpenHeightDelta || currentOffsetTop > keyboardClosedHeightDelta;
+    const keyboardLooksClosed =
+      setupKeyboardOpened &&
+      currentHeight >= stableViewportHeight - keyboardClosedHeightDelta &&
+      currentOffsetTop <= 1;
+
+    if (keyboardLooksOpen) {
+      setupKeyboardOpened = true;
+      return;
+    }
+
+    if (!keyboardLooksClosed) return;
+
+    if (isKeyboardTarget(document.activeElement)) {
+      (document.activeElement as HTMLElement).blur();
+    }
+    setupKeyboardFocused = false;
+    clearSetupKeyboardPoll();
+    scheduleSetupKeyboardReset();
+  };
+
+  const startSetupKeyboardPoll = () => {
+    if (setupKeyboardPollId !== null) return;
+    setupKeyboardPollId = window.setInterval(checkSetupKeyboardState, setupKeyboardPollMs);
+  };
+
   const onTouchStart = (event: TouchEvent) => {
+    if (isSetupScrollPhase() && isKeyboardTarget(event.target)) {
+      pendingKeyboardSnapshot = captureScrollSnapshot();
+    }
+
     const touch = event.touches[0];
     const x = touch?.clientX ?? 0;
     const y = touch?.clientY ?? 0;
@@ -108,9 +228,37 @@ export function startIOSPwaGuards() {
     touchState.y = currentY;
   };
 
+  const onFocusIn = (event: FocusEvent) => {
+    if (!isSetupScrollPhase() || !isKeyboardTarget(event.target)) return;
+
+    clearSetupKeyboardReset();
+    setupKeyboardFocused = true;
+    setupKeyboardOpened = false;
+    stableViewportHeight = Math.max(stableViewportHeight, viewport?.height ?? window.innerHeight);
+    setupKeyboardSnapshot = pendingKeyboardSnapshot ?? captureScrollSnapshot();
+    pendingKeyboardSnapshot = null;
+    startSetupKeyboardPoll();
+  };
+
+  const onFocusOut = (event: FocusEvent) => {
+    if (!isKeyboardTarget(event.target)) return;
+
+    setupKeyboardFocused = false;
+    pendingKeyboardSnapshot = null;
+    clearSetupKeyboardPoll();
+
+    if (isSetupScrollPhase()) {
+      scheduleSetupKeyboardReset();
+    }
+  };
+
   document.addEventListener('gesturestart', prevent, { passive: false });
   document.addEventListener('gesturechange', prevent, { passive: false });
   document.addEventListener('gestureend', prevent, { passive: false });
+  document.addEventListener('focusin', onFocusIn);
+  document.addEventListener('focusout', onFocusOut);
   document.addEventListener('touchstart', onTouchStart, { passive: true });
   document.addEventListener('touchmove', onTouchMove, { passive: false });
+  viewport?.addEventListener('resize', checkSetupKeyboardState);
+  viewport?.addEventListener('scroll', checkSetupKeyboardState);
 }
