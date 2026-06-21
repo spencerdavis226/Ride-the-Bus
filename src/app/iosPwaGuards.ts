@@ -17,7 +17,9 @@ const scrollableSelector = [
   '.overflow-y-auto',
   '[data-scrollable="true"]',
 ].join(',');
+const keyboardTargetSelector = 'input, textarea, select';
 const touchMoveCancelThreshold = 8;
+const keyboardResetDelays = [0, 80, 180, 360];
 
 function isIOSDevice() {
   if (typeof navigator === 'undefined') return false;
@@ -55,10 +57,20 @@ function shouldBlockScrollableBounce(scrollable: ScrollableInfo, currentX: numbe
   return (atTop && deltaY > 0) || (atBottom && deltaY < 0);
 }
 
+function isKeyboardTarget(target: EventTarget | null) {
+  return target instanceof Element && target.matches(keyboardTargetSelector);
+}
+
 export function startIOSPwaGuards() {
   if (typeof window === 'undefined' || typeof document === 'undefined' || !isIOSDevice()) return;
 
   const touchState: TouchState = { startX: 0, startY: 0, x: 0, y: 0 };
+  const viewport = window.visualViewport;
+  let stableViewportHeight = viewport?.height ?? window.innerHeight;
+  let keyboardActive = false;
+  let keyboardClosing = false;
+  let lastViewportHeight = stableViewportHeight;
+  let resetTimerIds: number[] = [];
 
   const prevent = (event: Event) => {
     event.preventDefault();
@@ -102,9 +114,70 @@ export function startIOSPwaGuards() {
     touchState.y = currentY;
   };
 
+  const clearResetTimers = () => {
+    resetTimerIds.forEach((timerId) => window.clearTimeout(timerId));
+    resetTimerIds = [];
+  };
+
+  const resetRootScroll = () => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
+  const scheduleKeyboardCloseReset = () => {
+    keyboardClosing = true;
+    clearResetTimers();
+    resetTimerIds = keyboardResetDelays.map((delay) =>
+      window.setTimeout(() => {
+        resetRootScroll();
+        if (delay === keyboardResetDelays[keyboardResetDelays.length - 1]) {
+          keyboardClosing = false;
+          stableViewportHeight = viewport?.height ?? window.innerHeight;
+          resetTimerIds = [];
+        }
+      }, delay)
+    );
+  };
+
+  const onFocusIn = (event: FocusEvent) => {
+    if (!isKeyboardTarget(event.target)) return;
+    stableViewportHeight = viewport?.height ?? window.innerHeight;
+    keyboardActive = true;
+    keyboardClosing = false;
+    clearResetTimers();
+  };
+
+  const onFocusOut = (event: FocusEvent) => {
+    if (!isKeyboardTarget(event.target)) return;
+    keyboardActive = false;
+    scheduleKeyboardCloseReset();
+  };
+
+  const onViewportChange = () => {
+    const nextHeight = viewport?.height ?? window.innerHeight;
+    const viewportRecovered =
+      keyboardActive === false &&
+      nextHeight >= stableViewportHeight - 12 &&
+      lastViewportHeight < nextHeight;
+
+    lastViewportHeight = nextHeight;
+
+    if (keyboardClosing || viewportRecovered) {
+      scheduleKeyboardCloseReset();
+      return;
+    }
+
+    if (!keyboardActive) stableViewportHeight = nextHeight;
+  };
+
   document.addEventListener('gesturestart', prevent, { passive: false });
   document.addEventListener('gesturechange', prevent, { passive: false });
   document.addEventListener('gestureend', prevent, { passive: false });
+  document.addEventListener('focusin', onFocusIn);
+  document.addEventListener('focusout', onFocusOut);
   document.addEventListener('touchstart', onTouchStart, { passive: true });
   document.addEventListener('touchmove', onTouchMove, { passive: false });
+  viewport?.addEventListener('resize', onViewportChange);
+  viewport?.addEventListener('scroll', onViewportChange);
 }
