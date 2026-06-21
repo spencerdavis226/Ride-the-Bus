@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [state.theme, themeClass]);
 
   return (
-    <main className={`${themeClass} app-shell h-dvh overflow-hidden text-[var(--rtb-text)]`}>
+    <main className={`${themeClass} app-shell h-full overflow-hidden text-[var(--rtb-text)]`}>
       <div
         className="landscape-blocker fixed inset-0 z-[70] flex-col items-center justify-center gap-4 bg-[var(--rtb-app-bg)] text-center text-[var(--rtb-text)]"
         role="status"

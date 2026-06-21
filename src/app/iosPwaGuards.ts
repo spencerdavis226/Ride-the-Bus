@@ -11,6 +11,12 @@ type ScrollableInfo = {
   element: HTMLElement;
 };
 
+type ScrollSnapshot = {
+  entries: Array<{ element: HTMLElement; scrollLeft: number; scrollTop: number }>;
+  rootLeft: number;
+  rootTop: number;
+};
+
 const scrollableSelector = [
   '.drawer-content',
   '.turn-rail',
@@ -61,6 +67,20 @@ function isKeyboardTarget(target: EventTarget | null) {
   return target instanceof Element && target.matches(keyboardTargetSelector);
 }
 
+function captureScrollSnapshot(): ScrollSnapshot {
+  const entries = Array.from(document.querySelectorAll<HTMLElement>(scrollableSelector)).map((element) => ({
+    element,
+    scrollLeft: element.scrollLeft,
+    scrollTop: element.scrollTop,
+  }));
+
+  return {
+    entries,
+    rootLeft: window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft || 0,
+    rootTop: window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0,
+  };
+}
+
 export function startIOSPwaGuards() {
   if (typeof window === 'undefined' || typeof document === 'undefined' || !isIOSDevice()) return;
 
@@ -71,12 +91,17 @@ export function startIOSPwaGuards() {
   let keyboardClosing = false;
   let lastViewportHeight = stableViewportHeight;
   let resetTimerIds: number[] = [];
+  let scrollSnapshot: ScrollSnapshot | null = null;
 
   const prevent = (event: Event) => {
     event.preventDefault();
   };
 
   const onTouchStart = (event: TouchEvent) => {
+    if (isKeyboardTarget(event.target) && !keyboardActive) {
+      scrollSnapshot = captureScrollSnapshot();
+    }
+
     const touch = event.touches[0];
     const x = touch?.clientX ?? 0;
     const y = touch?.clientY ?? 0;
@@ -120,9 +145,18 @@ export function startIOSPwaGuards() {
   };
 
   const resetRootScroll = () => {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    const rootLeft = scrollSnapshot?.rootLeft ?? 0;
+    const rootTop = scrollSnapshot?.rootTop ?? 0;
+
+    window.scrollTo(rootLeft, rootTop);
+    document.documentElement.scrollLeft = rootLeft;
+    document.documentElement.scrollTop = rootTop;
+    document.body.scrollLeft = rootLeft;
+    document.body.scrollTop = rootTop;
+    scrollSnapshot?.entries.forEach(({ element, scrollLeft, scrollTop }) => {
+      element.scrollLeft = scrollLeft;
+      element.scrollTop = scrollTop;
+    });
   };
 
   const scheduleKeyboardCloseReset = () => {
@@ -134,6 +168,7 @@ export function startIOSPwaGuards() {
         if (delay === keyboardResetDelays[keyboardResetDelays.length - 1]) {
           keyboardClosing = false;
           stableViewportHeight = viewport?.height ?? window.innerHeight;
+          scrollSnapshot = null;
           resetTimerIds = [];
         }
       }, delay)
@@ -142,6 +177,7 @@ export function startIOSPwaGuards() {
 
   const onFocusIn = (event: FocusEvent) => {
     if (!isKeyboardTarget(event.target)) return;
+    scrollSnapshot ??= captureScrollSnapshot();
     stableViewportHeight = viewport?.height ?? window.innerHeight;
     keyboardActive = true;
     keyboardClosing = false;
@@ -157,13 +193,16 @@ export function startIOSPwaGuards() {
   const onViewportChange = () => {
     const nextHeight = viewport?.height ?? window.innerHeight;
     const viewportRecovered =
-      keyboardActive === false &&
       nextHeight >= stableViewportHeight - 12 &&
       lastViewportHeight < nextHeight;
 
     lastViewportHeight = nextHeight;
 
     if (keyboardClosing || viewportRecovered) {
+      if (viewportRecovered && isKeyboardTarget(document.activeElement)) {
+        (document.activeElement as HTMLElement).blur();
+        keyboardActive = false;
+      }
       scheduleKeyboardCloseReset();
       return;
     }

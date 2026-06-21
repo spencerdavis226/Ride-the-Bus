@@ -393,6 +393,7 @@ body {
   margin: 0;
   width: 100%;
   min-width: 320px;
+  height: 100%;
   min-height: 100dvh;
   overflow: hidden;
   touch-action: manipulation;
@@ -415,13 +416,13 @@ select {
 }
 
 .app-shell {
-  height: min(100vh, calc(100dvh + var(--rtb-safe-bottom)));
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 100%;
 }
 
 .safe-screen {
   height: 100%;
-  min-height: 100dvh;
+  min-height: 100%;
   padding-top: env(safe-area-inset-top, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   padding-left: env(safe-area-inset-left, 0px);
