@@ -11,21 +11,13 @@ type ScrollableInfo = {
   element: HTMLElement;
 };
 
-type ScrollSnapshot = {
-  entries: Array<{ element: HTMLElement; scrollLeft: number; scrollTop: number }>;
-  rootLeft: number;
-  rootTop: number;
-};
-
 const scrollableSelector = [
   '.drawer-content',
   '.turn-rail',
   '.overflow-y-auto',
   '[data-scrollable="true"]',
 ].join(',');
-const keyboardTargetSelector = 'input, textarea, select';
 const touchMoveCancelThreshold = 8;
-const keyboardResetDelays = [0, 80, 180, 360];
 
 function isIOSDevice() {
   if (typeof navigator === 'undefined') return false;
@@ -63,45 +55,20 @@ function shouldBlockScrollableBounce(scrollable: ScrollableInfo, currentX: numbe
   return (atTop && deltaY > 0) || (atBottom && deltaY < 0);
 }
 
-function isKeyboardTarget(target: EventTarget | null) {
-  return target instanceof Element && target.matches(keyboardTargetSelector);
-}
-
-function captureScrollSnapshot(): ScrollSnapshot {
-  const entries = Array.from(document.querySelectorAll<HTMLElement>(scrollableSelector)).map((element) => ({
-    element,
-    scrollLeft: element.scrollLeft,
-    scrollTop: element.scrollTop,
-  }));
-
-  return {
-    entries,
-    rootLeft: window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft || 0,
-    rootTop: window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0,
-  };
+function isRigidScrollPhase() {
+  return document.querySelector<HTMLElement>('.app-shell')?.dataset.rigidScroll === 'true';
 }
 
 export function startIOSPwaGuards() {
   if (typeof window === 'undefined' || typeof document === 'undefined' || !isIOSDevice()) return;
 
   const touchState: TouchState = { startX: 0, startY: 0, x: 0, y: 0 };
-  const viewport = window.visualViewport;
-  let stableViewportHeight = viewport?.height ?? window.innerHeight;
-  let keyboardActive = false;
-  let keyboardClosing = false;
-  let lastViewportHeight = stableViewportHeight;
-  let resetTimerIds: number[] = [];
-  let scrollSnapshot: ScrollSnapshot | null = null;
 
   const prevent = (event: Event) => {
     event.preventDefault();
   };
 
   const onTouchStart = (event: TouchEvent) => {
-    if (isKeyboardTarget(event.target) && !keyboardActive) {
-      scrollSnapshot = captureScrollSnapshot();
-    }
-
     const touch = event.touches[0];
     const x = touch?.clientX ?? 0;
     const y = touch?.clientY ?? 0;
@@ -112,6 +79,8 @@ export function startIOSPwaGuards() {
   };
 
   const onTouchMove = (event: TouchEvent) => {
+    if (!isRigidScrollPhase()) return;
+
     if (event.touches.length > 1) {
       event.preventDefault();
       return;
@@ -139,84 +108,9 @@ export function startIOSPwaGuards() {
     touchState.y = currentY;
   };
 
-  const clearResetTimers = () => {
-    resetTimerIds.forEach((timerId) => window.clearTimeout(timerId));
-    resetTimerIds = [];
-  };
-
-  const resetRootScroll = () => {
-    const rootLeft = scrollSnapshot?.rootLeft ?? 0;
-    const rootTop = scrollSnapshot?.rootTop ?? 0;
-
-    window.scrollTo(rootLeft, rootTop);
-    document.documentElement.scrollLeft = rootLeft;
-    document.documentElement.scrollTop = rootTop;
-    document.body.scrollLeft = rootLeft;
-    document.body.scrollTop = rootTop;
-    scrollSnapshot?.entries.forEach(({ element, scrollLeft, scrollTop }) => {
-      element.scrollLeft = scrollLeft;
-      element.scrollTop = scrollTop;
-    });
-  };
-
-  const scheduleKeyboardCloseReset = () => {
-    keyboardClosing = true;
-    clearResetTimers();
-    resetTimerIds = keyboardResetDelays.map((delay) =>
-      window.setTimeout(() => {
-        resetRootScroll();
-        if (delay === keyboardResetDelays[keyboardResetDelays.length - 1]) {
-          keyboardClosing = false;
-          stableViewportHeight = viewport?.height ?? window.innerHeight;
-          scrollSnapshot = null;
-          resetTimerIds = [];
-        }
-      }, delay)
-    );
-  };
-
-  const onFocusIn = (event: FocusEvent) => {
-    if (!isKeyboardTarget(event.target)) return;
-    scrollSnapshot ??= captureScrollSnapshot();
-    stableViewportHeight = viewport?.height ?? window.innerHeight;
-    keyboardActive = true;
-    keyboardClosing = false;
-    clearResetTimers();
-  };
-
-  const onFocusOut = (event: FocusEvent) => {
-    if (!isKeyboardTarget(event.target)) return;
-    keyboardActive = false;
-    scheduleKeyboardCloseReset();
-  };
-
-  const onViewportChange = () => {
-    const nextHeight = viewport?.height ?? window.innerHeight;
-    const viewportRecovered =
-      nextHeight >= stableViewportHeight - 12 &&
-      lastViewportHeight < nextHeight;
-
-    lastViewportHeight = nextHeight;
-
-    if (keyboardClosing || viewportRecovered) {
-      if (viewportRecovered && isKeyboardTarget(document.activeElement)) {
-        (document.activeElement as HTMLElement).blur();
-        keyboardActive = false;
-      }
-      scheduleKeyboardCloseReset();
-      return;
-    }
-
-    if (!keyboardActive) stableViewportHeight = nextHeight;
-  };
-
   document.addEventListener('gesturestart', prevent, { passive: false });
   document.addEventListener('gesturechange', prevent, { passive: false });
   document.addEventListener('gestureend', prevent, { passive: false });
-  document.addEventListener('focusin', onFocusIn);
-  document.addEventListener('focusout', onFocusOut);
   document.addEventListener('touchstart', onTouchStart, { passive: true });
   document.addEventListener('touchmove', onTouchMove, { passive: false });
-  viewport?.addEventListener('resize', onViewportChange);
-  viewport?.addEventListener('scroll', onViewportChange);
 }

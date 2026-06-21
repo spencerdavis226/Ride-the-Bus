@@ -384,6 +384,16 @@ body,
   background-color: var(--rtb-edge-bg);
 }
 
+html.rtb-document-scroll,
+html.rtb-document-scroll body,
+html.rtb-document-scroll #root {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+}
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -420,6 +430,12 @@ select {
   min-height: 100%;
 }
 
+html.rtb-document-scroll .app-shell {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible !important;
+}
+
 .safe-screen {
   height: 100%;
   min-height: 100%;
@@ -428,6 +444,29 @@ select {
   padding-left: env(safe-area-inset-left, 0px);
   background: var(--rtb-background);
   background-color: var(--rtb-edge-bg);
+}
+
+html.rtb-document-scroll .safe-screen {
+  height: auto;
+  min-height: 100dvh;
+}
+
+html.rtb-document-scroll .safe-screen > div {
+  height: auto;
+  min-height: 100dvh;
+}
+
+html.rtb-document-scroll .app-shell[data-phase="setup"] .overflow-y-auto,
+html.rtb-document-scroll .app-shell[data-phase="setup"] .setup-screen,
+html.rtb-document-scroll .app-shell[data-phase="setup"] .setup-table,
+html.rtb-document-scroll .app-shell[data-phase="setup"] .setup-editor {
+  height: auto;
+  overflow: visible !important;
+}
+
+html.rtb-document-scroll .app-shell[data-phase="setup"] .setup-table,
+html.rtb-document-scroll .app-shell[data-phase="setup"] .setup-editor {
+  flex: 0 0 auto;
 }
 
 .theme-poker {
@@ -562,6 +601,11 @@ select {
 
 .app-shell .turn-rail {
   touch-action: pan-x;
+}
+
+html.rtb-document-scroll .app-shell .overflow-y-auto {
+  overscroll-behavior: auto;
+  touch-action: pan-y;
 }
 
 .drawer-content section,

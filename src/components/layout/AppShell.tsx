@@ -37,18 +37,24 @@ export function AppShell({ children }: { children: ReactNode }) {
     const themeClasses = themes.map((theme) => theme.className);
     root.classList.remove(...themeClasses);
     root.classList.add(themeClass);
+    root.classList.toggle('rtb-document-scroll', isSetup);
     root.style.colorScheme =
       state.theme === 'light' || state.theme === 'summer' || state.theme === 'winter' || state.theme === 'spring'
         ? 'light'
         : 'dark';
     return () => {
       root.classList.remove(themeClass);
+      root.classList.remove('rtb-document-scroll');
       root.style.colorScheme = '';
     };
-  }, [state.theme, themeClass]);
+  }, [isSetup, state.theme, themeClass]);
 
   return (
-    <main className={`${themeClass} app-shell h-full overflow-hidden text-[var(--rtb-text)]`}>
+    <main
+      className={`${themeClass} app-shell h-full overflow-hidden text-[var(--rtb-text)]`}
+      data-phase={state.phase}
+      data-rigid-scroll={isSetup ? 'false' : 'true'}
+    >
       <div
         className="landscape-blocker fixed inset-0 z-[70] flex-col items-center justify-center gap-4 bg-[var(--rtb-app-bg)] text-center text-[var(--rtb-text)]"
         role="status"
