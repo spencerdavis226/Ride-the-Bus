@@ -376,7 +376,10 @@
 html,
 body,
 #root {
+  height: 100%;
   min-height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
   background: var(--rtb-background);
   background-color: var(--rtb-edge-bg);
 }
@@ -387,10 +390,23 @@ body,
 }
 
 body {
+  position: fixed;
+  inset: 0;
   margin: 0;
+  width: 100%;
   min-width: 320px;
   min-height: 100dvh;
   overflow: hidden;
+  touch-action: none;
+  -webkit-text-size-adjust: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button,
@@ -529,6 +545,23 @@ select {
 
 .drawer-content {
   color: var(--rtb-text);
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-shell .overflow-y-auto,
+.app-shell .turn-rail {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-shell .overflow-y-auto {
+  touch-action: pan-y;
+}
+
+.app-shell .turn-rail {
+  touch-action: pan-x;
 }
 
 .drawer-content section,
@@ -1337,10 +1370,10 @@ select {
 .table-focus-card {
   position: relative;
   aspect-ratio: 5 / 7;
-  height: min(calc(88% - var(--table-focus-shadow-bottom-gutter)), calc(24rem - var(--table-focus-shadow-bottom-gutter)));
+  height: min(calc(92% - var(--table-focus-shadow-bottom-gutter)), calc(32rem - var(--table-focus-shadow-bottom-gutter)));
   width: auto;
   min-height: 11.5rem;
-  max-width: min(calc(70vw - var(--table-focus-shadow-inline-gutter) * 2), calc(17.5rem - var(--table-focus-shadow-inline-gutter) * 2));
+  max-width: min(calc(74vw - var(--table-focus-shadow-inline-gutter) * 2), calc(30rem - var(--table-focus-shadow-inline-gutter) * 2));
 }
 
 .table-focus-card::before {
@@ -1369,6 +1402,15 @@ select {
   height: 100%;
   width: 100%;
   will-change: transform, opacity;
+}
+
+.table-card-flip {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .table-card-reveal-surface {
@@ -1521,9 +1563,9 @@ select {
 
 @media (min-width: 760px) and (min-height: 760px) {
   .table-focus-card {
-    height: min(calc(90% - var(--table-focus-shadow-bottom-gutter)), calc(28rem - var(--table-focus-shadow-bottom-gutter)));
+    height: min(calc(94% - var(--table-focus-shadow-bottom-gutter)), calc(35rem - var(--table-focus-shadow-bottom-gutter)));
     min-height: 14rem;
-    max-width: min(calc(34vw - var(--table-focus-shadow-inline-gutter) * 2), calc(20rem - var(--table-focus-shadow-inline-gutter) * 2));
+    max-width: min(calc(58vw - var(--table-focus-shadow-inline-gutter) * 2), calc(32rem - var(--table-focus-shadow-inline-gutter) * 2));
   }
 
   .table-map-felt {
@@ -1538,6 +1580,24 @@ select {
     --table-card-gap: clamp(0.34rem, 1.6vw, 0.55rem);
     gap: 0.44rem;
     padding-block: 0.75rem;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 900px) and (min-height: 700px) {
+  .table-turn-content {
+    padding-block: clamp(0.8rem, 1.5vw, 1rem) !important;
+  }
+
+  .table-turn-main {
+    gap: clamp(0.35rem, 1.35vh, 0.72rem) !important;
+  }
+
+  .table-row-title {
+    font-size: clamp(3rem, 6vw, 5.4rem) !important;
+  }
+
+  .table-outcome-slot {
+    --table-result-slot-height: clamp(3.2rem, 6.6dvh, 4.15rem);
   }
 }
 
