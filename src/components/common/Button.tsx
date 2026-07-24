@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'redBlack';
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -16,12 +16,14 @@ const variants: Record<ButtonVariant, string> = {
     'bg-transparent text-[var(--rtb-accent)] font-semibold active:bg-[var(--rtb-surface-soft)]',
   danger:
     'bg-[var(--rtb-danger)] text-[var(--rtb-danger-text)] font-black shadow-[0_2px_18px_var(--rtb-shadow)] active:scale-[0.97] active:shadow-none',
+  redBlack:
+    'bg-[var(--rtb-guess-dark-bg)] text-[var(--rtb-guess-dark-text)] font-black shadow-[inset_0_1px_0_var(--rtb-border)] active:scale-[0.97]',
 };
 
 export function Button({ className = '', variant = 'primary', children, ...props }: ButtonProps) {
   return (
     <button
-      className={`tap-target rounded-2xl px-5 text-center text-sm outline-none transition-[transform,box-shadow] duration-100 focus-visible:ring-2 focus-visible:ring-[var(--rtb-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rtb-app-bg)] disabled:cursor-not-allowed disabled:opacity-40 ${variants[variant]} ${className}`}
+      className={`tap-target rounded-2xl px-5 text-center text-sm outline-none transition-[transform,box-shadow] duration-100 focus-visible:ring-2 focus-visible:ring-[var(--rtb-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rtb-app-bg)] ${variants[variant]} ${className}`}
       {...props}
     >
       {children}
