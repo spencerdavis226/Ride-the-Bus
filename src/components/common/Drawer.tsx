@@ -96,8 +96,21 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
 
   useEffect(() => {
     if (!open) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const selector = 'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])';
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') requestClose();
+      if (event.key !== 'Tab') return;
+      const elements = Array.from(sheetRef.current?.querySelectorAll<HTMLElement>(selector) ?? []);
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !sheetRef.current?.contains(document.activeElement))) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !sheetRef.current?.contains(document.activeElement))) {
+        event.preventDefault();
+        first?.focus();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     const frame = window.requestAnimationFrame(() => {
@@ -109,6 +122,7 @@ export function Drawer({ open, title, children, contentClassName = '', contentMa
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       window.cancelAnimationFrame(frame);
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
   }, [open, requestClose]);
 

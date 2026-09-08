@@ -87,17 +87,31 @@ export function isResumableGameState(value: unknown): value is GameState {
   if (!isRecord(value)) return false;
   if (typeof value.phase !== 'string' || !gamePhases.includes(value.phase as GamePhase)) return false;
   if (value.phase === 'setup') return false;
-  if (!Array.isArray(value.players) || value.players.length < MIN_PLAYER_COUNT || !value.players.every(isPlayer)) {
+  if (!Array.isArray(value.players) || (value.players.length < MIN_PLAYER_COUNT && !(value.phase === 'gameOver' && value.gameOverReason === 'noPlayers')) || !value.players.every(isPlayer)) {
     return false;
   }
+  const queued = value.queuedPlayers ?? [];
+  if (!Array.isArray(queued) || !queued.every(isPlayer) || queued.some(player => player.hand.length !== 0)) return false;
+  const allPlayers = [...value.players, ...queued] as Player[];
+  if (new Set(allPlayers.map(player => player.id)).size !== allPlayers.length) return false;
+  if (value.nextPlayerId !== undefined && (!Number.isSafeInteger(value.nextPlayerId) || (value.nextPlayerId as number) <= Math.max(0, ...allPlayers.map(player => Number(player.id.replace('player-', '')) || 0)))) return false;
   if (!isSettings(value.settings)) return false;
   if (!Array.isArray(value.shoe) || !value.shoe.every(isCard)) return false;
   if (!isDealState(value.deal)) return false;
+  if (value.phase === 'deal' && (!Number.isInteger(value.deal.playerIndex) || value.deal.playerIndex < 0 || value.deal.playerIndex >= value.players.length)) return false;
   if (!isTableState(value.table)) return false;
   if (!Array.isArray(value.log)) return false;
   if (typeof value.phaseOneTwoDecks !== 'number') return false;
 
+  if (value.bus !== null && value.bus !== undefined && !isBusState(value.bus)) return false;
   if (value.phase === 'bus' && !isBusState(value.bus)) return false;
+  if (value.phase === 'bus' && isBusState(value.bus)) {
+    const ids = value.bus.riders.map(player => player.id);
+    const activeIds = new Set((value.players as Player[]).map(player => player.id));
+    if (!ids.length || new Set(ids).size !== ids.length || ids.some(id => !activeIds.has(id))) return false;
+  }
+  if (value.gameOverReason === 'noPlayers' && (value.phase !== 'gameOver' || value.players.length !== 0)) return false;
+  if (value.gameOverReason === 'ridersLeft' && (value.phase !== 'gameOver' || !isBusState(value.bus) || value.bus.riders.length !== 0)) return false;
   if (value.phase === 'busIntro' && value.bus !== null && !isBusState(value.bus)) return false;
 
   return true;

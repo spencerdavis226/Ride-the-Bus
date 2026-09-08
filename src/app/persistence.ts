@@ -1,5 +1,5 @@
 import { chooseTheme, defaultSettings } from '../game/engine';
-import type { GameState, Settings } from '../game/state';
+import type { GameState, Settings, UndoSnapshot } from '../game/state';
 import { isThemeId } from '../styles/themes';
 import { makeInitialState } from './reducer';
 import { ACTIVE_GAME_KEY, SETTINGS_KEY } from './storageKeys';
@@ -7,9 +7,22 @@ import { isResumableGameState } from './validateGameState';
 
 export function normalizeLoadedGame(state: GameState): GameState {
   const settings = normalizeSettings(state.settings);
+  let undo: UndoSnapshot | null = null;
+  if (state.undo && isResumableGameState(state.undo)) {
+    const { undo: _undo, ...snapshot } = normalizeLoadedGame({ ...state.undo, undo: null });
+    undo = snapshot;
+  }
+  const queuedPlayers = state.queuedPlayers ?? [];
+  const nextPlayerId = state.nextPlayerId ?? [...state.players, ...queuedPlayers].reduce(
+    (next, player) => Math.max(next, (Number(player.id.replace('player-', '')) || 0) + 1),
+    1
+  );
   return {
     ...state,
     settings,
+    queuedPlayers,
+    nextPlayerId,
+    undo,
     theme: chooseTheme(settings.themePreference),
     deal: {
       ...state.deal,

@@ -277,6 +277,8 @@ export function createSetupState(settings: Settings = defaultSettings): GameStat
   return {
     phase: 'setup',
     players: namesToPlayers(playerNames),
+    queuedPlayers: [],
+    nextPlayerId: playerNames.length + 1,
     settings: normalizedSettings,
     phaseOneTwoDecks: calculatePhaseOneTwoDecks(playerNames.length),
     shoe: [],
@@ -311,6 +313,8 @@ export function startGame(settings: Settings, rng: () => number = Math.random): 
   return {
     phase: 'deal',
     players: namesToPlayers(playerNames),
+    queuedPlayers: [],
+    nextPlayerId: playerNames.length + 1,
     settings: { ...settings, playerNames },
     phaseOneTwoDecks,
     shoe,
@@ -404,6 +408,10 @@ export function continueDeal(state: GameState): GameState {
     });
   }
 
+  return beginTable(state);
+}
+
+export function beginTable(state: GameState): GameState {
   if (state.shoe.length < 11) return gameOverDeckExhausted(state);
   const tableBuild = createTableFromShoe(state.shoe);
   return stamp({

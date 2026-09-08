@@ -18,14 +18,15 @@ export function GameOverScreen() {
   const emptyBus = state.gameOverReason === 'emptyBus';
   const exhausted = state.gameOverReason === 'deckExhausted';
   const escapedViaSame = state.gameOverReason === 'escaped' && Boolean(bus?.escapedViaSame);
-  const showConfetti = !exhausted && !emptyBus;
+  const departure = state.gameOverReason === 'noPlayers' || state.gameOverReason === 'ridersLeft';
+  const showConfetti = state.gameOverReason === 'escaped';
 
-  const title = emptyBus
+  const title = departure ? 'Match ended.' : emptyBus
     ? 'No one rides.'
     : exhausted
       ? 'Deck ran out.'
       : 'They escaped.';
-  const subtitle = emptyBus
+  const subtitle = departure ? (state.gameOverReason === 'noPlayers' ? 'Everyone has left the match.' : 'All riders have left the bus.') : emptyBus
     ? 'The bus left empty.'
     : exhausted
       ? 'Single-deck bus mode ended the ride early.'
@@ -59,7 +60,7 @@ export function GameOverScreen() {
             <p className="bus-mode-line game-over-subtitle">{subtitle}</p>
           </motion.div>
 
-          {!emptyBus && (
+          {!emptyBus && (!departure || bus) && (
             <BusTotals animate={false} className="game-over-totals" drinksEach={drinksEach} />
           )}
         </div>

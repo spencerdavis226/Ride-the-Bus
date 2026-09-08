@@ -41,6 +41,15 @@ requiredCards = players.length * 4 + 11
 phaseOneTwoDecks = Math.ceil(requiredCards / 52)
 ```
 
+During a match, the Players drawer supports joining and leaving:
+
+- Deal arrivals receive cards for completed rounds without awards or penalties, then guess at the end of the current round.
+- Table arrivals receive four cards; ranks already revealed are removed without retroactive awards.
+- From Bus introduction onward, arrivals are queued for the next match.
+- Departing players take their remaining cards out of play. Bus riders are recalculated before starting; after starting, departing riders are not replaced.
+- Joining reserves unfinished hands plus the 11-card table during Deal, or four cards during Table. If needed, complete decks with new card IDs are shuffled into only the undrawn shoe. Decks never shrink and discarded cards never return.
+- Roster changes clear gameplay undo. Empty rosters and departing final Bus riders end the match without an escape celebration.
+
 The Bus always starts with a fresh shuffled single 52-card deck. Riders escape after four correct bus guesses in a row, or immediately after a correct Same on card 2 or 3. In single-deck mode, the bus stops if cards run out before the riders escape. In endless mode, only The Bus may refresh into another fresh single deck.
 
 Drink values are stored as units so a future points or non-drinking mode can reuse the same engine.

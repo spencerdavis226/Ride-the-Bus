@@ -123,11 +123,13 @@ export type BusState = {
   awaitingContinue: boolean;
 };
 
-export type GameOverReason = 'escaped' | 'emptyBus' | 'deckExhausted';
+export type GameOverReason = 'escaped' | 'emptyBus' | 'deckExhausted' | 'noPlayers' | 'ridersLeft';
 
 export type GameState = {
   phase: GamePhase;
   players: Player[];
+  queuedPlayers: Player[];
+  nextPlayerId: number;
   settings: Settings;
   phaseOneTwoDecks: number;
   shoe: Card[];

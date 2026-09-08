@@ -1,3 +1,4 @@
+import { PlayersMenu } from '../players/PlayersMenu';
 import { AnimatePresence, LayoutGroup, MotionConfig, motion, type Transition } from 'framer-motion';
 import { BookOpen, History, House } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -61,11 +62,12 @@ export function PlayTopBar({
           <BookOpen size={21} strokeWidth={2.25} />
         </IconButton>
       </div>
-      <p className="pointer-events-none absolute left-1/2 max-w-[48vw] -translate-x-1/2 truncate text-center text-[0.82rem] font-black uppercase tracking-[0.2em] text-[var(--rtb-text-muted)]">
+      <p className="pointer-events-none min-w-0 flex-1 truncate px-1 text-center text-[0.72rem] font-black uppercase tracking-[0.2em] text-[var(--rtb-text-muted)]">
         Ride the Bus
       </p>
       <div className="ml-auto flex shrink-0">
         {rightActions}
+        <PlayersMenu />
         {showLog && onLog && (
           <IconButton ghost label="History" onClick={onLog}>
             <History size={21} strokeWidth={2.25} />

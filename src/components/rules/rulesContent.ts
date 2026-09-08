@@ -41,6 +41,8 @@ export const rulesByPhase: Record<RulesPhase, RulesPhaseContent> = {
     rules: [
       { text: 'Right guess → Give drinks.', tone: 'correct' },
       { text: 'Wrong guess → Take drinks.', tone: 'incorrect' },
+      { text: 'Join from Players: catch up on past rounds without awards, then guess at the end of this round.' },
+      { text: 'Players can leave anytime. Their cards leave play; extra decks join only the undrawn shoe when needed.' },
     ],
   },
   table: {
@@ -49,6 +51,7 @@ export const rulesByPhase: Record<RulesPhase, RulesPhaseContent> = {
       { text: 'Matching rank in someone\'s hand? It auto-plays that row.' },
       { text: 'Give drinks equal to the row number.' },
       { text: 'Most cards left → rides the bus together.' },
+      { text: 'Late arrivals get four cards. Earlier revealed ranks are removed without awards; play continues from here.' },
     ],
   },
   bus: {
@@ -57,6 +60,7 @@ export const rulesByPhase: Record<RulesPhase, RulesPhaseContent> = {
       { text: 'Call Same on card 2 or 3 → off immediately.', tone: 'correct' },
       { text: 'Miss → drinks and back to card 1.', tone: 'incorrect' },
       { text: 'Fresh 52-card deck (endless reshuffles when needed).' },
+      { text: 'New arrivals join the next match. Riders may leave; once the Bus starts, they are not replaced.' },
     ],
   },
 };

@@ -1,3 +1,4 @@
+import { addPlayer, removePlayer } from '../game/roster';
 import {
   applyBusGuess,
   applyDealGuess,
@@ -19,6 +20,8 @@ import { clearSavedGame } from './persistence';
 
 export type GameAction =
   | { type: 'HYDRATE'; state: GameState }
+  | { type: 'ADD_PLAYER'; name: string }
+  | { type: 'REMOVE_PLAYER'; playerId: string }
   | { type: 'SETUP_SET_PLAYERS'; names: string[] }
   | { type: 'SETUP_SET_BUS_MODE'; mode: BusMode }
   | { type: 'START_GAME' }
@@ -40,6 +43,10 @@ export function makeInitialState(settings: Settings = defaultSettings): GameStat
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
+    case 'ADD_PLAYER':
+      return addPlayer(state, action.name);
+    case 'REMOVE_PLAYER':
+      return removePlayer(state, action.playerId);
     case 'HYDRATE':
       return action.state;
     case 'SETUP_SET_PLAYERS':
@@ -97,10 +104,9 @@ function withUndo(previous: GameState, next: GameState): GameState {
 }
 
 function settingsFromPlayers(state: GameState): Settings {
-  if (!state.players.length) return state.settings;
   return {
     ...state.settings,
-    playerNames: normalizeSetupPlayerNames(state.players.map((player) => player.name))
+    playerNames: normalizeSetupPlayerNames([...state.players, ...state.queuedPlayers].map((player) => player.name))
   };
 }
 
